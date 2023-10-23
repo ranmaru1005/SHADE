@@ -45,7 +45,7 @@ class Graph:
             self.ax.xaxis.set_major_formatter(FormatStrFormatter("%d"))
             self.ax.xaxis.set_minor_formatter(FormatStrFormatter("%d"))
             self.ax.xaxis.set_major_locator(AutoLocator())
-            self.ax.set_ylim([-60, 0])
+            self.ax.set_ylim([-100, 0])
         plt.legend(loc="upper center", fontsize=12, frameon=False)
         #
         # plt.legend(loc="lower right", ncol=2)
