@@ -195,6 +195,12 @@ def optimize(
         K_list[m] = K
         E_list[m] = E
         analyze_score = 0.0
+        if E < 12 and m == 30:                #20231205 additon by naganuma
+            print("It ends because E is low")
+            break
+        else:
+            pass
+            
         if E > 10:
             for L_error_rate, K_error_rate in zip([0.01, 0.1, 1, 10], [1, 10, 100]):
                 analyze_result = analyze(
