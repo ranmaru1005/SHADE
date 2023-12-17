@@ -107,11 +107,11 @@ def calc_min_N(
     return min_ring_length_ * n_eff_ / center_wavelength_
 
 
-def calculate_x(center_wavelength: float, FSR: np.float_) -> npt.NDArray[np.float_]:
+def calculate_x(center_wavelength: float, FSR: np.float_) -> npt.NDArray[np.float_]:    #ここは行列計算に必要なxの範囲を指定する部分
     center_wavelength_ = np.float_(center_wavelength)
     return np.hstack(
         (
-            np.arange(center_wavelength_ - FSR / 2, center_wavelength_, 1e-12),
+            np.arange(center_wavelength_ - FSR / 2, center_wavelength_, 1e-12),        
             np.arange(center_wavelength_, center_wavelength_ + FSR / 2, 1e-12),
         )
     )
