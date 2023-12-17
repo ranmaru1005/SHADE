@@ -195,7 +195,7 @@ def optimize(
         K_list[m] = K
         E_list[m] = E
         analyze_score = 0.0
-        if E < 12 and m == 30:                #20231205 additon by naganuma
+        if E < 10 and m == 30:                #20231205 additon by naganuma
             print("It ends because E is low")
             break
         else:
