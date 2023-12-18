@@ -95,7 +95,7 @@ def optimize_K(
 def optimize_K(
     eta: float,
     number_of_rings: int,
-    rng = None,
+    rng: np.random.Generator,
     params: OptimizeKParams,
 ) -> tuple[npt.NDArray[np.float_], float]:
     bounds = [(1e-12, eta) for _ in range(number_of_rings + 1)]
