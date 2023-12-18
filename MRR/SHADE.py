@@ -1,12 +1,12 @@
 import numpy as np
 
-def SHADE(func, bounds, pop_size=15, max_iter=1000, F=0.5, cr=0.7,  ftol=10**-8, callback=None, rng=None):
+def SHADE(func, bounds, params, pop_size=20, max_iter=1000, F=0.5, cr=0.7,  ftol=10**-8, callback=None, rng=None):
     if rng is None:
         rng = np.random.default_rng()
 
     xdim = len(bounds)      #最適化する変数の個数(結合率の数を入力することになる)
     populations = rng.uniform(low=bounds[:, 0], high=bounds[:, 1], size=(pop_size, xdim))       #解候補の初期配置、boundsの最小値~最大値の中からランダムで数値を決定し、初期解の個数(pop_size)分だけ生成
-    obj_list = [func(pop) for pop in populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
+    obj_list = [func(pop, params) for pop in populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
     best_x = populations[np.argmin(obj_list)]       #最もよい評価を得た際の解を記録
     best_obj = min(obj_list)        #最もよい評価を得た際の評価を記録する
     prev_obj = best_obj     #最もよい評価を今後比較のために記録する
@@ -18,7 +18,7 @@ def SHADE(func, bounds, pop_size=15, max_iter=1000, F=0.5, cr=0.7,  ftol=10**-8,
 
             trial = crossover(mutated, populations[j], xdim, cr, rng)
 
-            obj_list, populations = selection(func, j, obj_list, populations, trial)
+            obj_list, populations = selection(func, params, j, obj_list, populations, trial)
         
         best_obj = min(obj_list)        #解候補を更新し、そのたびに最高の評価値がある場合は更新
         best_x = populations[np.argmin(obj_list)]       #最高の評価値が更新された場合用に記述、その解を記録
@@ -32,7 +32,7 @@ def SHADE(func, bounds, pop_size=15, max_iter=1000, F=0.5, cr=0.7,  ftol=10**-8,
             callback(i, best_x, best_obj, populations)
 
     
-    return best_x, best_obj
+    return best_x, best_obj     #best_x➡最適化が終わったK, best_obj➡最適化が終わったE
     
 
 
@@ -58,8 +58,8 @@ def crossover(mutated , target, dims, cr, rng):
     return trial
     
 
-def selection(func, j, obj_list, populations, trial):
-    obj_trial = func(trial)     #交叉によって生成された解候補(pop_size分だけある)の評価値を計算する
+def selection(func, params, j, obj_list, populations, trial):
+    obj_trial = func(trial, params)     #交叉によって生成された解候補(pop_size分だけある)の評価値を計算する
     if obj_trial < obj_list[j]:     #交叉によって生成された解候補が現在のものより優れていた場合、更新する。
         populations[j] = trial
         obj_list[j] = obj_trial
