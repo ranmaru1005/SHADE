@@ -112,7 +112,7 @@ def optimize_K(
                    rng = None
                   )
     
-    E: float = result[1]
+    E: float = -result[1]
     K: npt.NDArray[np.float_] = result[0]
 
     return K, E
