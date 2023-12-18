@@ -98,7 +98,7 @@ def optimize_K(
     rng: np.random.Generator,
     params: OptimizeKParams,
 ) -> tuple[npt.NDArray[np.float_], float]:
-    bounds = [(1e-12, eta) for _ in range(number_of_rings + 1)]
+    bounds = np.array([(1e-12, eta) for _ in range(number_of_rings + 1)])
 
     result = SHADE(optimize_K_func, 
                    bounds, 
