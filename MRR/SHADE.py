@@ -44,7 +44,7 @@ def SHADE(func, bounds, params, pop_size=20, max_iter=1000, F=0.5, cr=0.7,  ftol
 def mutation(F, bounds, j, pop_size, best_x, populations, rng):
     indexes = [i for i in range(pop_size) if i != j]        #jは現在選んでいる解。それ以外の番号を指定しているインデックスを作成
     a,b = populations[rng.choice(indexes, 2, replace = False)]        #現在選んでいる解以外から2つを選ぶ。
-    muteted = populations[j] + F * (best_x - populations[j]) + F * (a - b)       #突然変異を表す式。「要改変」➡現在はカレントトゥベスト➡最終的にはカレントトゥピーベストにする
+    mutated = populations[j] + F * (best_x - populations[j]) + F * (a - b)       #突然変異を表す式。「要改変」➡現在はカレントトゥベスト➡最終的にはカレントトゥピーベストにする
     mutated = np.clip(mutated, bounds[:, 0], bounds[:, 1])      #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
 
     return mutated
