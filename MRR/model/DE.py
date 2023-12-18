@@ -65,7 +65,7 @@ class OptimizeKParams:
     r_max: float
     weight: list[float]
 
-
+"""    もともとのプログラムはこれ。
 def optimize_K(
     eta: float,
     number_of_rings: int,
@@ -87,6 +87,32 @@ def optimize_K(
     )
     E: float = -result.fun
     K: npt.NDArray[np.float_] = result.x
+
+    return K, E
+
+"""
+
+def optimize_K(
+    eta: float,
+    number_of_rings: int,
+    rng = None,
+    params: OptimizeKParams,
+) -> tuple[npt.NDArray[np.float_], float]:
+    bounds = [(1e-12, eta) for _ in range(number_of_rings + 1)]
+
+    result = SHADE(optimize_K_func, 
+                   bounds, 
+                   popsize=20, 
+                   max_iter = 1000, 
+                   F = 0.5, 
+                   cr = 0.7, 
+                   ftol = 10**-8, 
+                   callback = None, 
+                   rng
+                  )
+    
+    E: float = result[1]
+    K: npt.NDArray[np.float_] = result[0]
 
     return K, E
 
