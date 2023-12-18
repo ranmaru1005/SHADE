@@ -108,7 +108,7 @@ def optimize_K(
                    cr = 0.7, 
                    ftol = 10**-8, 
                    callback = None, 
-                   rng
+                   rng = None
                   )
     
     E: float = result[1]
