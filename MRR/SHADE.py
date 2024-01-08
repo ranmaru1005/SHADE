@@ -4,6 +4,7 @@ from multiprocessing import Pool
 def SHADE(func, bounds, params, pop_size=15, max_iter=500, F=0.5, cr=0.7,  ftol=10**-8, callback=None, rng=None):
     if rng is None:
         rng = np.random.default_rng()
+    RNG = rng
 
     xdim = len(bounds)      #最適化する変数の個数(結合率の数を入力することになる)
     populations = rng.uniform(low=bounds[:, 0], high=bounds[:, 1], size=(pop_size, xdim))       #解候補の初期配置、boundsの最小値~最大値の中からランダムで数値を決定し、初期解の個数(pop_size)分だけ生成
@@ -15,7 +16,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, F=0.5, cr=0.7,  ftol=
     for i in range(max_iter):
         print("test")
         for j in range(pop_size):
-            multparams = [func, bounds, params, j, F, cr, pop_size, best_x, obj_list, populations, populations[j], xdim, rng]
+            multparams = [func, bounds, params, j, F, cr, pop_size, best_x, obj_list, populations, populations[j], xdim, RNG]
         p = Pool(processes=15)
         obj_list, populations = p.map(wrapper_multSHADE,multparams)
         
