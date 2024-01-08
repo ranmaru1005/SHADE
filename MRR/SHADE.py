@@ -14,6 +14,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, F=0.5, cr=0.7,  ftol=
 
     for i in range(max_iter):
         if __name__ == "__main__":
+            print("test")
             for j in range(pop_size):
                 multparams = [func, bounds, params, j, F, cr, pop_size, best_x, obj_list, populations, populations[j], xdim, rng]
             p = Pool(processes=15)
