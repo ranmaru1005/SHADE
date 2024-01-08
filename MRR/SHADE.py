@@ -26,6 +26,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, F=0.5, cr=0.7,  ftol=
                 if abs(prev_obj - best_obj) <= ftol:
                     break       #収束した
                 prev_obj = best_obj     #この記述は収束していない場合に行われる。今までの最高評価を更新する。
+                print(populations)
             
             if callback is not None:
                 callback(i, best_x, best_obj, populations)
