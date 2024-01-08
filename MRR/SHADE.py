@@ -13,24 +13,23 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, F=0.5, cr=0.7,  ftol=
     prev_obj = best_obj     #最もよい評価を今後比較のために記録する
 
     for i in range(max_iter):
-        if __name__ == "__main__":
-            print("test")
-            for j in range(pop_size):
-                multparams = [func, bounds, params, j, F, cr, pop_size, best_x, obj_list, populations, populations[j], xdim, rng]
-            p = Pool(processes=15)
-            obj_list, populations = p.map(wrapper_multSHADE,multparams)
-            
-            best_obj = min(obj_list)        #解候補を更新し、そのたびに最高の評価値がある場合は更新
-            best_x = populations[np.argmin(obj_list)]       #最高の評価値が更新された場合用に記述、その解を記録
+        print("test")
+        for j in range(pop_size):
+            multparams = [func, bounds, params, j, F, cr, pop_size, best_x, obj_list, populations, populations[j], xdim, rng]
+        p = Pool(processes=15)
+        obj_list, populations = p.map(wrapper_multSHADE,multparams)
+        
+        best_obj = min(obj_list)        #解候補を更新し、そのたびに最高の評価値がある場合は更新
+        best_x = populations[np.argmin(obj_list)]       #最高の評価値が更新された場合用に記述、その解を記録
 
-            if best_obj < prev_obj:     #一周ごとに更新後の最高評価と更新前の最高評価を比べる
-                if abs(prev_obj - best_obj) <= ftol:
-                    break       #収束した
-                prev_obj = best_obj     #この記述は収束していない場合に行われる。今までの最高評価を更新する。
-                print(populations)
-            
-            if callback is not None:
-                callback(i, best_x, best_obj, populations)
+        if best_obj < prev_obj:     #一周ごとに更新後の最高評価と更新前の最高評価を比べる
+            if abs(prev_obj - best_obj) <= ftol:
+                break       #収束した
+            prev_obj = best_obj     #この記述は収束していない場合に行われる。今までの最高評価を更新する。
+            print(populations)
+        
+        if callback is not None:
+            callback(i, best_x, best_obj, populations)
 
     
     return best_x, best_obj     #best_x➡最適化が終わったK, best_obj➡最適化が終わったE
