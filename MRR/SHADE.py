@@ -26,7 +26,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
         
         r = random.randint(0,H-1)       #ランダムにメモリHの中から一つ番号を選ぶ。それがその世代が参照する制御パラメータになる。
         P_i = pop_size * random.uniform((2/pop_size), 0.2)     #カレントトゥピーベストのためのP、これで上位いくつまでかを小数で表す。おそらく2~3になる。
-        P_i_int = math.ploor(P_i)       #上記のPを整数に変換。小数を切り捨てることにより上位何位までを指定できるように。
+        P_i_int = math.floor(P_i)       #上記のPを整数に変換。小数を切り捨てることにより上位何位までを指定できるように。
         S_F = np.array([])
         S_CR = np.array([])
         delta_fk = np.array([])
