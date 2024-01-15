@@ -1,5 +1,3 @@
-from re import A
-from tkinter.tix import PopupMenu
 import numpy as np
 import random
 import math
