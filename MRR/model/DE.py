@@ -104,9 +104,8 @@ def optimize_K(
                    bounds, 
                    params, 
                    pop_size=15, 
-                   max_iter = 500, 
-                   F = 0.5, 
-                   cr = 0.7, 
+                   max_iter = 500,
+                   H = 50,
                    ftol = 10**-8, 
                    callback = None, 
                    rng = None
@@ -271,14 +270,12 @@ def optimize(
 
         method_list[m] = method
         best_E_list[m] = best_E
-
-        '''
+        
         if best_E_list[m] < 10 and m == 30:                #20231205 additon by naganuma
             print("It ends because E is low")
             break
         else:
             pass
-        '''
 
     max_index = np.argmax(E_list)
     result_N = N_list[max_index]
