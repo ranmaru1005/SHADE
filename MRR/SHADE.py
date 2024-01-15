@@ -19,7 +19,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
     MCR_para_H = [CR_para] * H     #各解候補のCR,メモリHの数だけ過去のパラメータを保存できる。
     MF_para_H = [F_para] * H       #各解候補のF
     k = 0       #メモリに更新を行った回数を数えるための変数
-    Archive = [ [0.0] * pop_size ] *  xdim    #外部アーカイブ。解候補の数だけ存在する。
+    Archive = [ [0.0] * xdim ] *  pop_size    #外部アーカイブ。解候補の数だけ存在する。
     Archivetimes = 0        #外部アーカイブに更新が入った回数を記録する。アーカイブがあふれるまでカウントを続けさせる。
 
     for i in range(max_iter):
