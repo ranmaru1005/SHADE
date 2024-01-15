@@ -83,9 +83,9 @@ def mutation(MF_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int,
     xpbest = random.choice(xpbest_group)        #G世代の解候補の中から上位N×P番目までの候補から一つを選んだ。
     indexes = [i for i in range(pop_size) if i != j]        #jは現在選んでいる解。それ以外の番号を指定しているインデックスを作成
     a = populations_G[rng.choice(indexes, 1, replace = False)]        #現在選んでいる解以外から1つを選ぶ。
-    b = random.choice[select_populations]       #アーカイブも含めて解候補の中から解を一つ選ぶ。➡「要改変」アーカイブは問題ないが、G世代の解候補から選ぶ際に、jを除いていない。これにより注目しているものと同じ要素を選ぶ可能性がある。
+    b = random.choice(select_populations)       #アーカイブも含めて解候補の中から解を一つ選ぶ。➡「要改変」アーカイブは問題ないが、G世代の解候補から選ぶ際に、jを除いていない。これにより注目しているものと同じ要素を選ぶ可能性がある。
     while b == 0:           #bが0のときは一生新たに選択をする。bがゼロとなるのは埋まっていないアーカイブを選択した場合である。
-        b = random.choice[select_populations]
+        b = random.choice(select_populations)
     mutated = populations_G[j] + Fi * (xpbest - populations_G[j]) + Fi * (a - b)       #突然変異を表す式。「要改変」➡現在はカレントトゥベスト➡最終的にはカレントトゥピーベストにする
     mutated = np.clip(mutated, bounds[:, 0], bounds[:, 1])      #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
 
