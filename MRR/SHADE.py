@@ -79,7 +79,7 @@ def mutation(MF_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int,
             Fi = 1.0
     A = np.array(obj_list_G)
     A_sort_index = np.argsort(A)[::-1]        #ここ二行でobj_list_Gのソートを行っている。評価の良い順に並べ、そのインデックスがリストになっている。
-    xpbest_group = [populations_G[A_sort_index[i]] for i in range(P_i_int-1)]      #G世代の解候補の中から、評価が高いものをP_i_intの数だけ選んだ集合を作る。
+    xpbest_group = [populations_G[A_sort_index[i]] for i in range(P_i_int)]      #G世代の解候補の中から、評価が高いものをP_i_intの数だけ選んだ集合を作る。
     xpbest = random.choice(xpbest_group)        #G世代の解候補の中から上位N×P番目までの候補から一つを選んだ。
     indexes = [i for i in range(pop_size) if i != j]        #jは現在選んでいる解。それ以外の番号を指定しているインデックスを作成
     a = populations_G[rng.choice(indexes, 1, replace = False)]        #現在選んでいる解以外から1つを選ぶ。
@@ -100,6 +100,8 @@ def crossover(mutated , target, dims, MCR_para_H, rng):
         CRi = 0
     p = rng.random(dims)        #0~1の値をランダムにxdimの数だけ生成する
     p[rng.choice([i for i in np.arange(len(p))], 1)] = 0.0      #pの中で一つだけ確定で0にする。こうすることによってcrよりpが小さくなるのが一つ以上できるので、確定で一つはmutatedになる。
+    print("p=",p)
+    print("target[i]=",target)
     trial = [mutated[i] if p[i] < CRi else target[i] for i in range(dims)]       #crよりpが小さい場合はmutated,そうでなければ変更しないようにする。
 
     return trial, CRi      #trialは新たな解候補である。mutatedの一部要素と、従来の注目していた点の要素を持つ。
