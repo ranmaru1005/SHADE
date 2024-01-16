@@ -93,7 +93,7 @@ def mutation(MF_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int,
 
 
 def crossover(mutated , target, dims, MCR_para_H, rng):
-    trial = np.empty([0])
+    trial = np.zeros(len(dims))
     CRi = rng.normal(MCR_para_H,0.316227766)
     print("befor CRi=",CRi)
     if CRi > 1:
@@ -109,10 +109,10 @@ def crossover(mutated , target, dims, MCR_para_H, rng):
     for i in range(dims):        #crよりpが小さい場合はmutated,そうでなければ変更しないようにする。
         if p[i] <= CRi:
             print("p<=CRiなので、mutatedを追加しました。",mutated[0][i])
-            trial = np.concatenate([trial,mutated[0][1]])
+            trial[i] = mutated[0][i]
         else:
             print("p>CRiなので、targetを追加しました。",target[i])
-            trial = np.concatenate([trial,target[i]])
+            trial[i] = target[i]
         print("trial=",trial)      
 
     return trial, CRi      #trialは新たな解候補である。mutatedの一部要素と、従来の注目していた点の要素を持つ。
