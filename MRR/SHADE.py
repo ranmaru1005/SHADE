@@ -125,15 +125,17 @@ def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR,
             Archive[Archivetimes] = populations[j]
             Archivetimes = Archivetimes + 1
 
-        populations[j] = trial
-        obj_list[j] = obj_trial
-        S_F = np.append(S_F, Fi)
-        S_CR = np.append(S_CR, CRi)
         delta_fk_cal = abs(obj_list[j] - obj_trial)
         print("delta_fk_cal(解更新が行われた際の評価値の差の絶対値。必ず解更新がされた個数だけしか要素を持たないはず)=",delta_fk_cal)
         delta_fk = np.append(delta_fk, delta_fk_cal)
         print("delta_fk(解更新が行われた際の評価値の差の絶対値。必ず解更新がされた個数だけしか要素を持たないはず)=",delta_fk)
+        S_F = np.append(S_F, Fi)
+        S_CR = np.append(S_CR, CRi)
 
+        populations[j] = trial
+        obj_list[j] = obj_trial
+        
+        
     else:       #優れていない場合でも、アーカイブに悪いものを保存する。
         if Archivetimes == (len(Archive)-1):
             Archive[random.randint(0, Archivetimes)] = trial
