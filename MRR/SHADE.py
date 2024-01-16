@@ -87,9 +87,7 @@ def mutation(MF_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int,
     while np.all(b == 0.0):           #bが0のときは一生新たに選択をする。bがゼロとなるのは埋まっていないアーカイブを選択した場合である。
         b = random.choice(select_populations)
     mutated = populations_G[j] + Fi * (xpbest - populations_G[j]) + Fi * (a - b)       #突然変異を表す式。「要改変」➡現在はカレントトゥベスト➡最終的にはカレントトゥピーベストにする
-    print("mutatedの形を確認,clip前。mutated=",mutated)
     mutated = np.clip(mutated, bounds[:, 0], bounds[:, 1])      #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
-    print("mutatedの形を確認,clip後。mutated=",mutated)
 
     return mutated, Fi      #mutatedは新たな解候補として生み出されたものであり、populationsと同様に最適化を行う結合率分のリストである。
 
@@ -110,8 +108,8 @@ def crossover(mutated , target, dims, MCR_para_H, rng):
     print("target[i]=",target)
     for i in range(dims):        #crよりpが小さい場合はmutated,そうでなければ変更しないようにする。
         if p[i] <= CRi:
-            print("p<=CRiなので、mutatedを追加しました。",mutated[i])
-            trial.append(mutated[i])
+            print("p<=CRiなので、mutatedを追加しました。",mutated[0][i])
+            trial.append(mutated[0][i])
         else:
             print("p>CRiなので、targetを追加しました。",target[i])
             trial.append(target[i])
