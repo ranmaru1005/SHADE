@@ -39,14 +39,9 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
             obj_list[j], populations[j], S_F, S_CR , delta_fk, Archive = selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes)
         
         if S_F.size !=0 and S_CR.size !=0:
-            print("delta_fk(評価値の差をまとめたもの)=",delta_fk)
-            print("S_F(解更新に成功した際のFを記録したもの)=",S_F)
-            print("S_CR(解更新に成功した際のCR)=",S_CR)
             MF_para_H[k] = ( sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) ) / ( sum( ( delta_fk * S_F ) / sum(delta_fk) ) )
             MCR_para_H[k] = sum( ( delta_fk * S_CR ) / sum(delta_fk) )
             k = k + 1
-            print("MF_para_H=",MF_para_H)
-            print("MCR_para_H=",MCR_para_H)
             print("k=",k)
             if k > (H-1):
                 k = 0
@@ -117,8 +112,7 @@ def crossover(mutated , target, dims, MCR_para_H, rng):
 def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes):
     obj_trial = func(trial, params)     #交叉によって生成された解候補(pop_size分だけある)の評価値を計算する
     if obj_trial < obj_list[j]:     #交叉によって生成された解候補が現在のものより優れていた場合、更新する。
-        print("これが表示されているときは解更新があったことになる。数を数えたらS_CRやdelta_fkと同じになるはず")
-
+        
         if Archivetimes == (len(Archive)-1):        #populations[j]が更新される前にアーカイブに保存する。
             Archive[random.randint(0, Archivetimes)] = trial
         else:
@@ -126,9 +120,8 @@ def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR,
             Archivetimes = Archivetimes + 1
 
         delta_fk_cal = abs(obj_list[j] - obj_trial)
-        print("delta_fk_cal(解更新が行われた際の評価値の差の絶対値。必ず解更新がされた個数だけしか要素を持たないはず)=",delta_fk_cal)
         delta_fk = np.append(delta_fk, delta_fk_cal)
-        print("delta_fk(解更新が行われた際の評価値の差の絶対値。必ず解更新がされた個数だけしか要素を持たないはず)=",delta_fk)
+        
         S_F = np.append(S_F, Fi)
         S_CR = np.append(S_CR, CRi)
 
