@@ -117,6 +117,7 @@ def crossover(mutated , target, dims, MCR_para_H, rng):
 def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes):
     obj_trial = func(trial, params)     #交叉によって生成された解候補(pop_size分だけある)の評価値を計算する
     if obj_trial < obj_list[j]:     #交叉によって生成された解候補が現在のものより優れていた場合、更新する。
+        print("これが表示されているときは解更新があったことになる。数を数えたらS_CRやdelta_fkと同じになるはず")
 
         if Archivetimes == (len(Archive)-1):        #populations[j]が更新される前にアーカイブに保存する。
             Archive[random.randint(0, Archivetimes)] = trial
@@ -129,7 +130,9 @@ def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR,
         S_F = np.append(S_F, Fi)
         S_CR = np.append(S_CR, CRi)
         delta_fk_cal = abs(obj_list - obj_trial)
+        print("delta_fk_cal(解更新が行われた際の評価値の差の絶対値。必ず解更新がされた個数だけしか要素を持たないはず)=",delta_fk_cal)
         delta_fk = np.append(delta_fk, delta_fk_cal)
+        print("delta_fk(解更新が行われた際の評価値の差の絶対値。必ず解更新がされた個数だけしか要素を持たないはず)=",delta_fk)
 
     else:       #優れていない場合でも、アーカイブに悪いものを保存する。
         if Archivetimes == (len(Archive)-1):
