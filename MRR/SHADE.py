@@ -38,7 +38,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
 
             obj_list[j], populations[j], S_F, S_CR , delta_fk, Archive = selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes)
         
-        if np.all(S_F) and np.all(S_CR):
+        if S_F.size !=0 and S_CR.size !=0:
             print("delta_fk(評価値の差をまとめたもの)=",delta_fk)
             print("S_F(解更新に成功した際のFを記録したもの)=",S_F)
             print("S_CR(解更新に成功した際のCR)=",S_CR)
