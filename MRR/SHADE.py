@@ -104,7 +104,7 @@ def crossover(mutated , target, dims, MCR_para_H, rng):
     print("CRi=",CRi)
     print("p=",p)
     print("target[i]=",target)
-    for i in range(dims):
+    for i in range(dims-1):
         trial = [mutated[i] if p[i] < CRi else target[i]]       #crよりpが小さい場合はmutated,そうでなければ変更しないようにする。
         print("trial=",trial)
 
