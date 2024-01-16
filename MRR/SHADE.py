@@ -93,8 +93,7 @@ def mutation(MF_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int,
 
 
 def crossover(mutated , target, dims, MCR_para_H, rng):
-    triallen = len(dims)
-    trial = np.zeros(triallen)
+    trial = np.zeros(dims)
     CRi = rng.normal(MCR_para_H,0.316227766)
     print("befor CRi=",CRi)
     if CRi > 1:
