@@ -38,7 +38,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
 
             obj_list[j], populations[j], S_F, S_CR , delta_fk, Archive = selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes)
         
-        if S_F and S_CR:
+        if np.all(S_F) and np.all(S_CR):
             MF_para_H[k] = ( sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) ) / ( sum( ( delta_fk * S_F ) / sum(delta_fk) ) )
             MCR_para_H[k] = sum( ( delta_fk * S_CR ) / sum(delta_fk) )
             k = k + 1
@@ -95,25 +95,18 @@ def mutation(MF_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int,
 def crossover(mutated , target, dims, MCR_para_H, rng):
     trial = np.zeros(dims)
     CRi = rng.normal(MCR_para_H,0.316227766)
-    print("befor CRi=",CRi)
     if CRi > 1:
         CRi = 1
     elif CRi < 0:
         CRi = 0
     p = rng.random(dims)        #0~1の値をランダムにxdimの数だけ生成する
     p[rng.choice([i for i in np.arange(len(p))], 1)] = 0      #pの中で一つだけ確定で0にする。こうすることによってcrよりpが小さくなるのが一つ以上できるので、確定で一つはmutatedになる。
-    print("mutated=",mutated)
-    print("CRi=",CRi)
-    print("p=",p)
-    print("target[i]=",target)
+    
     for i in range(dims):        #crよりpが小さい場合はmutated,そうでなければ変更しないようにする。
         if p[i] <= CRi:
-            print("p<=CRiなので、mutatedを追加しました。",mutated[0][i])
             trial[i] = mutated[0][i]
         else:
-            print("p>CRiなので、targetを追加しました。",target[i])
             trial[i] = target[i]
-        print("trial=",trial)      
 
     return trial, CRi      #trialは新たな解候補である。mutatedの一部要素と、従来の注目していた点の要素を持つ。
     
