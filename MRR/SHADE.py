@@ -93,6 +93,7 @@ def mutation(MF_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int,
 
 
 def crossover(mutated , target, dims, MCR_para_H, rng):
+    trial = []
     CRi = rng.normal(MCR_para_H,0.316227766)
     if CRi > 1:
         CRi = 1
@@ -104,9 +105,11 @@ def crossover(mutated , target, dims, MCR_para_H, rng):
     print("CRi=",CRi)
     print("p=",p)
     print("target[i]=",target)
-    for i in range(dims-1):
-        trial = [mutated[i] if p[i] < CRi else target[i]]       #crよりpが小さい場合はmutated,そうでなければ変更しないようにする。
-        print("trial=",trial)
+    for i in range(dims):        #crよりpが小さい場合はmutated,そうでなければ変更しないようにする。
+        if p[i] < CRi:
+            trial.append(mutated[i])
+        else:
+            trial.append(target[i])      
 
     return trial, CRi      #trialは新たな解候補である。mutatedの一部要素と、従来の注目していた点の要素を持つ。
     
@@ -134,8 +137,6 @@ def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR,
         else:
             Archive[Archivetimes] = trial
             Archivetimes = Archivetimes + 1
-
-
 
 
     return obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive
