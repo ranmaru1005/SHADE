@@ -100,10 +100,13 @@ def crossover(mutated , target, dims, MCR_para_H, rng):
         CRi = 0
     p = rng.random(dims)        #0~1の値をランダムにxdimの数だけ生成する
     p[rng.choice([i for i in np.arange(len(p))], 1)] = 0      #pの中で一つだけ確定で0にする。こうすることによってcrよりpが小さくなるのが一つ以上できるので、確定で一つはmutatedになる。
+    print("mutated=",mutated)
     print("CRi=",CRi)
     print("p=",p)
     print("target[i]=",target)
-    trial = [mutated[i] if p[i] < CRi else target[i] for i in range(dims)]       #crよりpが小さい場合はmutated,そうでなければ変更しないようにする。
+    for i in range(dims):
+        trial = [mutated[i] if p[i] < CRi else target[i]]       #crよりpが小さい場合はmutated,そうでなければ変更しないようにする。
+        print("trial=",trial)
 
     return trial, CRi      #trialは新たな解候補である。mutatedの一部要素と、従来の注目していた点の要素を持つ。
     
