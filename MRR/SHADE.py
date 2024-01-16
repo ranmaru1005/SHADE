@@ -130,10 +130,10 @@ def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR,
 
         populations[j] = trial
         obj_list[j] = obj_trial
-        S_F = np.append(Fi)
-        S_CR = np.append(CRi)
+        S_F = np.append(S_F, Fi)
+        S_CR = np.append(S_CR, CRi)
         delta_fk_cal = abs(obj_list - obj_trial)
-        delta_fk = np.append(delta_fk_cal)
+        delta_fk = np.append(delta_fk, delta_fk_cal)
 
     else:       #優れていない場合でも、アーカイブに悪いものを保存する。
         if Archivetimes == (len(Archive)-1):
