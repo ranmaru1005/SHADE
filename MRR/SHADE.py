@@ -34,6 +34,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
         delta_fk = np.array([])
 
         if __name__ == "__main__":
+            python("これが見えてたら正しく処理されてる")
             mut_croos_paras = [[MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, target, dims, rng] for j in range(pop_size)]
             p = Pool(processes = 15)
             print(p.map(wrapper_mut_cross, mut_croos_paras))
