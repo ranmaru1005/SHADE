@@ -1,7 +1,7 @@
 import numpy as np
 import random
 import math
-from multproccessing import Pool	#宮崎で追加
+from multiproccessing import Pool	#宮崎で追加
 
 
 def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, callback=None, rng=None):
