@@ -106,7 +106,7 @@ def optimize_K(
                    pop_size=15, 
                    max_iter = 500,
                    H = 50,
-                   ftol = 10**-8, 
+                   tol = 0.01, 
                    callback = None, 
                    rng = None
                   )
