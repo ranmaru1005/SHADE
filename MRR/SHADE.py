@@ -35,12 +35,13 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
 
         
         mut_cross_paras = [[MF_para_H[r], MCR_para_H[r], bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, populations_G[j], xdim, rng] for j in range(pop_size)]
-        p = Pool(processes = 15)
+        p = Pool(processes = xdim)
                   
         tmp = p.map(wrapper_mut_cross, mut_cross_paras) #一時的な答え、この後スライスし、必要なところだけ切り取る
 
+        trial = np.zeros(xdim)
         for i in range(pop_size):
-            trial = tmp[i][0]
+            trial = np.append(trial, tmp[i][0])
         Fi = tmp[0][1]
         CRi = tmp[0][2]
 
@@ -170,7 +171,7 @@ def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR,
     if obj_trial < obj_list[j]:     #交叉によって生成された解候補が現在のものより優れていた場合、更新する。
         
         if Archivetimes == (len(Archive)-1):        #populations[j]が更新される前にアーカイブに保存する。
-            Archive[random.randint(0, Archivetimes)] = trial
+            Archive[random.randint(0, Archivetimes)] = populations[j]
         else:
             Archive[Archivetimes] = populations[j]
             Archivetimes = Archivetimes + 1
