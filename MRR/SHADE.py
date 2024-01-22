@@ -5,7 +5,7 @@ import time
 from multiprocessing import Pool	#宮崎で追加
 
 
-def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-6, callback=None, rng=None):
+def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-4, callback=None, rng=None):
     if rng is None:
         rng = np.random.default_rng()
 
@@ -61,6 +61,9 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-6, 
             k = k + 1
             if k > (H-1):
                 k = 0
+
+        print("MF_para_H = ",MF_para_H)
+        print("MF_para_CR = ", MCR_para_H)
 
         populations_G = populations     #世代Gの最適化が終了したため、世代Gの記録を更新する。
         obj_list_G = obj_list
