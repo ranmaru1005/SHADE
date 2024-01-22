@@ -35,7 +35,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
 
         
         
-        mut_cross_paras = [[MF_para_H[r], MCR_para_H[r], bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, populations_G[j], xdim, rng] for j in range(pop_size)]
+        mut_cross_paras = [[MF_para_H[r], MCR_para_H[r], bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, populations_G[j], xdim, np.random.randint(0, 2 ** 32 -1)] for j in range(pop_size)]
         p = Pool(processes = xdim)
                   
         tmp = list( p.map(wrapper_mut_cross, mut_cross_paras) ) #一時的な答え、この後スライスし、必要なところだけ切り取る
@@ -95,7 +95,8 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
     return best_x, best_obj     #best_x➡最適化が終わったK, best_obj➡最適化が終わったE
     
 
-def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, target, dims, rng):
+def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, target, dims, seed):
+    rng = np.random.default_rng(seed)
     select_populations = Archive + populations_G
     Fi = -1.0
     while Fi <= 0.0:
