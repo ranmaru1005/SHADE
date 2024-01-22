@@ -67,7 +67,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
 
             """
             
-            obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive = selection(func, params, j, obj_list, populations, all_trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes)
+            obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive = selection(func, params, j, obj_list, populations, all_trial[j], Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes)
         
         if S_F.size !=0 and S_CR.size !=0:
             MF_para_H[k] = ( sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) ) / ( sum( ( delta_fk * S_F ) / sum(delta_fk) ) )
@@ -114,6 +114,8 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
     mutated = populations_G[j] + Fi * (xpbest - populations_G[j]) + Fi * (a - b)       #突然変異を表す式。「要改変」➡現在はカレントトゥベスト➡最終的にはカレントトゥピーベストにする
     mutated = np.clip(mutated, bounds[:, 0], bounds[:, 1])      #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
 
+    print(f"Fi = {Fi},j = {j} ")
+
     trial = np.zeros(dims)
     CRi = rng.normal(MCR_para_H,0.316227766)
     if CRi > 1:
@@ -128,6 +130,8 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
             trial[i] = mutated[0][i]
         else:
             trial[i] = target[i]
+    
+    print(f"CRi = {CRi},j = {j} ")
 
     return trial, Fi, CRi      
     
