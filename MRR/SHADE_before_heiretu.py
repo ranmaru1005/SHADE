@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import math
+import time
 from multiprocessing import Pool	#宮崎で追加
 
 
@@ -23,6 +24,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
     k = 0       #メモリに更新を行った回数を数えるための変数
     Archive = [ [0.0] * xdim ] *  pop_size    #外部アーカイブ。解候補の数だけ存在する。
     Archivetimes = 0        #外部アーカイブに更新が入った回数を記録する。アーカイブがあふれるまでカウントを続けさせる。
+    time_sta = time.perf_counter()      #時間計測開始
 
     for i in range(max_iter):
         
@@ -61,7 +63,10 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
         
         if callback is not None:
             callback(i, best_x, best_obj, populations)
-
+        
+        time_end = time.perf_counter()
+        tim = time_end - time_sta
+        print("現在の経過時間は",tim)
     
     return best_x, best_obj     #best_x➡最適化が終わったK, best_obj➡最適化が終わったE
     
