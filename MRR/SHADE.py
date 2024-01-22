@@ -5,7 +5,7 @@ import time
 from multiprocessing import Pool	#宮崎で追加
 
 
-def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-4, callback=None, rng=None):
+def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, callback=None, rng=None):
     if rng is None:
         rng = np.random.default_rng()
 
@@ -74,7 +74,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-4, 
 
         if best_obj < prev_obj:     #一周ごとに更新後の最高評価と更新前の最高評価を比べる
             print("どの程度収束しているか",prev_obj - best_obj)
-            if abs(prev_obj - best_obj) <= ftol:
+            if np.std(obj_list) <= tol * np.abs(np.mean(obj_list)):     #用検討。収束方法を検討
                 break       #収束した
             prev_obj = best_obj     #この記述は収束していない場合に行われる。今までの最高評価を更新する。
         
