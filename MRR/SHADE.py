@@ -38,9 +38,8 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
         p = Pool(processes = xdim)
                   
         tmp = list( p.map(wrapper_mut_cross, mut_cross_paras) ) #一時的な答え、この後スライスし、必要なところだけ切り取る
-
-
-        trial = np.zeros(xdim)
+        
+        trial = np.zeros(pop_size)
         for i in range(pop_size):
             trial[i] = tmp[i][0]
         Fi = tmp[0][1]
