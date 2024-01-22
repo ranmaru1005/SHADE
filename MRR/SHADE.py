@@ -45,7 +45,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
         Fi = tmp[0][1]
         CRi = tmp[0][2]
 
-        print("trial = ", trial)
+        print("trial = ", all_trial)
         print("Fi = ", Fi)
         print("CRi = ", CRi)
 
