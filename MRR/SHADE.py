@@ -42,10 +42,11 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
         all_trial = np.zeros((pop_size, xdim))
         for i in range(pop_size):
             all_trial[i] = tmp[i][0]
+
         Fi = tmp[0][1]
         CRi = tmp[0][2]
 
-        print("trial = ", all_trial)
+        print("all_trial = ", all_trial)
         print("Fi = ", Fi)
         print("CRi = ", CRi)
 
