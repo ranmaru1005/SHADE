@@ -55,6 +55,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-6, 
         for j in range(pop_size):
             obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive = selection(func, params, j, obj_list_G, populations_G, all_trial[j], all_Fi[j], all_CRi[j], S_F, S_CR, delta_fk, Archive, Archivetimes)
         
+        print("S_FとS_CRの確認(S_Fのみ)",S_F)
         if S_F.size !=0 and S_CR.size !=0:
             MF_para_H[k] = ( sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) ) / ( sum( ( delta_fk * S_F ) / sum(delta_fk) ) )
             MCR_para_H[k] = sum( ( delta_fk * S_CR ) / sum(delta_fk) )
