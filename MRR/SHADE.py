@@ -49,9 +49,6 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
             all_CRi[i] = tmp[i][2]
 
         
-        print("all_trial = ", all_trial)
-        print("all_Fi = ", all_Fi)
-        print("all_CRi = ", all_CRi)
 
         
 
@@ -132,7 +129,7 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
 
     return trial, Fi, CRi      
     
-    
+
 def wrapper_mut_cross(args):
     return mut_cross(*args)
 
