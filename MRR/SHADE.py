@@ -48,11 +48,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
         print("Fi = ", Fi)
         print("CRi = ", CRi)
 
-        print(adhs)
-
-        
-
-        
+                
         for j in range(pop_size):
             """
             mutated, Fi = mutation(MF_para_H[r], bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, rng)
