@@ -69,14 +69,20 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-6, 
         best_obj = min(obj_list)        #解候補を更新し、そのたびに最高の評価値がある場合は更新
         best_x = populations[np.argmin(obj_list)]       #最高の評価値が更新された場合用に記述、その解を記録
 
-        print("どの程度収束しているか",prev_obj - best_obj)
+        print("現在の最高値　　　= ", best_obj)
+        print("この世代の最高評価= ", prev_obj)
+
+
         if best_obj < prev_obj:     #一周ごとに更新後の最高評価と更新前の最高評価を比べる
+            print("どの程度収束しているか",prev_obj - best_obj)
             if abs(prev_obj - best_obj) <= ftol:
                 break       #収束した
             prev_obj = best_obj     #この記述は収束していない場合に行われる。今までの最高評価を更新する。
         
         if callback is not None:
             callback(i, best_x, best_obj, populations)
+        
+        
 
         time_end = time.perf_counter()
         tim = time_end - time_sta
