@@ -34,12 +34,13 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
         delta_fk = np.array([])
 
         
-        """
+        
         mut_cross_paras = [[MF_para_H[r], MCR_para_H[r], bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, populations_G[j], xdim, rng] for j in range(pop_size)]
         p = Pool(processes = xdim)
                   
         tmp = list( p.map(wrapper_mut_cross, mut_cross_paras) ) #一時的な答え、この後スライスし、必要なところだけ切り取る
-        
+        print("tmp = ", tmp)
+
         all_trial = np.zeros((pop_size, xdim))
         for i in range(pop_size):
             all_trial[i] = tmp[i][0]
@@ -52,19 +53,21 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
         print("Fi = ", Fi)
         print("CRi = ", CRi)
 
-        """
+        
 
                 
         for j in range(pop_size):
-            
+            """
             mutated, Fi = mutation(MF_para_H[r], bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, rng)
             print("Fi = ",Fi)
 
             trial, CRi = crossover(mutated, populations_G[j], xdim, MCR_para_H[r], rng)
             print("CRi = ",CRi)
             print("trial = ",trial)
+
+            """
             
-            obj_list[j], populations[j], S_F, S_CR , delta_fk, Archive = selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes)
+            obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive = selection(func, params, j, obj_list, populations, all_trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes)
         
         if S_F.size !=0 and S_CR.size !=0:
             MF_para_H[k] = ( sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) ) / ( sum( ( delta_fk * S_F ) / sum(delta_fk) ) )
