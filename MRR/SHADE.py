@@ -39,9 +39,9 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
                   
         tmp = list( p.map(wrapper_mut_cross, mut_cross_paras) ) #一時的な答え、この後スライスし、必要なところだけ切り取る
         
-        trial = np.zeros((pop_size, xdim))
+        all_trial = np.zeros((pop_size, xdim))
         for i in range(pop_size):
-            trial[i] = tmp[i][0]
+            all_trial[i] = tmp[i][0]
         Fi = tmp[0][1]
         CRi = tmp[0][2]
 
@@ -57,7 +57,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
             trial, CRi = crossover(mutated, populations_G[j], xdim, MCR_para_H[r], rng)
             
             """
-            obj_list[j], populations[j], S_F, S_CR , delta_fk, Archive = selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes)
+            obj_list[j], populations[j], S_F, S_CR , delta_fk, Archive = selection(func, params, j, obj_list, populations, all_trial[j], Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes)
         
         if S_F.size !=0 and S_CR.size !=0:
             MF_para_H[k] = ( sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) ) / ( sum( ( delta_fk * S_F ) / sum(delta_fk) ) )
