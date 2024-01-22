@@ -27,6 +27,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-6, 
     time_sta = time.perf_counter()      #時間計測開始
 
     for i in range(max_iter):
+        print("これは",i,"世代を表している")
         
         r = random.randint(0,H-1)       #ランダムにメモリHの中から一つ番号を選ぶ。それがその世代が参照する制御パラメータになる。
         P_i = pop_size * random.uniform((2/pop_size), 0.2)     #カレントトゥピーベストのためのP、これで上位いくつまでかを小数で表す。おそらく2~3になる。
@@ -45,15 +46,14 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-6, 
         all_trial = np.zeros((pop_size, xdim))
         all_Fi = np.zeros(pop_size)
         all_CRi = np.zeros(pop_size)
-        for i in range(pop_size):
-            all_trial[i] = tmp[i][0]
-            all_Fi[i] = tmp[i][1]
-            all_CRi[i] = tmp[i][2]
+        for I in range(pop_size):
+            all_trial[I] = tmp[I][0]
+            all_Fi[I] = tmp[I][1]
+            all_CRi[I] = tmp[I][2]
 
                 
         for j in range(pop_size):
-            
-            obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive = selection(func, params, j, obj_list, populations_G, all_trial[j], all_Fi[j], all_CRi[j], S_F, S_CR, delta_fk, Archive, Archivetimes)
+            obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive = selection(func, params, j, obj_list_G, populations_G, all_trial[j], all_Fi[j], all_CRi[j], S_F, S_CR, delta_fk, Archive, Archivetimes)
         
         if S_F.size !=0 and S_CR.size !=0:
             MF_para_H[k] = ( sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) ) / ( sum( ( delta_fk * S_F ) / sum(delta_fk) ) )
