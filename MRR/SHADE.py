@@ -37,11 +37,9 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
         mut_cross_paras = [[MF_para_H[r], MCR_para_H[r], bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, populations_G[j], xdim, rng] for j in range(pop_size)]
         p = Pool(processes = 15)
                   
-        trial, Fi, CRi = p.map(wrapper_mut_cross, mut_cross_paras)
+        print("p.mapの結果", p.map(wrapper_mut_cross, mut_cross_paras))
 
-        print("trial = ",trial)
-        print("Fi = ", Fi)
-        print("CRi = ", CRi)
+        
 
         
         for j in range(pop_size):
