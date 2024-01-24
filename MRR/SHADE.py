@@ -73,7 +73,8 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
 
 
         if best_obj < prev_obj:     #一周ごとに更新後の最高評価と更新前の最高評価を比べる
-            print("どの程度収束しているか",prev_obj - best_obj)
+            print("std(標準偏差？) = ", np.std(obj_list))
+            print("mean(平均) = ", np.mean(obj_list))
             if np.std(obj_list) <= tol * np.abs(np.mean(obj_list)):     #用検討。収束方法を検討
                 break       #収束した
             prev_obj = best_obj     #この記述は収束していない場合に行われる。今までの最高評価を更新する。
