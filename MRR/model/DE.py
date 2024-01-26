@@ -274,12 +274,16 @@ def optimize(
 
         method_list[m] = method
         best_E_list[m] = best_E
+
+        """
         
         if best_E_list[m] < 10 and m == 30:                #20231205 additon by naganuma
             print("It ends because E is low")
             break
         else:
             pass
+
+        """
 
     max_index = np.argmax(E_list)
     result_N = N_list[max_index]
