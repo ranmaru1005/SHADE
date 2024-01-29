@@ -29,7 +29,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
     for i in range(max_iter):
         print("これは",i,"世代を表している")
         
-        r = random.randint(0,H-1)       #ランダムにメモリHの中から一つ番号を選ぶ。それがその世代が参照する制御パラメータになる。
+        r = [random.randint(0,H-1) for i in range(pop_size)]       #ランダムにメモリHの中から一つ番号を選ぶ。それがその世代が参照する制御パラメータになる。
         P_i = pop_size * random.uniform((2/pop_size), 0.2)     #カレントトゥピーベストのためのP、これで上位いくつまでかを小数で表す。おそらく2~3になる。
         P_i_int = math.floor(P_i)       #上記のPを整数に変換。小数を切り捨てることにより上位何位までを指定できるように。
         S_F = np.array([])
@@ -38,7 +38,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
 
         
         
-        mut_cross_paras = [[MF_para_H[r], MCR_para_H[r], bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, populations_G[j], xdim, np.random.randint(0, 2 ** 32 -1)] for j in range(pop_size)]
+        mut_cross_paras = [[MF_para_H[r[j]], MCR_para_H[r[j]], bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, populations_G[j], xdim, np.random.randint(0, 2 ** 32 -1)] for j in range(pop_size)]
         p = Pool(processes = pop_size)
                   
         tmp = list( p.map(wrapper_mut_cross, mut_cross_paras) ) #一時的な答え、この後スライスし、必要なところだけ切り取る
