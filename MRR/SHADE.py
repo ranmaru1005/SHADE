@@ -36,6 +36,8 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
         S_CR = np.array([])
         delta_fk = np.array([])
 
+        print("r = ",r)
+
         
         
         mut_cross_paras = [[MF_para_H[r[j]], MCR_para_H[r[j]], bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, populations_G[j], xdim, np.random.randint(0, 2 ** 32 -1)] for j in range(pop_size)]
@@ -50,6 +52,10 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
             all_trial[I] = tmp[I][0]
             all_Fi[I] = tmp[I][1]
             all_CRi[I] = tmp[I][2]
+        
+        print("Fiを確認する。",all_Fi)
+        print("CRiを確認する",all_CRi)
+
 
                 
         for j in range(pop_size):
@@ -61,6 +67,9 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
             k = k + 1
             if k > (H-1):
                 k = 0
+        print("記録メモリ F = ",MF_para_H)
+        print("記録メモリ CR = ",MCR_para_H)
+        
 
 
         populations_G = populations     #世代Gの最適化が終了したため、世代Gの記録を更新する。
