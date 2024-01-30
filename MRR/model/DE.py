@@ -104,8 +104,8 @@ def optimize_K(
                    bounds, 
                    params, 
                    pop_size=20, 
-                   max_iter = 1000,
-                   H = 20,
+                   max_iter = 2000,
+                   H = 100,
                    tol = 0.01, 
                    callback = None, 
                    rng = None
