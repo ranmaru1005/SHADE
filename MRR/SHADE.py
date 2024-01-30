@@ -62,6 +62,14 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
             obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive = selection(func, params, j, obj_list_G, populations_G, all_trial[j], all_Fi[j], all_CRi[j], S_F, S_CR, delta_fk, Archive, Archivetimes)
         
         if S_F.size !=0 and S_CR.size !=0:
+            print("S_F = ,",S_F)
+            print("計算が正しいか見るため S_F^2 = ",S_F * S_F)
+            print("delta_fk = ",delta_fk)
+            print("sum(delta_fk) = ",sum(delta_fk))
+            print("sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) = ",sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) )
+
+                  
+
             MF_para_H[k] = ( sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) ) / ( sum( ( delta_fk * S_F ) / sum(delta_fk) ) )
             MCR_para_H[k] = sum( ( delta_fk * S_CR ) / sum(delta_fk) )
             k = k + 1
@@ -69,7 +77,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
                 k = 0
         print("記録メモリ F = ",MF_para_H)
         print("記録メモリ CR = ",MCR_para_H)
-        
+
 
 
         populations_G = populations     #世代Gの最適化が終了したため、世代Gの記録を更新する。
@@ -105,7 +113,7 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
     select_populations = Archive + populations_G
     Fi = -1.0
     while Fi <= 0.0:
-        Fi = rng.normal(MF_para_H,0.1)
+        Fi = rng.normal(MF_para_H,math.sqrt(0.1))
         if Fi > 1.0:
             Fi = 1.0
     A = np.array(obj_list_G)
@@ -121,7 +129,7 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
     mutated = np.clip(mutated, bounds[:, 0], bounds[:, 1])      #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
 
     trial = np.zeros(dims)
-    CRi = rng.normal(MCR_para_H,0.1)
+    CRi = rng.normal(MCR_para_H,math.sqrt(0.1))
     if CRi > 1:
         CRi = 1
     elif CRi < 0:
