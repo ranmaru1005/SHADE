@@ -71,7 +71,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
                   
 
             MF_para_H[k] = ( sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) ) / ( sum( ( delta_fk * S_F ) / sum(delta_fk) ) )
-            MCR_para_H[k] = sum( ( delta_fk * S_CR ) / sum(delta_fk) )
+            MCR_para_H[k] = np.average(S_CR, weights = delta_fk)
             k = k + 1
             if k > (H-1):
                 k = 0
