@@ -195,7 +195,7 @@ def optimize(
                 rng=rng,
             )
         
-        L = [
+        L_list = [
         9.299999999999998e-05,
         9.299999999999998e-05,
         9.299999999999998e-05,
@@ -203,6 +203,11 @@ def optimize(
         7.749999999999999e-05,
         7.749999999999999e-05
         ]
+        L = np.empty(len(L_list))
+        for i in range(len(L)):
+            L[i] = L_list[i]
+
+
         
         K, E = optimize_K(
             eta=eta,
