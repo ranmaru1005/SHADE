@@ -65,7 +65,7 @@ class OptimizeKParams:
     r_max: float
     weight: list[float]
 
-"""
+"""    もともとのプログラムはこれ。
 def optimize_K(
     eta: float,
     number_of_rings: int,
@@ -90,7 +90,6 @@ def optimize_K(
 
     return K, E
 
-
 """
 
 def optimize_K(
@@ -106,7 +105,7 @@ def optimize_K(
                    params, 
                    pop_size=20, 
                    max_iter = 1000,
-                   H = 50,
+                   H = 20,
                    tol = 0.01, 
                    callback = None, 
                    rng = None
@@ -116,7 +115,6 @@ def optimize_K(
     K: npt.NDArray[np.float_] = result[0]
 
     return K, E
-
 
 
 def optimize(
@@ -196,6 +194,16 @@ def optimize(
                 number_of_rings=number_of_rings,
                 rng=rng,
             )
+        
+        L = [
+        9.299999999999998e-05,
+        9.299999999999998e-05,
+        9.299999999999998e-05,
+        7.749999999999999e-05,
+        7.749999999999999e-05,
+        7.749999999999999e-05
+        ]
+        
         K, E = optimize_K(
             eta=eta,
             number_of_rings=number_of_rings,
@@ -272,16 +280,12 @@ def optimize(
 
         method_list[m] = method
         best_E_list[m] = best_E
-
-        """
         
         if best_E_list[m] < 10 and m == 30:                #20231205 additon by naganuma
             print("It ends because E is low")
             break
         else:
             pass
-
-        """
 
     max_index = np.argmax(E_list)
     result_N = N_list[max_index]
