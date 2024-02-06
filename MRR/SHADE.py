@@ -73,7 +73,6 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
         obj_list_G = obj_list
         best_obj = min(obj_list)        #解候補を更新し、そのたびに最高の評価値がある場合は更新
         best_x = populations[np.argmin(obj_list)]       #最高の評価値が更新された場合用に記述、その解を記録
-        print("アーカイブが正しいか確認",Archive)
         print("現在の評価値 = ",obj_list_G)
 
 
@@ -106,12 +105,8 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
         if Fi > 1.0:
             Fi = 1.0
     A = np.array(obj_list_G)
-    print("現在の評価値を表示",obj_list_G)
     A_sort_index = np.argsort(A)        #ここ二行でobj_list_Gのソートを行っている。評価の良い順に並べ、そのインデックスがリストになっている。
-    print("評価を良い順に並べている",A_sort_index)
     xpbest_group = [populations_G[A_sort_index[i]] for i in range(P_i_int)]      #G世代の解候補の中から、評価が高いものをP_i_intの数だけ選んだ集合を作る。
-    print("現在の解候補を並べる。次のxpbest_groupと確認",populations_G)
-    print("評価が良いものを上から選択。正しく選べているか確認する",xpbest_group)
     xpbest = random.choice(xpbest_group)        #G世代の解候補の中から上位N×P番目までの候補から一つを選んだ。
     indexes = [i for i in range(pop_size) if i != j]        #jは現在選んでいる解。それ以外の番号を指定しているインデックスを作成
     a = populations_G[rng.choice(indexes, 1, replace = False)]        #現在選んでいる解以外から1つを選ぶ。
