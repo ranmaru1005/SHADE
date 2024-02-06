@@ -73,6 +73,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
         obj_list_G = obj_list
         best_obj = min(obj_list)        #解候補を更新し、そのたびに最高の評価値がある場合は更新
         best_x = populations[np.argmin(obj_list)]       #最高の評価値が更新された場合用に記述、その解を記録
+        print("アーカイブが正しいか確認",Archive)
         print("現在の評価値 = ",obj_list_G)
 
 
