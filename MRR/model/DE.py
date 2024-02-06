@@ -194,7 +194,8 @@ def optimize(
                 number_of_rings=number_of_rings,
                 rng=rng,
             )
-        
+
+        """
         L_list = [
         9.299999999999998e-05,
         9.299999999999998e-05,
@@ -210,6 +211,7 @@ def optimize(
         print("L確認",L)
         print("N確認",N)
 
+        """
 
         
         K, E = optimize_K(
