@@ -65,6 +65,7 @@ class OptimizeKParams:
     r_max: float
     weight: list[float]
 
+"""
     #もともとのプログラムはこれ。
 def optimize_K(
     eta: float,
@@ -90,9 +91,10 @@ def optimize_K(
 
     return K, E
 
-
-
 """
+
+
+
 
 def optimize_K(             #通常のSHADE用
     eta: float,
@@ -106,8 +108,8 @@ def optimize_K(             #通常のSHADE用
                    bounds, 
                    params, 
                    pop_size=15, 
-                   max_iter = 2000,
-                   H = 100,
+                   max_iter = 10000,
+                   H = 50,
                    tol = 0.01, 
                    callback = None, 
                    rng = None
@@ -118,7 +120,7 @@ def optimize_K(             #通常のSHADE用
 
     return K, E
 
-"""
+
 
 """   
 
