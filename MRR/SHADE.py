@@ -53,8 +53,6 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
             all_Fi[I] = tmp[I][1]
             all_CRi[I] = tmp[I][2]
         
-        print("Fiを確認する。",all_Fi)
-        print("CRiを確認する",all_CRi)
 
 
                 
@@ -76,7 +74,6 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
         best_obj = min(obj_list)        #解候補を更新し、そのたびに最高の評価値がある場合は更新
         best_x = populations[np.argmin(obj_list)]       #最高の評価値が更新された場合用に記述、その解を記録
         print("現在の評価値 = ",obj_list_G)
-        print("現在の結合率 = ",populations_G)
 
 
         if best_obj < prev_obj:     #一周ごとに更新後の最高評価と更新前の最高評価を比べる
