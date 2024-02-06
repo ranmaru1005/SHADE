@@ -57,7 +57,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
 
                 
         for j in range(pop_size):
-            obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive = selection(func, params, j, obj_list_G, populations_G, all_trial[j], all_Fi[j], all_CRi[j], S_F, S_CR, delta_fk, Archive, Archivetimes)
+            obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive, Archivetimes = selection(func, params, j, obj_list_G, populations_G, all_trial[j], all_Fi[j], all_CRi[j], S_F, S_CR, delta_fk, Archive, Archivetimes)
         
         if S_F.size !=0 and S_CR.size !=0:
             MF_para_H[k] = ( sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) ) / ( sum( ( delta_fk * S_F ) / sum(delta_fk) ) )
@@ -167,4 +167,4 @@ def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR,
             Archivetimes = Archivetimes + 1
 
 
-    return obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive
+    return obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive, Archivetimes
