@@ -26,7 +26,6 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
     Archivetimes = 0        #外部アーカイブに更新が入った回数を記録する。アーカイブがあふれるまでカウントを続けさせる。
     time_sta = time.perf_counter()      #時間計測開始
 
-    print("Archiveが正しく初期化されているか確認",Archive)
 
     for i in range(max_iter):
         print("これは",i,"世代を表している")
@@ -34,11 +33,11 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
         r = [random.randint(0,H-1) for i in range(pop_size)]       #ランダムにメモリHの中から一つ番号を選ぶ。それがその世代が参照する制御パラメータになる。
         P_i = pop_size * random.uniform((2/pop_size), 0.2)     #カレントトゥピーベストのためのP、これで上位いくつまでかを小数で表す。おそらく2~3になる。
         P_i_int = math.floor(P_i)       #上記のPを整数に変換。小数を切り捨てることにより上位何位までを指定できるように。
+        print("P_i_int = ",P_i_int)
         S_F = np.array([])
         S_CR = np.array([])
         delta_fk = np.array([])
 
-        print("r = ",r)
 
         
         
