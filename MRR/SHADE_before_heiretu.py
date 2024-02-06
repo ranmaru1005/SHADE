@@ -30,14 +30,14 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
         print("これは",i,"世代を表している")
         
         r = rng.integers(H-1, size = pop_size)      #ランダムにメモリHの中から一つ番号を選ぶ。それがその世代が参照する制御パラメータになる。
-        print("バグ特定 r = ",r)
+        
         P_i = pop_size * random.uniform((2/pop_size), 0.2)     #カレントトゥピーベストのためのP、これで上位いくつまでかを小数で表す。おそらく2~3になる。
         P_i_int = math.floor(P_i)       #上記のPを整数に変換。小数を切り捨てることにより上位何位までを指定できるように。
         S_F = np.array([])
         S_CR = np.array([])
         delta_fk = np.array([])
 
-        print("r = ",r)
+        
                 
         for j in range(pop_size):
             mutated, Fi = mutation(MF_para_H[r[j]], bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, rng)
@@ -46,8 +46,6 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
 
             obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive = selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes)
 
-            print("Fi = ",Fi,j)
-            print("CRi = ",CRi,j)
 
         
 
