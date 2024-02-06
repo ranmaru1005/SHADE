@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 import numpy.typing as npt
 from scipy.optimize import differential_evolution
-from MRR.SHADE_before_heiretu import SHADE        #20231219 に追加。　未完成のSHADEの導入
+from MRR.SHADE import SHADE        #20231219 に追加。　未完成のSHADEの導入
 
 from config.random import get_differential_evolution_rng
 from MRR.analyzer import analyze
@@ -194,8 +194,7 @@ def optimize(
                 number_of_rings=number_of_rings,
                 rng=rng,
             )
-
-        """
+        
         L_list = [
         9.299999999999998e-05,
         9.299999999999998e-05,
@@ -211,7 +210,6 @@ def optimize(
         print("L確認",L)
         print("N確認",N)
 
-        """
 
         
         K, E = optimize_K(
