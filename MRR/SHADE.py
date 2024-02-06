@@ -52,10 +52,11 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
             all_trial[I] = tmp[I][0]
             all_Fi[I] = tmp[I][1]
             all_CRi[I] = tmp[I][2]
+
+        print("Fi = ",all_Fi)
+        print("CRi = ",all_CRi)
         
 
-
-                
         for j in range(pop_size):
             obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive, Archivetimes = selection(func, params, j, obj_list_G, populations_G, all_trial[j], all_Fi[j], all_CRi[j], S_F, S_CR, delta_fk, Archive, Archivetimes)
         
