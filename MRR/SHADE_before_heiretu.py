@@ -97,10 +97,8 @@ def mutation(MF_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int,
     A = np.array(obj_list_G)
     A_sort_index = np.argsort(A)[::-1]        #ここ二行でobj_list_Gのソートを行っている。評価の良い順に並べ、そのインデックスがリストになっている。
     xpbest_group = [populations_G[A_sort_index[i]] for i in range(P_i_int)]      #G世代の解候補の中から、評価が高いものをP_i_intの数だけ選んだ集合を作る。
-    print("バグ特定 xpbest_group",xpbest_group)
     xpbest = random.choice(xpbest_group)        #G世代の解候補の中から上位N×P番目までの候補から一つを選んだ。
     indexes = [i for i in range(pop_size) if i != j]        #jは現在選んでいる解。それ以外の番号を指定しているインデックスを作成
-    print("バグ特定 index",indexes)
     a = populations_G[rng.choice(indexes, 1, replace = False)]        #現在選んでいる解以外から1つを選ぶ。
     b = random.choice(select_populations)       #アーカイブも含めて解候補の中から解を一つ選ぶ。➡「要改変」アーカイブは問題ないが、G世代の解候補から選ぶ際に、jを除いていない。これにより注目しているものと同じ要素を選ぶ可能性がある。
     while np.all(b == 0.0):           #bが0のときは一生新たに選択をする。bがゼロとなるのは埋まっていないアーカイブを選択した場合である。
