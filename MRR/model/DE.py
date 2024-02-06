@@ -103,7 +103,7 @@ def optimize_K(
     result = SHADE(optimize_K_func, 
                    bounds, 
                    params, 
-                   pop_size=10, 
+                   pop_size=1, 
                    max_iter = 2000,
                    H = 100,
                    tol = 0.01, 
@@ -206,6 +206,9 @@ def optimize(
         L = np.empty(len(L_list))
         for i in range(len(L)):
             L[i] = L_list[i]
+        
+        print("L確認",L)
+        print("N確認",N)
 
 
         
