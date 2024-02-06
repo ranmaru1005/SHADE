@@ -5,7 +5,7 @@ import time
 from multiprocessing import Pool	#宮崎で追加
 
 
-def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, callback=None, rng=None):
+def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, callback=None, rng=None):
     if rng is None:
         rng = np.random.default_rng()
 
@@ -27,21 +27,30 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
     time_sta = time.perf_counter()      #時間計測開始
 
     for i in range(max_iter):
+        print("これは",i,"世代を表している")
         
-        r = random.randint(0,H-1)       #ランダムにメモリHの中から一つ番号を選ぶ。それがその世代が参照する制御パラメータになる。
+        r = [random.randint(0,H-1) for i in range(pop_size)]       #ランダムにメモリHの中から一つ番号を選ぶ。それがその世代が参照する制御パラメータになる。
         P_i = pop_size * random.uniform((2/pop_size), 0.2)     #カレントトゥピーベストのためのP、これで上位いくつまでかを小数で表す。おそらく2~3になる。
         P_i_int = math.floor(P_i)       #上記のPを整数に変換。小数を切り捨てることにより上位何位までを指定できるように。
         S_F = np.array([])
         S_CR = np.array([])
         delta_fk = np.array([])
+
+        print("r = ",r)
                 
         for j in range(pop_size):
-            mutated, Fi = mutation(MF_para_H[r], bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, rng)
+            mutated, Fi = mutation(MF_para_H[r[j]], bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, rng)
 
-            trial, CRi = crossover(mutated, populations_G[j], xdim, MCR_para_H[r], rng)
+            trial, CRi = crossover(mutated, populations_G[j], xdim, MCR_para_H[r[j]], rng)
 
             obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive = selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes)
+
+            print("Fi = ",Fi,j)
+            print("CRi = ",CRi,j)
+
         
+
+
         if S_F.size !=0 and S_CR.size !=0:
             MF_para_H[k] = ( sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) ) / ( sum( ( delta_fk * S_F ) / sum(delta_fk) ) )
             MCR_para_H[k] = sum( ( delta_fk * S_CR ) / sum(delta_fk) )
@@ -49,6 +58,8 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
             print("k=",k)
             if k > (H-1):
                 k = 0
+        print("記録メモリ F = ",MF_para_H)
+        print("記録メモリ CR = ",MCR_para_H)
 
 
         populations_G = populations     #世代Gの最適化が終了したため、世代Gの記録を更新する。
@@ -56,8 +67,14 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  ftol=10**-8, 
         best_obj = min(obj_list)        #解候補を更新し、そのたびに最高の評価値がある場合は更新
         best_x = populations[np.argmin(obj_list)]       #最高の評価値が更新された場合用に記述、その解を記録
 
+        print("現在の最高値　　　= ", best_obj)
+        print("この世代の最高評価= ", prev_obj)
+
         if best_obj < prev_obj:     #一周ごとに更新後の最高評価と更新前の最高評価を比べる
-            if abs(prev_obj - best_obj) <= ftol:
+            print("std(標準偏差？) = ", np.std(obj_list))
+            print("mean(平均) = ", np.mean(obj_list))
+            print("評価値確認",obj_list)
+            if np.std(obj_list) <= tol * np.abs(np.mean(obj_list)):
                 break       #収束した
             prev_obj = best_obj     #この記述は収束していない場合に行われる。今までの最高評価を更新する。
         
