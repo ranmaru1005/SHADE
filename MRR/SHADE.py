@@ -62,22 +62,12 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
             obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive = selection(func, params, j, obj_list_G, populations_G, all_trial[j], all_Fi[j], all_CRi[j], S_F, S_CR, delta_fk, Archive, Archivetimes)
         
         if S_F.size !=0 and S_CR.size !=0:
-            print("----------どこか解更新があった----------")
-            print("S_F = ,",S_F)
-            print("計算が正しいか見るため S_F^2 = ",S_F * S_F)
-            print("delta_fk = ",delta_fk)
-            print("sum(delta_fk) = ",sum(delta_fk))
-            print("sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) = ",sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) )
-
-                  
-
             MF_para_H[k] = ( sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) ) / ( sum( ( delta_fk * S_F ) / sum(delta_fk) ) )
             MCR_para_H[k] = np.average(S_CR, weights = delta_fk)
             k = k + 1
             if k > (H-1):
                 k = 0
-        print("記録メモリ F = ",MF_para_H)
-        print("記録メモリ CR = ",MCR_para_H)
+
 
 
 
@@ -85,9 +75,8 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
         obj_list_G = obj_list
         best_obj = min(obj_list)        #解候補を更新し、そのたびに最高の評価値がある場合は更新
         best_x = populations[np.argmin(obj_list)]       #最高の評価値が更新された場合用に記述、その解を記録
-
-        print("現在の最高値　　　= ", best_obj)
-        print("この世代の最高評価= ", prev_obj)
+        print("現在の評価値 = ",obj_list_G)
+        print("現在の結合率 = ",populations_G)
 
 
         if best_obj < prev_obj:     #一周ごとに更新後の最高評価と更新前の最高評価を比べる
