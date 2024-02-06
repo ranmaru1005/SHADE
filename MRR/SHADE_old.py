@@ -22,6 +22,8 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, F=0.5, cr=0.7,  ftol=
         
         best_obj = min(obj_list)        #解候補を更新し、そのたびに最高の評価値がある場合は更新
         best_x = populations[np.argmin(obj_list)]       #最高の評価値が更新された場合用に記述、その解を記録
+        
+        print("評価値 = ",obj_list)
 
         if best_obj < prev_obj:     #一周ごとに更新後の最高評価と更新前の最高評価を比べる
             if abs(prev_obj - best_obj) <= ftol:
