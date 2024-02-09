@@ -103,7 +103,7 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
     select_populations = Archive + populations_G
     Fi = -1.0
     while Fi <= 0.0:
-        Fi = stats.cauchy.rvs(loc = MF_para_H, scale = 0.1, size = 1, random_state = rng)
+        Fi = stats.cauchy.rvs(loc = MF_para_H, scale = math.sqrt(0.1), size = 1, random_state = rng)
         #Fi = rng.normal(MF_para_H,math.sqrt(0.1))
         if Fi > 1.0:
             Fi = 1.0
@@ -120,7 +120,7 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
     mutated = np.clip(mutated, bounds[:, 0], bounds[:, 1])      #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
 
     trial = np.zeros(dims)
-    CRi = stats.norm.rvs(loc = MCR_para_H, scale = 0.1, size = 1, random_state = rng)
+    CRi = stats.norm.rvs(loc = MCR_para_H, scale = math.sqrt(0.1), size = 1, random_state = rng)
     #CRi = rng.normal(MCR_para_H,math.sqrt(0.1))
     if CRi > 1:
         CRi = 1
