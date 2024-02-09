@@ -66,8 +66,6 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
             if k > (H-1):
                 k = 0
         
-        print("scipy Fi = ",all_Fi)
-        print("scipy CRi = ",all_CRi)
 
 
 
