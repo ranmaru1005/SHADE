@@ -3,6 +3,7 @@ import random
 import math
 import time
 from multiprocessing import Pool	#宮崎で追加
+from scipy import stats
 
 
 def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=None):
@@ -53,8 +54,6 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
             all_Fi[I] = tmp[I][1]
             all_CRi[I] = tmp[I][2]
 
-        print("Fi = ",all_Fi)
-        print("CRi = ",all_CRi)
         
 
         for j in range(pop_size):
@@ -66,6 +65,9 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
             k = k + 1
             if k > (H-1):
                 k = 0
+        
+        print("scipy Fi = ",all_Fi)
+        print("scipy CRi = ",all_CRi)
 
 
 
@@ -102,7 +104,8 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
     select_populations = Archive + populations_G
     Fi = -1.0
     while Fi <= 0.0:
-        Fi = rng.normal(MF_para_H,math.sqrt(0.1))
+        Fi = stats.cauchy.rvs(loc = MCR_para_H, scale = math.sqrt(0.1), size = 1, ramdom_state = seed)
+        #Fi = rng.normal(MF_para_H,math.sqrt(0.1))
         if Fi > 1.0:
             Fi = 1.0
     A = np.array(obj_list_G)
@@ -118,7 +121,8 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
     mutated = np.clip(mutated, bounds[:, 0], bounds[:, 1])      #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
 
     trial = np.zeros(dims)
-    CRi = rng.normal(MCR_para_H,math.sqrt(0.1))
+    CRi = stats.norm.rvs(loc = MCR_para_H, scale = math.sqrt(0.1), size = 1, ramdom_state = seed)
+    #CRi = rng.normal(MCR_para_H,math.sqrt(0.1))
     if CRi > 1:
         CRi = 1
     elif CRi < 0:
