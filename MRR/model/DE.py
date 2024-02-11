@@ -121,7 +121,7 @@ def optimize_K(             #通常のSHADE用
     return K, E
 
 """
-  
+"""  
 
 def optimize_K(             #SHADE_old用
     eta: float,
@@ -148,7 +148,7 @@ def optimize_K(             #SHADE_old用
 
     return K, E
 
-
+"""
 
 def optimize(
     n_g: float,
