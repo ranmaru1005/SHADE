@@ -103,7 +103,7 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
     select_populations = Archive + populations_G
     Fi = -1.0
     while Fi <= 0.0:
-        Fi = stats.norm.rvs(loc = MF_para_H, scale = math.sqrt(0.1), size = 1, random_state = rng)
+        Fi = stats.cauchy.rvs(loc = MF_para_H, scale = math.sqrt(0.1), size = 1, random_state = rng)
         #Fi = rng.normal(MF_para_H,math.sqrt(0.1))
         if Fi > 1.0:
             Fi = 1.0
