@@ -16,6 +16,6 @@ config = OptimizationConfig(
     r_max=5,
     weight=[1.0, 3.5, 1.0, 5.0, 3.5, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
     min_ring_length=50e-6,
-    number_of_generations=300,
+    number_of_generations=2,
     strategy=[0.03, 0.07, 0.2, 0.7],
 )
