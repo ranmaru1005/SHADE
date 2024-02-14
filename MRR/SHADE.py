@@ -141,7 +141,9 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
             trial[i] = mutated[0][i]
         else:
             trial[i] = populations_G[j][i]
-    print("trial = ",trial)
+    print("mutated = ",mutated[0],j)
+    print("populations_G = ",populations_G[j],j)
+    print("trial = ",trial,j)
 
     return trial, Fi, CRi      
     
