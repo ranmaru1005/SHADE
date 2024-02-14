@@ -229,7 +229,7 @@ def optimize(
                 rng=rng,
             )
         
-        
+        """
         L_list = [7.75e-05, 7.75e-05, 6.20e-05, 7.75e-05, 6.20e-05, 6.20e-05]
         #中途半端なやつ、性能が上がるかどうか検証
         L = np.empty(len(L_list))
@@ -238,6 +238,7 @@ def optimize(
         
         print("L確認",L)
         print("N確認",N)
+        """
 
         
 
