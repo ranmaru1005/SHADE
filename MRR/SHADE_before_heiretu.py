@@ -45,7 +45,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
 
             trial, CRi = crossover(mutated, populations_G[j], xdim, MCR_para_H[r[j]], rng)
 
-            obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive = selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes)
+            obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive, Archivetimes = selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes)
 
 
         
