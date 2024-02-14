@@ -107,7 +107,7 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
         #Fi = rng.normal(MF_para_H,math.sqrt(0.1))
         if Fi > 1.0:
             Fi = 1.0
-    Fi = 0.5
+    #Fi = 0.5
     A = np.array(obj_list_G)
     A_sort_index = np.argsort(A)        #ここ二行でobj_list_Gのソートを行っている。評価の良い順に並べ、そのインデックスがリストになっている。
     xpbest_group = [populations_G[A_sort_index[i]] for i in range(P_i_int)]      #G世代の解候補の中から、評価が高いものをP_i_intの数だけ選んだ集合を作る。
@@ -132,7 +132,7 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
         CRi = 1
     elif CRi < 0:
         CRi = 0
-    CRi = 0.7
+    #CRi = 0.7
     p = rng.random(dims)        #0~1の値をランダムにxdimの数だけ生成する
     p[rng.choice([i for i in np.arange(len(p))], 1)] = 0      #pの中で一つだけ確定で0にする。こうすることによってcrよりpが小さくなるのが一つ以上できるので、確定で一つはmutatedになる。
     
