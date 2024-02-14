@@ -3,6 +3,7 @@ import random
 import math
 import time
 from multiprocessing import Pool	#宮崎で追加
+from scipy import stats
 
 
 def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, callback=None, rng=None):
@@ -29,7 +30,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
     for i in range(max_iter):
         print("これは",i,"世代を表している")
         
-        r = rng.integers(H-1, size = pop_size)      #ランダムにメモリHの中から一つ番号を選ぶ。それがその世代が参照する制御パラメータになる。
+        r = [random.randint(0,H-1) for i in range(pop_size)]      #ランダムにメモリHの中から一つ番号を選ぶ。それがその世代が参照する制御パラメータになる。
         
         P_i = pop_size * random.uniform((2/pop_size), 0.2)     #カレントトゥピーベストのためのP、これで上位いくつまでかを小数で表す。おそらく2~3になる。
         P_i_int = math.floor(P_i)       #上記のPを整数に変換。小数を切り捨てることにより上位何位までを指定できるように。
@@ -54,7 +55,6 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
             MF_para_H[k] = ( sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) ) / ( sum( ( delta_fk * S_F ) / sum(delta_fk) ) )
             MCR_para_H[k] = sum( ( delta_fk * S_CR ) / sum(delta_fk) )
             k = k + 1
-            print("k=",k)
             if k > (H-1):
                 k = 0
         print("記録メモリ F = ",MF_para_H)
@@ -66,8 +66,6 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
         best_obj = min(obj_list)        #解候補を更新し、そのたびに最高の評価値がある場合は更新
         best_x = populations[np.argmin(obj_list)]       #最高の評価値が更新された場合用に記述、その解を記録
 
-        print("現在の最高値　　　= ", best_obj)
-        print("この世代の最高評価= ", prev_obj)
 
         if best_obj < prev_obj:     #一周ごとに更新後の最高評価と更新前の最高評価を比べる
             print("std(標準偏差？) = ", np.std(obj_list))
@@ -91,11 +89,12 @@ def mutation(MF_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int,
     select_populations = Archive + populations_G
     Fi = -1.0
     while Fi <= 0.0:
-        Fi = rng.normal(MF_para_H,0.316227766)
+        Fi = stats.cauchy.rvs(loc = MF_para_H, scale = math.sqrt(0.1), size = 1, random_state = rng)
         if Fi > 1.0:
             Fi = 1.0
+    print("Fi = ",Fi,j)
     A = np.array(obj_list_G)
-    A_sort_index = np.argsort(A)[::-1]        #ここ二行でobj_list_Gのソートを行っている。評価の良い順に並べ、そのインデックスがリストになっている。
+    A_sort_index = np.argsort(A)        #ここ二行でobj_list_Gのソートを行っている。評価の良い順に並べ、そのインデックスがリストになっている。
     xpbest_group = [populations_G[A_sort_index[i]] for i in range(P_i_int)]      #G世代の解候補の中から、評価が高いものをP_i_intの数だけ選んだ集合を作る。
     xpbest = random.choice(xpbest_group)        #G世代の解候補の中から上位N×P番目までの候補から一つを選んだ。
     indexes = [i for i in range(pop_size) if i != j]        #jは現在選んでいる解。それ以外の番号を指定しているインデックスを作成
@@ -104,18 +103,25 @@ def mutation(MF_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int,
     while np.all(b == 0.0):           #bが0のときは一生新たに選択をする。bがゼロとなるのは埋まっていないアーカイブを選択した場合である。
         b = random.choice(select_populations)
     mutated = populations_G[j] + Fi * (xpbest - populations_G[j]) + Fi * (a - b)       #突然変異を表す式。「要改変」➡現在はカレントトゥベスト➡最終的にはカレントトゥピーベストにする
-    mutated = np.clip(mutated, bounds[:, 0], bounds[:, 1])      #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
+    #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
+    for i in range(len(mutated)):
+        if mutated[0][i] <= 0:
+            mutated[0][i] = populations_G[j][i] / 2
+        elif mutated[0][i] > 0.996:
+            mutated[0][i] = (populations_G[j][i] + 0.996) / 2
 
     return mutated, Fi      #mutatedは新たな解候補として生み出されたものであり、populationsと同様に最適化を行う結合率分のリストである。
 
 
 def crossover(mutated , target, dims, MCR_para_H, rng):
     trial = np.zeros(dims)
-    CRi = rng.normal(MCR_para_H,0.316227766)
+    CRi = stats.norm.rvs(loc = MCR_para_H, scale = math.sqrt(0.1), size = 1, random_state = rng)
+    #CRi = rng.normal(MCR_para_H,math.sqrt(0.1))
     if CRi > 1:
         CRi = 1
     elif CRi < 0:
         CRi = 0
+    print("CRi = ",CRi)
     p = rng.random(dims)        #0~1の値をランダムにxdimの数だけ生成する
     p[rng.choice([i for i in np.arange(len(p))], 1)] = 0      #pの中で一つだけ確定で0にする。こうすることによってcrよりpが小さくなるのが一つ以上できるので、確定で一つはmutatedになる。
     
@@ -156,4 +162,4 @@ def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR,
             Archivetimes = Archivetimes + 1
 
 
-    return obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive
+    return obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive, Archivetimes
