@@ -119,7 +119,6 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
         b = random.choice(select_populations)
     mutated = populations_G[j] + Fi * (xpbest - populations_G[j]) + Fi * (a - b)       #突然変異を表す式。「要改変」➡現在はカレントトゥベスト➡最終的にはカレントトゥピーベストにする
     #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
-    print("mutated",mutated)
     for i in range(dims):
         if mutated[0][i] < 0:
             mutated[0][i] = populations_G[j][i] / 2
