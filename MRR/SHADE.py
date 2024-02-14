@@ -121,10 +121,10 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
     #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
     print("mutated",mutated)
     for i in range(dims):
-        if mutated[i] < 0:
-            mutated[i] = populations_G[j][i] / 2
-        elif mutated[i] > 0.996:
-            mutated[i] = (populations_G[j][i] + 0.996) / 2
+        if mutated[0][i] < 0:
+            mutated[0][i] = populations_G[j][i] / 2
+        elif mutated[0][i] > 0.996:
+            mutated[0][i] = (populations_G[j][i] + 0.996) / 2
 
     trial = np.zeros(dims)
     CRi = stats.norm.rvs(loc = MCR_para_H, scale = math.sqrt(0.1), size = 1, random_state = rng)
