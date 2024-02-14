@@ -41,7 +41,7 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
 
         
         
-        mut_cross_paras = [[MF_para_H[r[j]], MCR_para_H[r[j]], bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, populations_G[j], xdim, np.random.randint(0, 2 ** 32 -1)] for j in range(pop_size)]
+        mut_cross_paras = [[MF_para_H[r[j]], MCR_para_H[r[j]], bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, xdim, np.random.randint(0, 2 ** 32 -1)] for j in range(pop_size)]
         p = Pool(processes = pop_size)
                   
         tmp = list( p.map(wrapper_mut_cross, mut_cross_paras) ) #一時的な答え、この後スライスし、必要なところだけ切り取る
@@ -98,7 +98,7 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
     return best_x, best_obj     #best_x➡最適化が終わったK, best_obj➡最適化が終わったE
     
 
-def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, target, dims, seed):
+def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int, Archive, dims, seed):
     rng = np.random.default_rng(seed)
     select_populations = Archive + populations_G
     Fi = -1.0
@@ -118,7 +118,12 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
     while np.all(b == 0.0):           #bが0のときは一生新たに選択をする。bがゼロとなるのは埋まっていないアーカイブを選択した場合である。
         b = random.choice(select_populations)
     mutated = populations_G[j] + Fi * (xpbest - populations_G[j]) + Fi * (a - b)       #突然変異を表す式。「要改変」➡現在はカレントトゥベスト➡最終的にはカレントトゥピーベストにする
-    mutated = np.clip(mutated, bounds[:, 0], bounds[:, 1])      #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
+    mutated = np.clip(mutated, 0, 0.996)      #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
+    for i in (len(mutated)):
+        if mutated[i] < 0:
+            mutated[i] = populations_G[j][i] / 2
+        elif mutated[i] > 0.996:
+            mutated[i] = (populations_G[j][i] + 0.996) / 2
 
     trial = np.zeros(dims)
     CRi = stats.norm.rvs(loc = MCR_para_H, scale = math.sqrt(0.1), size = 1, random_state = rng)
@@ -135,7 +140,7 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
         if p[i] <= CRi:
             trial[i] = mutated[0][i]
         else:
-            trial[i] = target[i]
+            trial[i] = populations_G[j][i]
 
     return trial, Fi, CRi      
     
