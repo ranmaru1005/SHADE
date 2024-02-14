@@ -60,11 +60,14 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
             obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive, Archivetimes = selection(func, params, j, obj_list_G, populations_G, all_trial[j], all_Fi[j], all_CRi[j], S_F, S_CR, delta_fk, Archive, Archivetimes)
         
         if S_F.size !=0 and S_CR.size !=0:
-            MF_para_H[k] = ( sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) ) / ( sum( ( delta_fk * S_F ) / sum(delta_fk) ) )
+            #MF_para_H[k] = ( sum( ( delta_fk * (S_F ** S_F) ) / sum(delta_fk) ) ) / ( sum( ( delta_fk * S_F ) / sum(delta_fk) ) )
+            MF_para_H[k] = np.average(S_F * S_F, weights = delta_fk) / np.average(S_F, weights = delta_fk)
             MCR_para_H[k] = np.average(S_CR, weights = delta_fk)
             k = k + 1
             if k > (H-1):
                 k = 0
+        print("記録メモリ F = ",MF_para_H)
+        print("記録メモリ CR = ",MCR_para_H)
         print("scipy Fi = ",all_Fi)
         print("scipy CRi = ",all_CRi)
 
@@ -103,7 +106,7 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
     select_populations = Archive + populations_G
     Fi = -1.0
     while Fi <= 0.0:
-        Fi = stats.norm.rvs(loc = MF_para_H, scale = math.sqrt(0.1), size = 1, random_state = rng)
+        Fi = stats.cauchy.rvs(loc = MF_para_H, scale = math.sqrt(0.1), size = 1, random_state = rng)
         #Fi = rng.normal(MF_para_H,math.sqrt(0.1))
         if Fi > 1.0:
             Fi = 1.0
