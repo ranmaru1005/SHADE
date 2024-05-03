@@ -229,7 +229,7 @@ def optimize(
                 rng=rng,
             )
         
-        
+        """
         L_list = [
         6.2e-05,
         6.2e-05,
@@ -246,6 +246,7 @@ def optimize(
         print("L確認",L)
         print("N確認",N)
         
+        """
 
         
 
