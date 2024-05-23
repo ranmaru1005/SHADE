@@ -65,7 +65,7 @@ class OptimizeKParams:
     r_max: float
     weight: list[float]
 
-
+"""
     #もともとのプログラムはこれ。
 def optimize_K(
     eta: float,
@@ -92,11 +92,11 @@ def optimize_K(
 
     return K, E
 
+"""
 
 
 
-
-""" 
+ 
 def optimize_K(             #通常のSHADE用
     eta: float,
     number_of_rings: int,
@@ -120,7 +120,7 @@ def optimize_K(             #通常のSHADE用
     K: npt.NDArray[np.float_] = result[0]
 
     return K, E
-"""
+
 
 """  
 
