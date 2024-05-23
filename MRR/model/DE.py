@@ -229,7 +229,7 @@ def optimize(
                 rng=rng,
             )
         
-        
+        """
         L_list = [
         6.2e-05,
         6.2e-05,
@@ -242,6 +242,10 @@ def optimize(
         L = np.empty(len(L_list))
         for i in range(len(L)):
             L[i] = L_list[i]
+        """
+            
+        N = [88, 88, 110, 88, 110, 110]
+        L = calculate_ring_length(center_wavelength=center_wavelength, n_eff=n_eff, N=N)
         
         print("L確認",L)
         print("N確認",N)
