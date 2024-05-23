@@ -144,7 +144,7 @@ class Logger:
         else:
             print("K  : {}".format(K.tolist()))
             print("L  : {}".format(L.tolist()))
-        print("N  : {}".format(N.tolist()))
+        #print("N  : {}".format(N.tolist()))
         print("FSR: {}".format(FSR))
         print("E  : {}".format(E))
         if analyze_score is not None:
