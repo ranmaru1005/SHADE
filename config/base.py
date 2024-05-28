@@ -19,3 +19,5 @@ config = OptimizationConfig(
     number_of_generations=1,
     strategy=[0.03, 0.07, 0.2, 0.7],
 )
+
+# weight = [通過域, 阻止域, クロストーク, 3dB波長帯域, リプル, 挿入損失, 形状]
