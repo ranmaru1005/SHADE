@@ -65,7 +65,7 @@ class OptimizeKParams:
     r_max: float
     weight: list[float]
 
-"""
+
     #もともとのプログラムはこれ。
 def optimize_K(
     eta: float,
@@ -92,11 +92,11 @@ def optimize_K(
 
     return K, E
 
-"""
 
 
 
- 
+
+""" 
 def optimize_K(             #通常のSHADE用
     eta: float,
     number_of_rings: int,
@@ -120,7 +120,7 @@ def optimize_K(             #通常のSHADE用
     K: npt.NDArray[np.float_] = result[0]
 
     return K, E
-
+"""
 
 """  
 
@@ -244,7 +244,7 @@ def optimize(
             L[i] = L_list[i]
         """
             
-        N = [88, 88, 110, 110, 110, 110]
+        N = [110, 88, 88, 110, 110, 110]
         L = calculate_ring_length(center_wavelength=center_wavelength, n_eff=n_eff, N=N)
         
         print("L確認",L)
