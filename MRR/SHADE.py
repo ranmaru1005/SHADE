@@ -134,11 +134,11 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
     trial = np.zeros(dims)
     #CRi = stats.norm.rvs(loc = MCR_para_H, scale = math.sqrt(0.1), size = 1, random_state = rng)    2024/5/29にコメントアウト、いったんCRを0.7に固定
     #CRi = rng.normal(MCR_para_H,math.sqrt(0.1))
+    CRi = 0.7
     if CRi > 1:
         CRi = 1
     elif CRi < 0:
         CRi = 0
-    CRi = 0.7
     p = rng.random(dims)        #0~1の値をランダムにxdimの数だけ生成する
     p[rng.choice([i for i in np.arange(len(p))], 1)] = 0      #pの中で一つだけ確定で0にする。こうすることによってcrよりpが小さくなるのが一つ以上できるので、確定で一つはmutatedになる。
     
