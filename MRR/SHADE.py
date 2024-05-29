@@ -18,7 +18,7 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
     best_x = populations[np.argmin(obj_list)]       #最もよい評価を得た際の解を記録,np.argminは最小の番号を返す
     best_obj = min(obj_list)        #最もよい評価を得た際の評価を記録する
     prev_obj = best_obj     #最もよい評価を今後比較のために記録する
-    CR_para = 0.5
+    CR_para = 0.7
     F_para = 0.5
     MCR_para_H = [CR_para] * H     #各解候補のCR,メモリHの数だけ過去のパラメータを保存できる。
     MF_para_H = [F_para] * H       #各解候補のF
