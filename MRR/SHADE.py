@@ -119,11 +119,24 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
     xpbest_group = [populations_G[A_sort_index[i]] for i in range(P_i_int)]      #G世代の解候補の中から、評価が高いものをP_i_intの数だけ選んだ集合を作る。
     xpbest = random.choice(xpbest_group)        #G世代の解候補の中から上位N×P番目までの候補から一つを選んだ。
     indexes = [i for i in range(pop_size) if i != j]        #jは現在選んでいる解。それ以外の番号を指定しているインデックスを作成
+
+    #current-to-pbest　これは自分が設計したもの
+
+    """
     a = populations_G[rng.choice(indexes, 1, replace = False)]        #現在選んでいる解以外から1つを選ぶ。
     b = random.choice(select_populations)       #アーカイブも含めて解候補の中から解を一つ選ぶ。➡「要改変」アーカイブは問題ないが、G世代の解候補から選ぶ際に、jを除いていない。これにより注目しているものと同じ要素を選ぶ可能性がある。
     while np.all(b == 0.0):           #bが0のときは一生新たに選択をする。bがゼロとなるのは埋まっていないアーカイブを選択した場合である。
         b = random.choice(select_populations)
     mutated = populations_G[j] + Fi * (xpbest - populations_G[j]) + Fi * (a - b)       #突然変異を表す式。「要改変」➡現在はカレントトゥベスト➡最終的にはカレントトゥピーベストにする
+    """
+
+    #current-to-best これは宇田川さんが設定していたものと同じ変異式
+    
+    a = populations_G[rng.choice(indexes, 1, replace = False)]        #現在選んでいる解以外から1つを選ぶ。
+    b = random.choice(populations_G)              #すべての解候補から一つ解を選ぶ。
+    mutated = populations_G[j] + Fi * (populations_G[A_sort_index[0]] - populations_G[j]) + Fi * (a - b)
+
+    
     #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
     for i in range(dims):
         if mutated[0][i] <= 0:
