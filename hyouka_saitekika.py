@@ -12,7 +12,7 @@ a = 32.768
 bounds = np.array((-a,a))
 params = 0
 pop_size = 10
-max_iter = 6000
+max_iter = 3000
 H = 50
 tol = 0.01
 
