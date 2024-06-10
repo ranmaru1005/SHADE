@@ -33,7 +33,7 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
     print(populations)
     print(len(populations.shape))
     print(populations[0])
-    print(len(populations[0].shape))
+    print(len(populations[0].reshape(-1,1)))
     list_populations = populations.tolist()
     print(list_populations)
     obj_list = [func(pop) for pop in list_populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
