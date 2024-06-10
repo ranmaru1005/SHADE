@@ -11,14 +11,18 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, H =50,  tol=0.01, cal
         rng = np.random.default_rng()
 
     xdim = len(bounds)      #最適化する変数の個数(結合率の数を入力することになる)
-    populations = rng.uniform(low=bounds[:, 0], high=bounds[:, 1], size=(pop_size, xdim))       #解候補の初期配置、boundsの最小値~最大値の中からランダムで数値を決定し、初期解の個数(pop_size)分だけ生成
+    populations = rng.uniform(low=np.amin(dimbounds), high=np.amax(dimbounds), size=(pop_size, xdim))       #解候補の初期配置、boundsの最小値~最大値の中からランダムで数値を決定し、初期解の個数(pop_size)分だけ生成
     populations_G = populations     #各世代Gの解を記録。世代毎のGを記録しておき、各解候補の更新は別のものに記録する。
-    obj_list = [func(pop, params) for pop in populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
+    #obj_list = [func(pop, params) for pop in populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
+    
+    obj_list = func(populations)       #生成した初期解を関数に代入し評価値を返したリストを作成
+    print(obj_list)
+    print(type(obj_list))
     obj_list_G = obj_list       #各世代Gの評価値を記録。扱いはpopulations_Gと同様
     best_x = populations[np.argmin(obj_list)]       #最もよい評価を得た際の解を記録,np.argminは最小の番号を返す
     best_obj = min(obj_list)        #最もよい評価を得た際の評価を記録する
     prev_obj = best_obj     #最もよい評価を今後比較のために記録する
-    CR_para = 0.5
+    CR_para = 0.7
     F_para = 0.5
     MCR_para_H = [CR_para] * H     #各解候補のCR,メモリHの数だけ過去のパラメータを保存できる。
     MF_para_H = [F_para] * H       #各解候補のF
