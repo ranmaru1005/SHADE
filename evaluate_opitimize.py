@@ -9,7 +9,7 @@ bf = BF()
 
 #Sphere
 a = 5.12
-bounds = np.array(-a,a)
+bounds = np.array((-a,a))
 params = 0
 pop_size = 10
 max_iter = 6000
