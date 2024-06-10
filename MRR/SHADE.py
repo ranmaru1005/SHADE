@@ -20,7 +20,7 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
 
     input_array = np.vstack((XX.flatten(), YY.flatten())).T
     print(input_array)
-    print(input_array.shape)
+    print(len(input_array.shape))
 
 
 
@@ -29,6 +29,7 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
     populations_G = populations     #各世代Gの解を記録。世代毎のGを記録しておき、各解候補の更新は別のものに記録する。
     #obj_list = [func(pop, params) for pop in populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
     print(populations)
+    print(len(populations.shape))
     list_populations = populations.tolist()
     print(list_populations)
     obj_list = [func(pop) for pop in list_populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
