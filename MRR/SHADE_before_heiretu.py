@@ -163,6 +163,7 @@ def crossover(mutated , target, dims, MCR_para_H, rng):
 def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes):
     #obj_trial = func(trial, params)     #交叉によって生成された解候補(pop_size分だけある)の評価値を計算する
     fixtrial = trial.reshape((-1,1))
+    print(fixtrial)
     obj_trial = func(fixtrial)     #交叉によって生成された解候補(pop_size分だけある)の評価値を計算する
     print("obj_trial = ",obj_trial)
     print("obj_list = ", obj_list)
