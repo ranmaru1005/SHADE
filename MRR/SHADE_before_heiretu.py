@@ -152,7 +152,8 @@ def crossover(mutated , target, dims, MCR_para_H, rng):
     print("mutated = ",mutated)
     for i in range(dims):        #crよりpが小さい場合はmutated,そうでなければ変更しないようにする。
         if p[i] <= CRi:
-            trial[i] = mutated[0][i]
+            #trial[i] = mutated[0][i]
+            trial[i] = mutated[i]
         else:
             trial[i] = target[i]
 
