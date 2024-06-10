@@ -19,6 +19,7 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
     
     obj_list = func(populations)       #生成した初期解を関数に代入し評価値を返したリストを作成
     print(obj_list)
+    print(type(obj_list))
     obj_list_G = obj_list       #各世代Gの評価値を記録。扱いはpopulations_Gと同様
     best_x = populations[np.argmin(obj_list)]       #最もよい評価を得た際の解を記録,np.argminは最小の番号を返す
     best_obj = min(obj_list)        #最もよい評価を得た際の評価を記録する
