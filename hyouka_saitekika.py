@@ -16,4 +16,4 @@ max_iter = 6000
 H = 50
 tol = 0.01
 
-print( SHADE(bf.sphere, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
+print( SHADE(bf.ellipsoid, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
