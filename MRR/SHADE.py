@@ -11,6 +11,18 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
         rng = np.random.default_rng()
 
     xdim = len(bounds)      #最適化する変数の個数(結合率の数を入力することになる)
+
+    a = 5.12
+    X = np.linspace(-a, a, 101)
+    Y = np.linspace(-a, a, 101)
+    XX, YY = np.meshgrid(X, Y)
+    d = XX.shape
+
+    input_array = np.vstack((XX.flatten(), YY.flatten())).T
+    print(input_array)
+
+
+
     dimbounds = np.ravel(bounds)
     populations = rng.uniform(low=np.amin(dimbounds), high=np.amax(dimbounds), size=(pop_size, xdim))       #解候補の初期配置、boundsの最小値~最大値の中からランダムで数値を決定し、初期解の個数(pop_size)分だけ生成
     populations_G = populations     #各世代Gの解を記録。世代毎のGを記録しておき、各解候補の更新は別のものに記録する。
