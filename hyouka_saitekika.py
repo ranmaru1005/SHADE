@@ -2,7 +2,7 @@ import math
 import numpy as np
 
 from scipy.optimize import differential_evolution
-from MRR.SHADE_before_heiretu import SHADE
+from MRR.SHADE import SHADE
 from MRR.benchmark_function import BenchmarkFunction as BF
 
 bf = BF()
