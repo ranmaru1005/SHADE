@@ -16,7 +16,7 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
     populations_G = populations     #各世代Gの解を記録。世代毎のGを記録しておき、各解候補の更新は別のものに記録する。
     #obj_list = [func(pop, params) for pop in populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
     print(populations)
-    list_populations = popupations.tolist()
+    list_populations = populations.tolist()
     print(list_populations)
     obj_list = [func(pop) for pop in list_populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
     obj_list_G = obj_list       #各世代Gの評価値を記録。扱いはpopulations_Gと同様
