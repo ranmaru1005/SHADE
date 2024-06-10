@@ -8,7 +8,7 @@ from MRR.benchmark_function import BenchmarkFunction as BF
 bf = BF()
 
 #Sphere
-a = 5.12
+a = 32.768
 bounds = np.array((-a,a))
 params = 0
 pop_size = 10
@@ -16,4 +16,4 @@ max_iter = 6000
 H = 50
 tol = 0.01
 
-print( SHADE(bf.ellipsoid, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
+print( SHADE(bf.ackley, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
