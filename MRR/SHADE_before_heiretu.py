@@ -164,6 +164,9 @@ def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR,
     #obj_trial = func(trial, params)     #交叉によって生成された解候補(pop_size分だけある)の評価値を計算する
     fixtrial = trial.reshape((-1,1))
     obj_trial = func(fixtrial)     #交叉によって生成された解候補(pop_size分だけある)の評価値を計算する
+    print("obj_trial = ",obj_trial)
+    print("obj_list = ", obj_list)
+          
     if obj_trial < obj_list[j]:     #交叉によって生成された解候補が現在のものより優れていた場合、更新する。
         
         if Archivetimes == (len(Archive)-1):        #populations[j]が更新される前にアーカイブに保存する。
