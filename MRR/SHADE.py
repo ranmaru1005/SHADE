@@ -146,11 +146,14 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
 
     
     #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
+    """
+    一時的に削除、ベンチマーク関数を用いるため
     for i in range(dims):
         if mutated[0][i] <= 0:
             mutated[0][i] = populations_G[j][i] / 2
         elif mutated[0][i] > 0.996:
             mutated[0][i] = (populations_G[j][i] + 0.996) / 2
+    """
 
     trial = np.zeros(dims)
     CRi = stats.norm.rvs(loc = MCR_para_H, scale = math.sqrt(0.1), size = 1, random_state = rng)    #2024/5/29にコメントアウト、いったんCRを0.7に固定
@@ -165,7 +168,8 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
     
     for i in range(dims):        #crよりpが小さい場合はmutated,そうでなければ変更しないようにする。
         if p[i] <= CRi:
-            trial[i] = mutated[0][i]
+            #trial[i] = mutated[0][i]
+            trial[i] = mutated[i]
         else:
             trial[i] = populations_G[j][i]
 
@@ -177,7 +181,10 @@ def wrapper_mut_cross(args):
 
 
 def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes):
-    obj_trial = func(trial, params)     #交叉によって生成された解候補(pop_size分だけある)の評価値を計算する
+    #obj_trial = func(trial, params)     #交叉によって生成された解候補(pop_size分だけある)の評価値を計算する    一時的に削除、ベンチマーク関数のため
+    fixtrial = trial.reshape((1,-1))
+    obj_trial = func(fixtrial)
+    
     if obj_trial < obj_list[j]:     #交叉によって生成された解候補が現在のものより優れていた場合、更新する。
         
         if Archivetimes == (len(Archive)-1):        #populations[j]が更新される前にアーカイブに保存する。
