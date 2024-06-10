@@ -18,7 +18,6 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
     populations = populations.reshape((-1, 1))
     print(populations)
     list_populations = populations.tolist()
-    list_populations = list_populations.reshape((-1, 1))
     print(list_populations)
     obj_list = [func(pop) for pop in list_populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
     obj_list_G = obj_list       #各世代Gの評価値を記録。扱いはpopulations_Gと同様
