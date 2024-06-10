@@ -21,6 +21,8 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
     input_array = np.vstack((XX.flatten(), YY.flatten())).T
     print(input_array)
     print(len(input_array.shape))
+    print(input_array[0])
+    print(len(input_array[0].shape))
 
 
 
@@ -30,6 +32,8 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
     #obj_list = [func(pop, params) for pop in populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
     print(populations)
     print(len(populations.shape))
+    print(populations[0])
+    print(len(populations[0].shape))
     list_populations = populations.tolist()
     print(list_populations)
     obj_list = [func(pop) for pop in list_populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
