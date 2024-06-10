@@ -125,12 +125,13 @@ def mutation(MF_para_H, bounds, j, pop_size, obj_list_G, populations_G, P_i_int,
 
     
     #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
-    print(mutated)
+    """
     for i in range(len(mutated)):
         if mutated[0][i] <= 0:
             mutated[0][i] = populations_G[j][i] / 2
         elif mutated[0][i] > 0.996:
             mutated[0][i] = (populations_G[j][i] + 0.996) / 2
+    """
 
     return mutated, Fi      #mutatedは新たな解候補として生み出されたものであり、populationsと同様に最適化を行う結合率分のリストである。
 
