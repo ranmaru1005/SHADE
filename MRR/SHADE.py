@@ -12,31 +12,13 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
 
     xdim = len(bounds)      #最適化する変数の個数(結合率の数を入力することになる)
 
-    a = 5.12
-    X = np.linspace(-a, a, 101)
-    Y = np.linspace(-a, a, 101)
-    XX, YY = np.meshgrid(X, Y)
-    d = XX.shape
-
-    input_array = np.vstack((XX.flatten(), YY.flatten())).T
-    print(input_array)
-    print(len(input_array.shape))
-    print(input_array[0])
-    print(len(input_array[0].shape))
-
-
-
     dimbounds = np.ravel(bounds)
     populations = rng.uniform(low=np.amin(dimbounds), high=np.amax(dimbounds), size=(pop_size, xdim))       #解候補の初期配置、boundsの最小値~最大値の中からランダムで数値を決定し、初期解の個数(pop_size)分だけ生成
     populations_G = populations     #各世代Gの解を記録。世代毎のGを記録しておき、各解候補の更新は別のものに記録する。
     #obj_list = [func(pop, params) for pop in populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
-    print(populations)
-    print(len(populations.shape))
-    print(populations[0])
-    print(len(populations[0].reshape(-1,1)))
-    list_populations = populations.tolist()
-    print(list_populations)
-    obj_list = [func(pop) for pop in list_populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
+    
+    obj_list = func(populations)       #生成した初期解を関数に代入し評価値を返したリストを作成
+    print(obj_list)
     obj_list_G = obj_list       #各世代Gの評価値を記録。扱いはpopulations_Gと同様
     best_x = populations[np.argmin(obj_list)]       #最もよい評価を得た際の解を記録,np.argminは最小の番号を返す
     best_obj = min(obj_list)        #最もよい評価を得た際の評価を記録する
