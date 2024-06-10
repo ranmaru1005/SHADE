@@ -147,7 +147,9 @@ def crossover(mutated , target, dims, MCR_para_H, rng):
     print("CRi = ",CRi)
     p = rng.random(dims)        #0~1の値をランダムにxdimの数だけ生成する
     p[rng.choice([i for i in np.arange(len(p))], 1)] = 0      #pの中で一つだけ確定で0にする。こうすることによってcrよりpが小さくなるのが一つ以上できるので、確定で一つはmutatedになる。
-    
+
+    print("trial = ",trial)
+    print("mutated = ",mutated)
     for i in range(dims):        #crよりpが小さい場合はmutated,そうでなければ変更しないようにする。
         if p[i] <= CRi:
             trial[i] = mutated[0][i]
