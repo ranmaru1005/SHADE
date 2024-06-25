@@ -40,7 +40,8 @@ H = 50
 tol = 0.01
 rng = np.random.Generator
 
-
+print(bounds)
+print(len(bounds))
 
 
 #print( SHADE(bf.rastrigin, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
