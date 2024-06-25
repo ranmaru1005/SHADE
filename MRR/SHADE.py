@@ -173,8 +173,8 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
     
     for i in range(dims):        #crよりpが小さい場合はmutated,そうでなければ変更しないようにする。
         if p[i] <= CRi:
-            #trial[i] = mutated[0][i]
-            trial[i] = mutated[i]
+            trial[i] = mutated[0][i]
+            #trial[i] = mutated[i]
         else:
             trial[i] = populations_G[j][i]
 
