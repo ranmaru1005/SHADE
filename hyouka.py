@@ -107,7 +107,7 @@ result = differential_evolution(ellipsoid,
                             bounds, 
                             strategy="currenttobest1bin",
                             #disp = True,
-                            workers=-1, 
+                            workers=1, 
                             updating="deferred", 
                             popsize=15,
                             maxiter=500
