@@ -51,7 +51,8 @@ result = differential_evolution(bf.rastrigin,
                             workers=-1, 
                             updating="deferred", 
                             popsize=15,
-                            maxiter=500,
-                            seed=rng)
+                            maxiter=500
+                            )
+                            
 
 pprint.pprint(result)
