@@ -14,7 +14,7 @@ bf = BF()
 
 #Sphere
 a = 5.12
-number_of_x = 2 #解の個数(次元の数ともいえる)
+number_of_x = 5 #解の個数(次元の数ともいえる)
 #bounds = np.array([[-a, a] for _ in range(number_of_x)])
 #A_bounds = np.array([(-a, a) for _ in range(number_of_x)])
 bounds = np.array([[-a, a],[-a, a]])
