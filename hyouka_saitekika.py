@@ -31,7 +31,7 @@ class OptimizeKParams:
 #Sphere
 a = 5.12
 bounds = np.array((-a,a))
-params = 0
+params = []
 pop_size = 10
 max_iter = 6000
 H = 50
