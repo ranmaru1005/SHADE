@@ -31,7 +31,7 @@ class OptimizeKParams:
 #Sphere
 a = 5.12
 bounds = np.array((-a,a))
-params = []
+params = 0
 pop_size = 10
 max_iter = 6000
 H = 50
@@ -45,7 +45,6 @@ rng = np.random.Generator
 
 result = differential_evolution(bf.rastrigin, 
                             bounds, 
-                            args=(params,), 
                             strategy="currenttobest1bin", 
                             workers=-1, 
                             updating="deferred", 
