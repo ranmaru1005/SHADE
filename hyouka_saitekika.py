@@ -27,6 +27,7 @@ tol = 0.01
 rng = np.random.Generator
 
 print(bounds)
+print(len(bounds.shape))
 print(len(bounds))
 
 
