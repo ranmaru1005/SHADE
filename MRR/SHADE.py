@@ -11,6 +11,8 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
         rng = np.random.default_rng()
 
     xdim = len(bounds)      #最適化する変数の個数(結合率の数を入力することになる)
+    print("bounds =",bounds)
+    print("最適化する変数の数 = ",xdim)
 
     dimbounds = np.ravel(bounds)
     populations = rng.uniform(low=np.amin(dimbounds), high=np.amax(dimbounds), size=(pop_size, xdim))       #解候補の初期配置、boundsの最小値~最大値の中からランダムで数値を決定し、初期解の個数(pop_size)分だけ生成
