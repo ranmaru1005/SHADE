@@ -112,7 +112,7 @@ print("len(bounds.shape) = ",len(bounds.shape))
 
 #print( SHADE(bf.rastrigin, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
 
-result = differential_evolution(schaffer, 
+result = differential_evolution(rastrigin, 
                             bounds, 
                             strategy="currenttobest1bin",
                             #disp = True,
