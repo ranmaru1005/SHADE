@@ -38,7 +38,7 @@ print(len(bounds))
 
 #print( SHADE(bf.rastrigin, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
 
-result = differential_evolution(sphere 
+result = differential_evolution(sphere, 
                             bounds, 
                             strategy="currenttobest1bin", 
                             workers=-1, 
