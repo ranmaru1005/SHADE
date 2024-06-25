@@ -112,7 +112,7 @@ print("len(bounds) = ",len(bounds))
 print("len(bounds.shape) = ",len(bounds.shape))
 
 
-print( SHADE(sphere, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
+print( SHADE(ellipsoid, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
 
 
 """
