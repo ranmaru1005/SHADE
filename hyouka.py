@@ -16,6 +16,7 @@ def sphere(input_array):
 
 #ellipsoid
 def ellipsoid(input_array): 
+    input_array = input_array.reshape(1,-1)
     print("input_array = ",input_array)
     dim = input_array.shape[1]
     
