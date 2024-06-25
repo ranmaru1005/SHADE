@@ -94,7 +94,10 @@ H = 50
 tol = 0.01
 rng = np.random.Generator
 
-
+print("bounds = ",bounds)
+print("bounds.shape[1] = ",bounds.shape[1])
+print("len(bounds) = ",len(bounds))
+print("len(bounds.shape) = ",bounds.shape)
 
 
 #print( SHADE(bf.rastrigin, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
@@ -102,7 +105,7 @@ rng = np.random.Generator
 result = differential_evolution(ellipsoid, 
                             bounds, 
                             strategy="currenttobest1bin",
-                            disp = True,
+                            #disp = True,
                             workers=-1, 
                             updating="deferred", 
                             popsize=15,
