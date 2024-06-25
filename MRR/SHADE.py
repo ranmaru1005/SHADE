@@ -20,7 +20,7 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
     print("populations = ",populations)
     #obj_list = [func(pop, params) for pop in populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
     
-    obj_list = func(populations)       #生成した初期解を関数に代入し評価値を返したリストを作成
+    obj_list = [func(pop) for pop in populations]      #生成した初期解を関数に代入し評価値を返したリストを作成
     print(obj_list)
     print(type(obj_list))
     obj_list_G = obj_list       #各世代Gの評価値を記録。扱いはpopulations_Gと同様
