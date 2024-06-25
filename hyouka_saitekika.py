@@ -32,14 +32,15 @@ class OptimizeKParams:
 #Sphere
 a = 5.12
 bounds = np.array((-a,a))
-params = []
+params = 0
 pop_size = 10
 max_iter = 6000
 H = 50
 tol = 0.01
 rng = np.random.Generator
 
-
+print(bounds)
+print(len(bounds))
 
 
 #print( SHADE(bf.rastrigin, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
