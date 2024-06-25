@@ -94,8 +94,8 @@ def rastrigin(input_array):
 
 
 
-a = 5.12
-#a = 32.768
+#a = 5.12
+a = 32.768
 #a = 100
 number_of_x = 7 #解の個数(次元の数ともいえる)
 bounds = np.array([[-a, a] for _ in range(number_of_x)])
@@ -112,7 +112,7 @@ print("len(bounds) = ",len(bounds))
 print("len(bounds.shape) = ",len(bounds.shape))
 
 
-print( SHADE(ellipsoid, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
+print( SHADE(ackley, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
 
 
 """
