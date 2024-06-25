@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import numpy.typing as npt
+import pprint
 
 from scipy.optimize import differential_evolution
 from MRR.SHADE import SHADE
@@ -31,7 +32,7 @@ class OptimizeKParams:
 #Sphere
 a = 5.12
 bounds = np.array((-a,a))
-params = 0
+params = []
 pop_size = 10
 max_iter = 6000
 H = 50
@@ -52,5 +53,4 @@ result = differential_evolution(bf.rastrigin,
                             maxiter=500,
                             seed=rng)
 
-print("E = ",result.fun)
-print("X(解) = ",result.x)
+pprint.pprint(result)
