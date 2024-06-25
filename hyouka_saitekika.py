@@ -41,7 +41,7 @@ rng = np.random.Generator
 
 
 
-print( SHADE(bf.rastrigin, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
+#print( SHADE(bf.rastrigin, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
 
 result = differential_evolution(bf.rastrigin, 
                             bounds, 
