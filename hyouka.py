@@ -99,9 +99,10 @@ rng = np.random.Generator
 
 #print( SHADE(bf.rastrigin, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
 
-result = differential_evolution(bf.rastrigin, 
+result = differential_evolution(ellipsoid, 
                             bounds, 
-                            strategy="currenttobest1bin", 
+                            strategy="currenttobest1bin",
+                            disp = True,
                             workers=-1, 
                             updating="deferred", 
                             popsize=15,
