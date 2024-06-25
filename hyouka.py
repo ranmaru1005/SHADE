@@ -12,6 +12,7 @@ bf = BF()
 
 #Sphere
 def sphere(input_array): 
+    input_array = input_array.reshape(1,-1)
     return (input_array**2).sum(axis=-1)
 
 #ellipsoid
@@ -27,6 +28,7 @@ def ellipsoid(input_array):
 
 #k_tablet
 def k_tablet(input_array):
+    input_array = input_array.reshape(1,-1)
     dim = input_array.shape[1]
     k = math.ceil(dim/4)
             
@@ -36,6 +38,7 @@ def k_tablet(input_array):
 
 #rosenbrock_star
 def rosenbrock_star(input_array):
+    input_array = input_array.reshape(1,-1)
     input_array_1st = input_array[:,:1]
     input_array_rest = input_array[:,1:]
     
@@ -44,12 +47,14 @@ def rosenbrock_star(input_array):
 
 #rosenbrock_chain
 def rosenbrock_chain(input_array):
+    input_array = input_array.reshape(1,-1)
     
     return (100*(input_array[:,1:]-input_array[:,:-1]**2)**2 \
             +(1-input_array[:,:-1])**2).sum(axis=1)
 
 #bohachevsky
 def bohachevsky(input_array):
+    input_array = input_array.reshape(1,-1)
     
     return (input_array[:,:-1]**2 \
             +2*input_array[:,1:]**2 \
@@ -59,6 +64,7 @@ def bohachevsky(input_array):
 
 #ackley
 def ackley(input_array):
+    input_array = input_array.reshape(1,-1)
     dim = input_array.shape[1]
     
     return 20 \
@@ -68,6 +74,7 @@ def ackley(input_array):
 
 #schaffer
 def schaffer(input_array):
+    input_array = input_array.reshape(1,-1)
     
     return ((input_array[:,:-1]**2+input_array[:,1:]**2)**0.25 \
                 *(np.sin(50*(input_array[:,:-1]**2+input_array[:,1:]**2)**0.1)**2 \
@@ -75,6 +82,7 @@ def schaffer(input_array):
 
 #rastrigin
 def rastrigin(input_array):
+    input_array = input_array.reshape(1,-1)
     dim = input_array.shape[1]
     
     return 10*dim + \
@@ -86,7 +94,7 @@ def rastrigin(input_array):
 
 
 
-a = 5.12
+a = 32.768
 number_of_x = 2 #解の個数(次元の数ともいえる)
 bounds = np.array([[-a, a] for _ in range(number_of_x)])
 params = 0
@@ -104,7 +112,7 @@ print("len(bounds.shape) = ",len(bounds.shape))
 
 #print( SHADE(bf.rastrigin, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
 
-result = differential_evolution(ellipsoid, 
+result = differential_evolution(ackley, 
                             bounds, 
                             strategy="currenttobest1bin",
                             #disp = True,
