@@ -16,6 +16,7 @@ def sphere(input_array):
 
 #ellipsoid
 def ellipsoid(input_array): 
+    print("input_array = ",input_array)
     dim = input_array.shape[1]
     
     coef = [1000**(i/(dim-1)) for i in range(dim)]
@@ -97,7 +98,7 @@ rng = np.random.Generator
 print("bounds = ",bounds)
 print("bounds.shape[1] = ",bounds.shape[1])
 print("len(bounds) = ",len(bounds))
-print("len(bounds.shape) = ",bounds.shape)
+print("len(bounds.shape) = ",len(bounds.shape))
 
 
 #print( SHADE(bf.rastrigin, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
