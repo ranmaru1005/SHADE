@@ -9,6 +9,11 @@ from MRR.benchmark_function import BenchmarkFunction as BF
 
 bf = BF()
 
+#Sphere
+def sphere(input_array): 
+    return (input_array**2).sum(axis=-1)
+
+
 
 
 
@@ -31,9 +36,9 @@ print(len(bounds.shape))
 print(len(bounds))
 
 
-print( SHADE(bf.rastrigin, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
+#print( SHADE(bf.rastrigin, bounds, params, pop_size, max_iter, H, tol, callback = None, rng = None) )
 
-result = differential_evolution(bf.rastrigin, 
+result = differential_evolution(sphere 
                             bounds, 
                             strategy="currenttobest1bin", 
                             workers=-1, 
