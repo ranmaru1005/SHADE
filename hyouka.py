@@ -17,7 +17,7 @@ def sphere(input_array):
 #ellipsoid
 def ellipsoid(input_array): 
     input_array = input_array.reshape(1,-1)
-    print("input_array = ",input_array)
+    #print("input_array = ",input_array)
     dim = input_array.shape[1]
     
     coef = [1000**(i/(dim-1)) for i in range(dim)]
@@ -108,7 +108,7 @@ result = differential_evolution(ellipsoid,
                             bounds, 
                             strategy="currenttobest1bin",
                             #disp = True,
-                            workers=1, 
+                            workers=-1, 
                             updating="deferred", 
                             popsize=15,
                             maxiter=500
