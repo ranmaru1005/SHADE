@@ -41,10 +41,11 @@ print(len(bounds))
 result = differential_evolution(sphere, 
                             bounds, 
                             strategy="currenttobest1bin", 
+                            disp = True,
                             workers=-1, 
                             updating="deferred", 
                             popsize=15,
-                            maxiter=500
+                            maxiter=3000
                             )
                             
 
