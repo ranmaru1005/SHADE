@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 import numpy.typing as npt
 from scipy.optimize import differential_evolution
-from MRR.SHADE import SHADE        #20231219 に追加。　未完成のSHADEの導入
+from MRR.SHADE_old import SHADE        #20231219 に追加。　未完成のSHADEの導入
 
 from config.random import get_differential_evolution_rng
 from MRR.analyzer import analyze
@@ -94,7 +94,7 @@ def optimize_K(
 """
 
 
-
+"""
 
 def optimize_K(             #通常のSHADE用
     eta: float,
@@ -120,10 +120,10 @@ def optimize_K(             #通常のSHADE用
 
     return K, E
 
-
+"""
 
  
-"""
+
 def optimize_K(             #SHADE_old用
     eta: float,
     number_of_rings: int,
@@ -148,7 +148,7 @@ def optimize_K(             #SHADE_old用
     K: npt.NDArray[np.float_] = result[0]
 
     return K, E
-"""    
+   
 
 
 def optimize(
