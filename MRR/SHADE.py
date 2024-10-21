@@ -151,8 +151,7 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
 
     
     #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
-    
-   # 一時的に削除、ベンチマーク関数を用いるため
+    #一時的に削除、ベンチマーク関数を用いるため
     for i in range(dims):
         if mutated[0][i] <= 0:
             mutated[0][i] = populations_G[j][i] / 2
