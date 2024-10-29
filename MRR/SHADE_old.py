@@ -52,13 +52,13 @@ def mutation(F, bounds, j, pop_size, best_x, populations, rng):
     indexes = [i for i in range(pop_size) if i != j]        #jは現在選んでいる解。それ以外の番号を指定しているインデックスを作成
     a,b = populations[rng.choice(indexes, 2, replace = False)]        #現在選んでいる解以外から2つを選ぶ。
     mutated = populations[j] + F * (best_x - populations[j]) + F * (a - b)       #突然変異を表す式。「要改変」➡現在はカレントトゥベスト➡最終的にはカレントトゥピーベストにする
-    print("初めに生成した変異ベクトル = ",mutated)
+    #print("初めに生成した変異ベクトル = ",mutated)
     while any([k >= np.amax(dimbounds) for k in mutated]) or any([k <= np.amin(dimbounds) for k in mutated]):
-        print("変異ベクトルが範囲外です。ループします。現在の回数 =",count)
+        #print("変異ベクトルが範囲外です。ループします。現在の回数 =",count)
         count += 1
         a,b = populations[rng.choice(indexes, 2, replace = False)]        #現在選んでいる解以外から2つを選ぶ。
         mutated = populations[j] + F * (best_x - populations[j]) + F * (a - b)
-        print("これは再度生成した変異ベクトルです。値が正常か確認できます。値は = ",a)
+        #print("これは再度生成した変異ベクトルです。値が正常か確認できます。値は = ",a)
         if count > 50:
             mutated = np.clip(mutated, bounds[:, 0], bounds[:, 1])      #変異によって生まれたベクトルが異常な場合、値を範囲内に収める。
     
