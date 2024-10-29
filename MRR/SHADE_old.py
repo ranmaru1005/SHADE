@@ -53,8 +53,7 @@ def mutation(F, bounds, j, pop_size, best_x, populations, rng):
     a,b = populations[rng.choice(indexes, 2, replace = False)]        #現在選んでいる解以外から2つを選ぶ。
     #print("初めに変異の為に選ばれた解候補 = ",a)
     mutated = populations[j] + F * (best_x - populations[j]) + F * (a - b)       #突然変異を表す式。「要改変」➡現在はカレントトゥベスト➡最終的にはカレントトゥピーベストにする
-    print("生成した変異ベクトルを示す。",mutated)
-    while all([k >= np.amax(dimbounds) for k in mutated]) or all([k <= np.amin(dimbounds) for k in mutated]):
+    while any([k >= np.amax(dimbounds) for k in mutated]) or any([k <= np.amin(dimbounds) for k in mutated]):
         print("変異ベクトルが範囲外です。ループします。現在の回数 =",count)
         count += 1
         a,b = populations[rng.choice(indexes, 2, replace = False)]        #現在選んでいる解以外から2つを選ぶ。
