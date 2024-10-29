@@ -82,7 +82,7 @@ def optimize_K(
         disp = True,
         strategy="currenttobest1bin",
         workers=-1,
-        updating="deferred",
+        updating="immediate",
         popsize=15,
         maxiter=500,
         seed=rng,
