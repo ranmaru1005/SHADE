@@ -7,8 +7,7 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, F=0.5, cr=0.7,  ftol=
     xdim = len(bounds)      #最適化する変数の個数(結合率の数を入力することになる)
     dimbounds = np.ravel(bounds)
     populations = rng.uniform(low=np.amin(dimbounds), high=np.amax(dimbounds), size=(pop_size, xdim))       #解候補の初期配置、boundsの最小値~最大値の中からランダムで数値を決定し、初期解の個数(pop_size)分だけ生成
-    print("low = ",np.amin(dimbounds))
-    print("high = ",np.amax(dimbounds))
+    print("結合率である解候補の初期を示す。",populations)
     obj_list = [func(pop, params) for pop in populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
     best_x = populations[np.argmin(obj_list)]       #最もよい評価を得た際の解を記録
     best_obj = min(obj_list)        #最もよい評価を得た際の評価を記録する
