@@ -1,6 +1,6 @@
 import numpy as np
 
-def SHADE(func, bounds, params, pop_size=15, max_iter=500, F=0.5, cr=0.7,  ftol=10**-8, callback=None, rng=None):
+def SHADE(func, bounds, params, pop_size=50, max_iter=500, F=0.5, cr=0.7,  ftol=10**-8, callback=None, rng=None):
     if rng is None:
         rng = np.random.default_rng()
 
