@@ -7,7 +7,8 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, F=0.7, cr=0.7,  ftol=
     xdim = len(bounds)      #最適化する変数の個数(結合率の数を入力することになる)
     dimbounds = np.ravel(bounds)
     populations = rng.uniform(low=np.amin(dimbounds), high=np.amax(dimbounds), size=(pop_size, xdim))       #解候補の初期配置、boundsの最小値~最大値の中からランダムで数値を決定し、初期解の個数(pop_size)分だけ生成
-    print("結合率である解候補の初期を示す。",populations)
+    print("結合率である解候補の初期を示す。")
+    print(populations)
     obj_list = [func(pop, params) for pop in populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
     best_x = populations[np.argmin(obj_list)]       #最もよい評価を得た際の解を記録
     best_obj = min(obj_list)        #最もよい評価を得た際の評価を記録する
@@ -26,7 +27,8 @@ def SHADE(func, bounds, params, pop_size=15, max_iter=500, F=0.7, cr=0.7,  ftol=
         best_x = populations[np.argmin(obj_list)]       #最高の評価値が更新された場合用に記述、その解を記録
         
         print("評価値 = ",obj_list)
-        print("結合率は以下の通りです。",populations)
+        print("結合率は以下の通りです。")
+        print(populations)
 
         if best_obj < prev_obj:     #一周ごとに更新後の最高評価と更新前の最高評価を比べる
             if abs(prev_obj - best_obj) <= ftol:
