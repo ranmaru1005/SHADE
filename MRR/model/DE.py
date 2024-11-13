@@ -2,7 +2,8 @@ from dataclasses import dataclass
 
 import numpy as np
 import numpy.typing as npt
-from scipy.optimize import differential_evolution
+#from scipy.optimize import differential_evolution    #Scipyを使うときはこちらのコメントアウトを削除
+from MRR.DE_myself import differential_evoluation
 from MRR.SHADE_old import SHADE        #20231219 に追加。　未完成のSHADEの導入
 
 from config.random import get_differential_evolution_rng
@@ -149,6 +150,32 @@ def optimize_K(             #SHADE_old用
 
     return K, E
 
+
+
+def optimize_K(             #DE_myself 用
+    eta: float,
+    number_of_rings: int,
+    rng: np.random.Generator,
+    params: OptimizeKParams,
+) -> tuple[npt.NDArray[np.float_], float]:
+    #bounds = np.array([(1e-12, eta) for _ in range(number_of_rings + 1)])
+
+    result = differential_evolution(optimize_K_func, 
+                   bounds, 
+                   params, 
+                   pop_size=50, 
+                   max_iter = 1000,
+                   F = 0.5,
+                   cr = 0.7,
+                   ftol = 10**-8, 
+                   callback = None, 
+                   rng = None
+                  )
+    
+    E: float = -result[1]
+    K: npt.NDArray[np.float_] = result[0]
+
+    return K, E
 
 
 def optimize(
