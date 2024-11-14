@@ -35,6 +35,7 @@ def differential_evolution(objective_function, number_of_rings, eta=0.996, pop_s
     
     # 2. DEのメインループ
     for g in range(gen):
+        print("いまの世代 = ",g)
         new_population = []
         
         for i, target in enumerate(population):
