@@ -124,7 +124,7 @@ def optimize_K(             #通常のSHADE用
 """
 
  
-
+"""
 def optimize_K(             #SHADE_old用
     eta: float,
     number_of_rings: int,
@@ -150,7 +150,7 @@ def optimize_K(             #SHADE_old用
 
     return K, E
 
-
+"""
 
 def optimize_K(             #DE_myself 用
     eta: float,
@@ -159,18 +159,12 @@ def optimize_K(             #DE_myself 用
     params: OptimizeKParams,
 ) -> tuple[npt.NDArray[np.float_], float]:
     #bounds = np.array([(1e-12, eta) for _ in range(number_of_rings + 1)])
-
+    number_of_rings = 6
+    eta = 0.996
     result = differential_evolution(optimize_K_func, 
-                   bounds, 
-                   params, 
-                   pop_size=50, 
-                   max_iter = 1000,
-                   F = 0.5,
-                   cr = 0.7,
-                   ftol = 10**-8, 
-                   callback = None, 
-                   rng = None
-                  )
+                                    number_of_rings, 
+                                    eta
+                                   )
     
     E: float = -result[1]
     K: npt.NDArray[np.float_] = result[0]
