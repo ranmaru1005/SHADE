@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-def differential_evolution(objective_function, number_of_rings, eta=0.996, pop_size=15, gen=500, CR=0.5, F=0.5):
+def differential_evolution(objective_function, number_of_rings, params, eta=0.996, pop_size=15, gen=500, CR=0.5, F=0.5):
     """
     Differential Evolution (DE) アルゴリズムの実装。
     
@@ -26,7 +26,7 @@ def differential_evolution(objective_function, number_of_rings, eta=0.996, pop_s
     
     # 1. 初期集団の生成
     population = [np.random.uniform(min_val, max_val, dim) for _ in range(pop_size)]
-    fitness_values = [objective_function(ind) for ind in population]
+    fitness_values = [objective_function(ind, params) for ind in population]
     
     # 最良の個体を初期設定
     best_idx = np.argmin(fitness_values)
@@ -55,7 +55,7 @@ def differential_evolution(objective_function, number_of_rings, eta=0.996, pop_s
             trial = np.clip(trial, min_val, max_val)
             
             # 子個体の評価
-            trial_fitness = objective_function(trial)
+            trial_fitness = objective_function(trial, params)
             
             # 選択操作: 子個体と親個体の適応度を比較
             if trial_fitness < fitness_values[i]:
