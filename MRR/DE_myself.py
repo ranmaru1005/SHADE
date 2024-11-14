@@ -22,7 +22,7 @@ def differential_evolution(objective_function, number_of_rings, params, eta=0.99
     # 次元数の設定
     dim = number_of_rings + 1
     min_val = 1e-12  # 各要素の最小値
-    max_val = eta    # 各要素の最大値
+    max_val = 0.996    # 各要素の最大値
     
     # 1. 初期集団の生成
     population = [np.random.uniform(min_val, max_val, dim) for _ in range(pop_size)]
