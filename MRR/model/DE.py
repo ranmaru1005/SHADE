@@ -163,7 +163,8 @@ def optimize_K(             #DE_myself 用
     eta = 0.996
     result = differential_evolution(optimize_K_func, 
                                     number_of_rings, 
-                                    eta
+                                    eta,
+                                    params
                                    )
     
     E: float = -result[1]
