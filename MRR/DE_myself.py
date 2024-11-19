@@ -2,10 +2,10 @@ import random
 import numpy as np
 from pyDOE2 import lhs  # LHSサンプリング用
 
-def differential_evolution(objective_function, params, number_of_rings, eta=0.996, pop_size=20, gen=500, CR=0.5, F=0.5, seed=None):
+def differential_evolution(objective_function, params, number_of_rings, eta=0.996, pop_size=20, gen=500, CR=0.5, F=0.5, tol=1e-6, seed=None):
     """
-    Differential Evolution (DE) with improved initial population generation using LHS.
-    
+    Differential Evolution (DE) with LHS and convergence criteria.
+
     Parameters:
     - objective_function: 最適化したい目的関数
     - number_of_rings: 各個体の次元数 - 1 を加えた値
@@ -14,6 +14,7 @@ def differential_evolution(objective_function, params, number_of_rings, eta=0.99
     - gen: 最大世代数
     - CR: 交叉率
     - F: スケールファクター
+    - tol: 許容誤差 (収束判定用)
     - seed: 乱数シード
     
     Returns:
@@ -67,6 +68,12 @@ def differential_evolution(objective_function, params, number_of_rings, eta=0.99
 
         # 集団の更新
         population = new_population
-        print(f"Generation {g}: Best Fitness = {best_fitness}")
+        
+        # 収束条件の確認
+        fitness_std = np.std(fitness_values)
+        if fitness_std < tol:
+            print(f"Converged at Generation {g}: Best Fitness = {best_fitness}, Std = {fitness_std}")
+            break
+        print(f"Generation {g}: Best Fitness = {best_fitness}, Std = {fitness_std}")
 
     return best_individual, best_fitness
