@@ -71,6 +71,7 @@ def differential_evolution(objective_function, params, number_of_rings,  eta=0.9
 
         # 集団の更新
         population = new_population
+        print("集団 = ",population)
         print(f"Generation {g}: Best Fitness = {best_fitness}")
 
     # 最適解の出力
