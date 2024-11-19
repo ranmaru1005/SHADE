@@ -32,6 +32,7 @@ def differential_evolution(objective_function, params, number_of_rings, eta=0.99
     # 1. ラテンハイパーキューブサンプリングによる初期集団生成
     lhs_samples = lhs(dim, samples=pop_size, criterion='maximin')  # maximinで均等性を強調
     population = min_val + (max_val - min_val) * lhs_samples  # サンプリング結果を適用範囲にスケーリング
+    print("初期解の確認 = ",population)
     fitness_values = [objective_function(ind, params) for ind in population]
 
     # 最良の個体を初期設定
