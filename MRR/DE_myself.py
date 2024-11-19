@@ -2,7 +2,7 @@ import random
 import numpy as np
 from pyDOE2 import lhs  # LHSサンプリング用
 
-def differential_evolution(objective_function, params, number_of_rings, eta=0.996, pop_size=20, gen=500, CR=0.5, F=0.5, tol=1e-6, seed=None):
+def differential_evolution(objective_function, params, number_of_rings, eta=0.996, pop_size=20, gen=4000, CR=0.5, F=0.5, tol=1e-6, seed=None):
     """
     Differential Evolution (DE) with LHS and convergence criteria.
 
