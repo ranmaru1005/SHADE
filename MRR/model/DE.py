@@ -95,7 +95,7 @@ def optimize_K(
 
 """
 
-"""
+
 
 def optimize_K(             #通常のSHADE用
     eta: float,
@@ -121,7 +121,7 @@ def optimize_K(             #通常のSHADE用
 
     return K, E
 
-"""
+
 
  
 """
@@ -152,6 +152,8 @@ def optimize_K(             #SHADE_old用
 
 """
 
+"""
+
 def optimize_K(             #DE_myself 用
     eta: float,
     number_of_rings: int,
@@ -172,6 +174,7 @@ def optimize_K(             #DE_myself 用
 
     return K, E
 
+"""
 
 def optimize(
     n_g: float,
