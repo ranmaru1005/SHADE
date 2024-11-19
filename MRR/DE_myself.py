@@ -2,6 +2,7 @@ import random
 import numpy as np
 
 def differential_evolution(objective_function, number_of_rings, params, eta=0.996, pop_size=15, gen=500, CR=0.5, F=0.5):
+    print("パラメータ確認",params)
     """
     Differential Evolution (DE) アルゴリズムの実装。
     
