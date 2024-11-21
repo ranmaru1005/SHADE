@@ -7,6 +7,7 @@ from functools import partial
 def differential_evolution(
     objective_function, number_of_rings, eta=0.996, pop_size=20, gen=500, CR=0.5, F=0.5, tol=1e-6, seed=None, workers=4, params=None
 ):
+    print("params =",params)
     """
     Parallel Differential Evolution (DE) with LHS and convergence criteria, supporting extra parameters.
 
