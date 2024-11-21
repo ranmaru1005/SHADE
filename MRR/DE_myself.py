@@ -2,13 +2,16 @@ import random
 import numpy as np
 from pyDOE2 import lhs  # LHSサンプリング用
 from multiprocessing import Pool
+from functools import partial
 
-def differential_evolution(objective_function, params, number_of_rings, eta=0.996, pop_size=15, gen=2000, CR=0.5, F=0.5, tol=1e-6, seed=None, workers=4):
+def differential_evolution(
+    objective_function, number_of_rings, eta=0.996, pop_size=20, gen=500, CR=0.5, F=0.5, tol=1e-6, seed=None, workers=4, params=None
+):
     """
-    Parallel Differential Evolution (DE) with LHS and convergence criteria.
+    Parallel Differential Evolution (DE) with LHS and convergence criteria, supporting extra parameters.
 
     Parameters:
-    - objective_function: 最適化したい目的関数
+    - objective_function: 最適化したい目的関数 (x, params)
     - number_of_rings: 各個体の次元数 - 1 を加えた値
     - eta: 各個体の最大値
     - pop_size: 集団サイズ
@@ -18,6 +21,7 @@ def differential_evolution(objective_function, params, number_of_rings, eta=0.99
     - tol: 許容誤差 (収束判定用)
     - seed: 乱数シード
     - workers: 並列処理に使用するプロセス数
+    - params: objective_function に渡す追加パラメータ (OptimizeKParams)
     
     Returns:
     - best_individual: 最適な個体
@@ -35,9 +39,12 @@ def differential_evolution(objective_function, params, number_of_rings, eta=0.99
     lhs_samples = lhs(dim, samples=pop_size, criterion='maximin')  # maximinで均等性を強調
     population = min_val + (max_val - min_val) * lhs_samples  # サンプリング結果を適用範囲にスケーリング
     
+    # 固定引数を持つ関数を生成
+    evaluate = partial(objective_function, params=params)
+    
     # 初期集団の適応度を並列で計算
     with Pool(processes=workers) as pool:
-        fitness_values = pool.map(objective_function, population)
+        fitness_values = pool.map(evaluate, population)
 
     # 最良の個体を初期設定
     best_idx = np.argmin(fitness_values)
@@ -63,7 +70,7 @@ def differential_evolution(objective_function, params, number_of_rings, eta=0.99
         
         # 子個体の適応度を並列で計算
         with Pool(processes=workers) as pool:
-            trial_fitness_values = pool.map(objective_function, trials)
+            trial_fitness_values = pool.map(evaluate, trials)
 
         for i, trial_fitness in enumerate(trial_fitness_values):
             if trial_fitness < fitness_values[i]:
