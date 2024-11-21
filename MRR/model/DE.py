@@ -123,7 +123,7 @@ def optimize_K(             #通常のSHADE用
 
 """
 
-
+"""
 
 def optimize_K(             #SHADE_old用
     eta: float,
@@ -150,9 +150,9 @@ def optimize_K(             #SHADE_old用
 
     return K, E
 
-
-
 """
+
+
 
 def optimize_K(             #DE_myself 用
     eta: float,
@@ -164,9 +164,14 @@ def optimize_K(             #DE_myself 用
     number_of_rings = 6
     eta = 0.996
     result = differential_evolution(optimize_K_func, 
-                                    params,
                                     number_of_rings,
-                                    eta
+                                    eta,
+                                    pop_size = 15,
+                                    gen = 2000,
+                                    tol = 1e-6,
+                                    seed = 43,
+                                    workers = -1,
+                                    params=params
                                    )
     
     E: float = -result[1]
@@ -174,7 +179,7 @@ def optimize_K(             #DE_myself 用
 
     return K, E
 
-"""
+
 
 def optimize(
     n_g: float,
