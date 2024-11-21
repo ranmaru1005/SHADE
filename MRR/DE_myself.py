@@ -1,10 +1,11 @@
 import random
 import numpy as np
 from pyDOE2 import lhs  # LHSサンプリング用
+from multiprocessing import Pool
 
-def differential_evolution(objective_function, params, number_of_rings, eta=0.996, pop_size=20, gen=4000, CR=0.5, F=0.5, tol=1e-6, seed=None):
+def differential_evolution(objective_function, params, number_of_rings, eta=0.996, pop_size=15, gen=2000, CR=0.5, F=0.5, tol=1e-6, seed=None, workers=4):
     """
-    Differential Evolution (DE) with LHS and convergence criteria.
+    Parallel Differential Evolution (DE) with LHS and convergence criteria.
 
     Parameters:
     - objective_function: 最適化したい目的関数
@@ -16,6 +17,7 @@ def differential_evolution(objective_function, params, number_of_rings, eta=0.99
     - F: スケールファクター
     - tol: 許容誤差 (収束判定用)
     - seed: 乱数シード
+    - workers: 並列処理に使用するプロセス数
     
     Returns:
     - best_individual: 最適な個体
@@ -32,8 +34,10 @@ def differential_evolution(objective_function, params, number_of_rings, eta=0.99
     # 1. ラテンハイパーキューブサンプリングによる初期集団生成
     lhs_samples = lhs(dim, samples=pop_size, criterion='maximin')  # maximinで均等性を強調
     population = min_val + (max_val - min_val) * lhs_samples  # サンプリング結果を適用範囲にスケーリング
-    print("初期解の確認 = ",population)
-    fitness_values = [objective_function(ind, params) for ind in population]
+    
+    # 初期集団の適応度を並列で計算
+    with Pool(processes=workers) as pool:
+        fitness_values = pool.map(objective_function, population)
 
     # 最良の個体を初期設定
     best_idx = np.argmin(fitness_values)
@@ -43,6 +47,8 @@ def differential_evolution(objective_function, params, number_of_rings, eta=0.99
     # 2. DEのメインループ
     for g in range(gen):
         new_population = []
+        trials = []
+        
         for i, target in enumerate(population):
             # 変異操作: current-to-best/1
             candidates = [ind for j, ind in enumerate(population) if j != i]
@@ -53,19 +59,21 @@ def differential_evolution(objective_function, params, number_of_rings, eta=0.99
             # 交叉操作
             trial = np.where(np.random.rand(dim) < CR, mutant, target)
             trial = np.clip(trial, min_val, max_val)
-            
-            # 子個体の評価
-            trial_fitness = objective_function(trial, params)
-            
-            # 選択操作
+            trials.append(trial)
+        
+        # 子個体の適応度を並列で計算
+        with Pool(processes=workers) as pool:
+            trial_fitness_values = pool.map(objective_function, trials)
+
+        for i, trial_fitness in enumerate(trial_fitness_values):
             if trial_fitness < fitness_values[i]:
-                new_population.append(trial)
+                new_population.append(trials[i])
                 fitness_values[i] = trial_fitness
                 if trial_fitness < best_fitness:
-                    best_individual = trial
+                    best_individual = trials[i]
                     best_fitness = trial_fitness
             else:
-                new_population.append(target)
+                new_population.append(population[i])
 
         # 集団の更新
         population = new_population
