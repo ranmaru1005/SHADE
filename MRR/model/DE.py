@@ -123,7 +123,7 @@ def optimize_K(             #通常のSHADE用
 
 """
 
-"""
+
 
 def optimize_K(             #SHADE_old用
     eta: float,
@@ -137,7 +137,7 @@ def optimize_K(             #SHADE_old用
                    bounds, 
                    params, 
                    pop_size=50, 
-                   max_iter = 1000,
+                   max_iter = 5000,
                    F = 0.5,
                    cr = 0.7,
                    ftol = 10**-8, 
@@ -150,9 +150,9 @@ def optimize_K(             #SHADE_old用
 
     return K, E
 
+
+
 """
-
-
 
 def optimize_K(             #DE_myself 用
     eta: float,
@@ -174,7 +174,7 @@ def optimize_K(             #DE_myself 用
 
     return K, E
 
-
+"""
 
 def optimize(
     n_g: float,
