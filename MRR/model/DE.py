@@ -170,7 +170,7 @@ def optimize_K(             #DE_myself 用
                                     gen = 2000,
                                     tol = 1e-6,
                                     seed = 43,
-                                    workers = -1,
+                                    workers = 4,
                                     params=params
                                    )
     
