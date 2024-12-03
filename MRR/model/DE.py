@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 import numpy.typing as npt
 #from scipy.optimize import differential_evolution    #Scipyを使うときはこちらのコメントアウトを削除
-from MRR.DE_myself import differential_evolution
+#from MRR.DE_myself import differential_evolution
 from MRR.SHADE_old import SHADE        #20231219 に追加。　未完成のSHADEの導入
 from MRR.SHADE_myself import shade
 
