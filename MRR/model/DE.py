@@ -194,10 +194,10 @@ def optimize_K(             #SHADE_myself 用
     result = shade(optimize_K_func, 
                                     number_of_rings,
                                     eta,
-                                    pop_size = 15,
+                                    pop_size = 20,
                                     gen = 10000,
                                     tol = 1e-6,
-                                    seed = 43,
+                                    memory_size=50
                                     workers = 12,
                                     params=params
                                    )
