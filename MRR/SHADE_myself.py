@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 def shade(objective_function, number_of_rings, eta=0.996, pop_size=20, gen=500, tol=1e-6, memory_size=5, workers=4, seed=None, params=None):
     """
-    SHADE (Success-History based Adaptive Differential Evolution)
+    SHADE (Success-History based Adaptive Differential Evolution) with correct memory update.
     Parameters:
     - objective_function: 評価関数 (x, params)
     - number_of_rings: 次元数
@@ -98,8 +98,11 @@ def shade(objective_function, number_of_rings, eta=0.996, pop_size=20, gen=500, 
         # 5. メモリ更新
         if s_cr:
             weights = np.array(delta_fitness) / np.sum(delta_fitness)
-            memory_cr[idx] = (1 - 0.1) * memory_cr[idx] + 0.1 * np.sum(weights * np.array(s_cr))
-            memory_f[idx] = (1 - 0.1) * memory_f[idx] + 0.1 * np.sum(weights * np.array(s_f))
+            # スケールファクター (HMF)
+            memory_f[idx] = np.sum(weights * (np.array(s_f) ** 2)) / np.sum(weights * np.array(s_f))
+            # 交叉率 (HMCR)
+            memory_cr[idx] = np.sum(weights * np.array(s_cr)) / np.sum(weights)
+
 
         # 集団と適応度の更新
         population = new_population
@@ -110,11 +113,11 @@ def shade(objective_function, number_of_rings, eta=0.996, pop_size=20, gen=500, 
         if len(archive) > pop_size:
             archive = random.sample(archive, pop_size)
 
-        # 収束判定
-        if np.std(fitness_values) < tol:
+        # 収束判定とログ出力
+        fitness_std = np.std(fitness_values)
+        print(f"Generation {g}: Best Fitness = {best_fitness}, Std = {fitness_std}")
+        if fitness_std < tol:
             print(f"Converged at Generation {g}: Best Fitness = {best_fitness}")
             break
-
-        print(f"Generation {g}: Best Fitness = {best_fitness}")
 
     return best_individual, best_fitness
