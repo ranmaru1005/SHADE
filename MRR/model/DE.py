@@ -197,7 +197,7 @@ def optimize_K(             #SHADE_myself 用
                                     pop_size = 20,
                                     gen = 10000,
                                     tol = 1e-6,
-                                    memory_size=50
+                                    memory_size=50,
                                     workers = 12,
                                     params=params
                                    )
