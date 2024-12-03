@@ -5,18 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 def shade(objective_function, number_of_rings, eta=0.996, pop_size=20, gen=500, tol=1e-6, memory_size=5, workers=4, seed=None, params=None):
     """
-    SHADE (Success-History based Adaptive Differential Evolution) with correct memory update.
-    Parameters:
-    - objective_function: 評価関数 (x, params)
-    - number_of_rings: 次元数
-    - eta: 各個体の最大値
-    - pop_size: 集団サイズ
-    - gen: 最大世代数
-    - tol: 収束許容誤差
-    - memory_size: 成功履歴のメモリサイズ
-    - workers: 並列処理に使用するスレッド数
-    - seed: 乱数シード
-    - params: 評価関数の追加引数
+    SHADE (Success-History based Adaptive Differential Evolution) with detailed logging.
     """
     np.random.seed(seed)
     random.seed(seed)
@@ -39,6 +28,11 @@ def shade(objective_function, number_of_rings, eta=0.996, pop_size=20, gen=500, 
     best_individual = population[best_idx]
     best_fitness = fitness_values[best_idx]
 
+    print(f"Initial Population:\n{population}")
+    print(f"Initial Fitness:\n{fitness_values}")
+    print(f"Initial Memory CR: {memory_cr}")
+    print(f"Initial Memory F: {memory_f}")
+
     for g in range(gen):
         new_population = []
         new_fitness_values = []
@@ -48,6 +42,8 @@ def shade(objective_function, number_of_rings, eta=0.996, pop_size=20, gen=500, 
         # 並列処理で評価
         with ThreadPoolExecutor(max_workers=workers) as executor:
             futures = []
+            generation_cr = []  # 現世代のCR
+            generation_f = []   # 現世代のF
             for i, target in enumerate(population):
                 # 1. CRとFを適応的に生成
                 idx = random.randint(0, memory_size - 1)
@@ -55,6 +51,9 @@ def shade(objective_function, number_of_rings, eta=0.996, pop_size=20, gen=500, 
                 f = -1
                 while f <= 0 or f > 1:
                     f = np.random.normal(memory_f[idx], 0.1)
+
+                generation_cr.append(cr)
+                generation_f.append(f)
 
                 # 2. current-to-pbest/1 変異
                 p = max(2, int(pop_size * 0.2))  # 上位20%
@@ -84,8 +83,8 @@ def shade(objective_function, number_of_rings, eta=0.996, pop_size=20, gen=500, 
                     new_fitness_values.append(trial_fitness)
 
                     # 成功履歴の記録
-                    s_cr.append(cr)
-                    s_f.append(f)
+                    s_cr.append(generation_cr[i])
+                    s_f.append(generation_f[i])
                     delta_fitness.append(fitness_values[i] - trial_fitness)
 
                     if trial_fitness < best_fitness:
@@ -98,11 +97,8 @@ def shade(objective_function, number_of_rings, eta=0.996, pop_size=20, gen=500, 
         # 5. メモリ更新
         if s_cr:
             weights = np.array(delta_fitness) / np.sum(delta_fitness)
-            # スケールファクター (HMF)
             memory_f[idx] = np.sum(weights * (np.array(s_f) ** 2)) / np.sum(weights * np.array(s_f))
-            # 交叉率 (HMCR)
             memory_cr[idx] = np.sum(weights * np.array(s_cr)) / np.sum(weights)
-
 
         # 集団と適応度の更新
         population = new_population
@@ -113,9 +109,17 @@ def shade(objective_function, number_of_rings, eta=0.996, pop_size=20, gen=500, 
         if len(archive) > pop_size:
             archive = random.sample(archive, pop_size)
 
-        # 収束判定とログ出力
+        # ログ出力
         fitness_std = np.std(fitness_values)
-        print(f"Generation {g}: Best Fitness = {best_fitness}, Std = {fitness_std}")
+        print(f"\nGeneration {g}:")
+        print(f"Best Fitness = {best_fitness}, Std = {fitness_std}")
+        print(f"Current Population:\n{population}")
+        print(f"Memory CR: {memory_cr}")
+        print(f"Memory F: {memory_f}")
+        print(f"Generated CR: {generation_cr}")
+        print(f"Generated F: {generation_f}")
+
+        # 収束判定
         if fitness_std < tol:
             print(f"Converged at Generation {g}: Best Fitness = {best_fitness}")
             break
