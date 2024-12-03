@@ -1,90 +1,120 @@
 import numpy as np
-import concurrent.futures
 from pyDOE2 import lhs
 import random
+from concurrent.futures import ThreadPoolExecutor
 
-def shade(objective_function, number_of_rings, eta=0.996, pop_size=20, gen=500, tol=1e-6, seed=None, workers=4, params=None):
+def shade(objective_function, number_of_rings, eta=0.996, pop_size=20, gen=500, tol=1e-6, memory_size=5, workers=4, seed=None, params=None):
+    """
+    SHADE (Success-History based Adaptive Differential Evolution)
+    Parameters:
+    - objective_function: 評価関数 (x, params)
+    - number_of_rings: 次元数
+    - eta: 各個体の最大値
+    - pop_size: 集団サイズ
+    - gen: 最大世代数
+    - tol: 収束許容誤差
+    - memory_size: 成功履歴のメモリサイズ
+    - workers: 並列処理に使用するスレッド数
+    - seed: 乱数シード
+    - params: 評価関数の追加引数
+    """
     np.random.seed(seed)
     random.seed(seed)
-    
+
+    # 次元数と探索範囲
     dim = number_of_rings + 1
     min_val = 1e-12
     max_val = eta
-    
-    # 1. 初期集団生成（ラテンハイパーキューブサンプリング）
-    lhs_samples = lhs(dim, samples=pop_size, criterion='maximin')
+
+    # 初期化
+    lhs_samples = lhs(dim, samples=pop_size, criterion="maximin")
     population = min_val + (max_val - min_val) * lhs_samples
     fitness_values = [objective_function(ind, params) for ind in population]
-    
-    # 初期化
-    memory_size = 25  # 成功履歴の保存数
-    memory_cr = np.full(memory_size, 0.5)  # 交叉率
-    memory_f = np.full(memory_size, 0.5)   # スケールファクター
-    archive = []  # 選択から除外された個体を保持
-    
+
+    archive = []  # 外部アーカイブ
+    memory_cr = np.full(memory_size, 0.5)  # 初期CRメモリ
+    memory_f = np.full(memory_size, 0.5)   # 初期Fメモリ
+
     best_idx = np.argmin(fitness_values)
     best_individual = population[best_idx]
     best_fitness = fitness_values[best_idx]
-    
+
     for g in range(gen):
         new_population = []
         new_fitness_values = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+        s_cr, s_f = [], []  # 成功したCRとFを記録
+        delta_fitness = []  # 成功した適応度差
+
+        # 並列処理で評価
+        with ThreadPoolExecutor(max_workers=workers) as executor:
             futures = []
             for i, target in enumerate(population):
-                # 適応的なFとCRの生成
+                # 1. CRとFを適応的に生成
                 idx = random.randint(0, memory_size - 1)
                 cr = np.clip(np.random.normal(memory_cr[idx], 0.1), 0, 1)
-                f = 0
+                f = -1
                 while f <= 0 or f > 1:
                     f = np.random.normal(memory_f[idx], 0.1)
-                
-                # 変異操作: current-to-pbest/1
-                p = int(np.ceil(pop_size * 0.2))  # 上位20%の個体
-                pbest_idx = np.random.choice(np.argsort(fitness_values)[:p])
+
+                # 2. current-to-pbest/1 変異
+                p = max(2, int(pop_size * 0.2))  # 上位20%
+                pbest_idx = random.choice(np.argsort(fitness_values)[:p])
                 pbest = population[pbest_idx]
                 
                 candidates = [ind for j, ind in enumerate(population) if j != i]
                 if archive:
                     candidates += archive
                 a, b = random.sample(candidates, 2)
-                
+
                 mutant = target + f * (pbest - target) + f * (a - b)
                 mutant = np.clip(mutant, min_val, max_val)
-                
-                # 交叉操作
+
+                # 3. 交叉
                 trial = np.where(np.random.rand(dim) < cr, mutant, target)
                 trial = np.clip(trial, min_val, max_val)
-                
-                # 並列で子個体を評価
+
+                # 並列で評価
                 futures.append(executor.submit(objective_function, trial, params))
-            
-            # 子個体の評価結果を収集
+
+            # 4. 選択操作
             for i, future in enumerate(futures):
                 trial_fitness = future.result()
                 if trial_fitness < fitness_values[i]:
                     new_population.append(trial)
                     new_fitness_values.append(trial_fitness)
-                    
-                    # 成功履歴を更新
-                    memory_cr[idx] = 0.9 * memory_cr[idx] + 0.1 * cr
-                    memory_f[idx] = 0.9 * memory_f[idx] + 0.1 * f
-                    
+
+                    # 成功履歴の記録
+                    s_cr.append(cr)
+                    s_f.append(f)
+                    delta_fitness.append(fitness_values[i] - trial_fitness)
+
                     if trial_fitness < best_fitness:
                         best_individual = trial
                         best_fitness = trial_fitness
                 else:
                     new_population.append(population[i])
                     new_fitness_values.append(fitness_values[i])
-        
-        # 更新と収束判定
+
+        # 5. メモリ更新
+        if s_cr:
+            weights = np.array(delta_fitness) / np.sum(delta_fitness)
+            memory_cr[idx] = (1 - 0.1) * memory_cr[idx] + 0.1 * np.sum(weights * np.array(s_cr))
+            memory_f[idx] = (1 - 0.1) * memory_f[idx] + 0.1 * np.sum(weights * np.array(s_f))
+
+        # 集団と適応度の更新
         population = new_population
         fitness_values = new_fitness_values
-        
-        fitness_std = np.std(fitness_values)
-        if fitness_std < tol:
-            print(f"Converged at Generation {g}: Best Fitness = {best_fitness}, Std = {fitness_std}")
+
+        # 外部アーカイブの更新
+        archive = archive + [population[i] for i in range(pop_size) if fitness_values[i] != best_fitness]
+        if len(archive) > pop_size:
+            archive = random.sample(archive, pop_size)
+
+        # 収束判定
+        if np.std(fitness_values) < tol:
+            print(f"Converged at Generation {g}: Best Fitness = {best_fitness}")
             break
-        print(f"Generation {g}: Best Fitness = {best_fitness}, Std = {fitness_std}")
-    
+
+        print(f"Generation {g}: Best Fitness = {best_fitness}")
+
     return best_individual, best_fitness
