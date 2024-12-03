@@ -113,11 +113,11 @@ def shade(objective_function, number_of_rings, eta=0.996, pop_size=20, gen=500, 
         fitness_std = np.std(fitness_values)
         print(f"\nGeneration {g}:")
         print(f"Best Fitness = {best_fitness}, Std = {fitness_std}")
-        print(f"Current Population:\n{population}")
-        print(f"Memory CR: {memory_cr}")
-        print(f"Memory F: {memory_f}")
-        print(f"Generated CR: {generation_cr}")
-        print(f"Generated F: {generation_f}")
+        #print(f"Current Population:\n{population}")
+        #print(f"Memory CR: {memory_cr}")
+        #print(f"Memory F: {memory_f}")
+        #print(f"Generated CR: {generation_cr}")
+        #print(f"Generated F: {generation_f}")
 
         # 収束判定
         if fitness_std < tol:
