@@ -5,6 +5,7 @@ import numpy.typing as npt
 #from scipy.optimize import differential_evolution    #Scipyを使うときはこちらのコメントアウトを削除
 from MRR.DE_myself import differential_evolution
 from MRR.SHADE_old import SHADE        #20231219 に追加。　未完成のSHADEの導入
+from MRR.SHADE_myself import shade
 
 from config.random import get_differential_evolution_rng
 from MRR.analyzer import analyze
@@ -152,7 +153,7 @@ def optimize_K(             #SHADE_old用
 
 """
 
-
+"""
 
 def optimize_K(             #DE_myself 用
     eta: float,
@@ -179,6 +180,32 @@ def optimize_K(             #DE_myself 用
 
     return K, E
 
+"""
+
+def optimize_K(             #SHADE_myself 用
+    eta: float,
+    number_of_rings: int,
+    rng: np.random.Generator,
+    params: OptimizeKParams,
+) -> tuple[npt.NDArray[np.float_], float]:
+    #bounds = np.array([(1e-12, eta) for _ in range(number_of_rings + 1)])
+    number_of_rings = 6
+    eta = 0.996
+    result = shade(optimize_K_func, 
+                                    number_of_rings,
+                                    eta,
+                                    pop_size = 20,
+                                    gen = 3000,
+                                    tol = 1e-6,
+                                    seed = 43,
+                                    workers = 12,
+                                    params=params
+                                   )
+    
+    E: float = -result[1]
+    K: npt.NDArray[np.float_] = result[0]
+
+    return K, E
 
 
 def optimize(
