@@ -4,7 +4,7 @@ import math
 import time
 from multiprocessing import Pool	#宮崎で追加
 from scipy import stats
-
+from pyDOE2 import lhs
 
 def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=None):
     if rng is None:
@@ -12,7 +12,11 @@ def SHADE(func, bounds, params, pop_size, max_iter, H,  tol, callback=None, rng=
 
     xdim = len(bounds)      #最適化する変数の個数(結合率の数を入力することになる)
     dimbounds = np.ravel(bounds)
-    populations = rng.uniform(low=np.amin(dimbounds), high=np.amax(dimbounds), size=(pop_size, xdim))       #解候補の初期配置、boundsの最小値~最大値の中からランダムで数値を決定し、初期解の個数(pop_size)分だけ生成
+    #populations = rng.uniform(low=np.amin(dimbounds), high=np.amax(dimbounds), size=(pop_size, xdim))       #解候補の初期配置、boundsの最小値~最大値の中からランダムで数値を決定し、初期解の個数(pop_size)分だけ生成
+
+    lhs_samples = lhs(xdim, samples=pop_size, criterion="maximin")  # LHSで初期配置
+    populations = np.amin(dimbounds) + lhs_samples * (np.amax(dimbounds) - np.amin(dimbounds))
+
     populations_G = populations     #各世代Gの解を記録。世代毎のGを記録しておき、各解候補の更新は別のものに記録する。
     obj_list = [func(pop, params) for pop in populations]       #生成した初期解を関数に代入し評価値を返したリストを作成
     obj_list_G = obj_list       #各世代Gの評価値を記録。扱いはpopulations_Gと同様
