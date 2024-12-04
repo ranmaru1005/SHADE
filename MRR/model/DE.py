@@ -304,7 +304,7 @@ def optimize(
             L[i] = L_list[i]
         """
             
-        N = [88, 110, 110, 110, 88, 88]
+        N = [110, 88, 88, 110, 110, 110]
         L = calculate_ring_length(center_wavelength=center_wavelength, n_eff=n_eff, N=N)
         
         print("L確認",L)
