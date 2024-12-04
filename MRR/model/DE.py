@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import numpy as np
 import numpy.typing as npt
-#from scipy.optimize import differential_evolution    #Scipyを使うときはこちらのコメントアウトを削除
+from scipy.optimize import differential_evolution    #Scipyを使うときはこちらのコメントアウトを削除
 #from MRR.DE_myself import differential_evolution
 from MRR.SHADE import SHADE        #20231219 に追加。　未完成のSHADEの導入
 from MRR.SHADE_myself import shade
@@ -67,7 +67,7 @@ class OptimizeKParams:
     r_max: float
     weight: list[float]
 
-"""
+
     #もともとのプログラムはこれ。
 def optimize_K(
     eta: float,
@@ -94,9 +94,9 @@ def optimize_K(
 
     return K, E
 
+
+
 """
-
-
 
 def optimize_K(             #通常のSHADE用
     eta: float,
@@ -122,7 +122,7 @@ def optimize_K(             #通常のSHADE用
 
     return K, E
 
-
+"""
 
 """
 
