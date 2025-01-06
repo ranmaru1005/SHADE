@@ -67,6 +67,7 @@ class OptimizeKParams:
     r_max: float
     weight: list[float]
 
+
 """
     #もともとのプログラムはこれ。
 def optimize_K(
@@ -96,7 +97,57 @@ def optimize_K(
 
 """
 
+    #誤差を含めて結合率を最適化する用
+def optimize_K_with_perturbation(
+    eta: float,
+    number_of_rings: int,
+    rng: np.random.Generator,
+    params: OptimizeKParams,
+) -> tuple[npt.NDArray[np.float_], float]:
+    # 1. 初期設定
+    bounds = [(1e-12, eta) for _ in range(number_of_rings + 1)]  # Kの範囲
 
+    # 2. 内部評価関数の定義
+    def combined_evaluation(K: npt.NDArray[np.float_]) -> float:
+        """
+        通常の評価値と誤差を考慮した評価値を組み合わせた総合評価関数。
+        """
+        # 通常の評価値
+        E_optimal = optimize_K_func(K, params)
+
+        # 誤差を加えた評価値
+        E_perturbed = optimize_perturbed_K_func(K, params)
+
+        # 評価値の変動量
+        delta_E = abs(E_optimal - E_perturbed)
+
+        # 総合評価値（小さいほど良い）
+        total_score = E_optimal + delta_E  # ペナルティとして変動量を加算
+        return total_score
+
+    # 3. 最適化実行
+    result = differential_evolution(
+        func=combined_evaluation,  # 総合評価関数を最適化
+        bounds=bounds,
+        strategy="currenttobest1bin",  # 差分進化戦略
+        popsize=15,  # 集団サイズ
+        maxiter=500,  # 最大世代数
+        tol=1e-6,  # 収束許容誤差
+        seed=rng,  # 乱数生成器
+        disp=True,  # 最適化過程を表示
+        workers=-1,  # 並列化
+    )
+
+    # 4. 結果の出力
+    E: float = -result.fun  # 最小化問題として解かれるため符号を反転
+    K: npt.NDArray[np.float_] = result.x  # 最適化された結合率
+
+    return K, E
+
+
+
+
+"""
 
 def optimize_K(             #通常のSHADE用
     eta: float,
@@ -122,7 +173,7 @@ def optimize_K(             #通常のSHADE用
 
     return K, E
 
-
+"""
 
 """
 
@@ -315,8 +366,8 @@ def optimize(
         
 
 
-        
-        K, E = optimize_K(
+        K, E = optimize_K_with_perturbation(
+        #K, E = optimize_K(
             eta=eta,
             number_of_rings=number_of_rings,
             rng=rng,
