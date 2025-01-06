@@ -469,3 +469,38 @@ def optimize_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams) -> np.fl
         weight=params.weight,
         ignore_binary_evaluation=False,
     )
+
+
+def optimize_perturbed_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams) -> np.float_:
+    # 誤差を含む結合率を生成
+    perturbed_K = K + np.random.uniform(-1e-3, 1e-3, size=K.shape)
+
+    # 波長と透過特性を計算
+    x = calculate_x(center_wavelength=params.center_wavelength, FSR=params.FSR)
+    y = simulate_transfer_function(
+        wavelength=x,
+        L=params.L,
+        K=perturbed_K,  # 誤差を加えた結合率を使用
+        alpha=params.alpha,
+        eta=params.eta,
+        n_eff=params.n_eff,
+        n_g=params.n_g,
+        center_wavelength=params.center_wavelength,
+    )
+
+    # 評価値を計算
+    return -evaluate_band(
+        x=x,
+        y=y,
+        center_wavelength=params.center_wavelength,
+        length_of_3db_band=params.length_of_3db_band,
+        max_crosstalk=params.max_crosstalk,
+        H_p=params.H_p,
+        H_s=params.H_s,
+        H_i=params.H_i,
+        r_max=params.r_max,
+        weight=params.weight,
+        ignore_binary_evaluation=False,
+    )
+
+
