@@ -370,8 +370,8 @@ def optimize(
         
 
 
-        K, E = optimize_K_with_perturbation(
-        #K, E = optimize_K(
+        #K, E = optimize_K_with_perturbation(
+        K, E = optimize_K(
             eta=eta,
             number_of_rings=number_of_rings,
             rng=rng,
