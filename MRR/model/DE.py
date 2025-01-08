@@ -88,7 +88,7 @@ def combined_evaluation(
     return total_score
 
 
-"""
+
     #もともとのプログラムはこれ。
 def optimize_K(
     eta: float,
@@ -115,8 +115,9 @@ def optimize_K(
 
     return K, E
 
-"""
 
+
+"""
     #誤差を含めて結合率を最適化する用
 def optimize_K_with_perturbation(
     eta: float,
@@ -147,7 +148,7 @@ def optimize_K_with_perturbation(
 
     return K, E
 
-
+"""
 
 
 """
