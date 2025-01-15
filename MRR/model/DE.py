@@ -76,9 +76,7 @@ perturbed_evaluations = []  # 誤差を加えた評価値を記録
 def combined_evaluation(
     K: npt.NDArray[np.float_], params: OptimizeKParams
 ) -> float:
-    """
-    通常の評価値と誤差を含む評価値を計算し、それぞれ記録。
-    """
+    #通常の評価値と誤差を含む評価値を計算し、それぞれ記録。
     # 通常の評価値
     E_optimal = optimize_K_func(K, params)
 
@@ -101,9 +99,7 @@ def combined_evaluation(
 def combined_evaluation(
     K: npt.NDArray[np.float_], params: OptimizeKParams
 ) -> float:
-    """
     # 通常の評価値と誤差を考慮した評価値を組み合わせた総合評価関数。
-    """
     # 通常の評価値
     E_optimal = optimize_K_func(K, params)
 
@@ -122,12 +118,12 @@ def evaluation_callback(
     population: npt.NDArray[np.float_],
     convergence: float
 ) -> None:
-    """
-    各世代終了時に通常の評価値、誤差を加えた評価値を出力。
-    """
+    # 各世代終了時に通常の評価値、誤差を加えた評価値を出力。
+    
     print(f"Generation {len(normal_evaluations)}:")
     print(f"  Normal Evaluations: {normal_evaluations[-1]}")
     print(f"  Perturbed Evaluations: {perturbed_evaluations[-1]}")
+
 
     #誤差を含んだ評価値を出力する場合
 def optimize_K(
