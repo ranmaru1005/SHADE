@@ -68,7 +68,8 @@ class OptimizeKParams:
     weight: list[float]
 
 
-
+normal_evaluations = []  # 通常の評価値を記録
+perturbed_evaluations = []  # 誤差を加えた評価値を記録
 
 
 
