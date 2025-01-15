@@ -103,6 +103,7 @@ def evaluate_with_error(
     print("結合率の評価結果:")
     for i in range(len(K)):
         print(f"K[{i}]: 理論値={K[i]:.5f}, 誤差値={perturbed_K[i]:.5f}")
+    print("リング周長 = ", params.L)
     print(f"\n理論値の評価値: {E_original:.5f}")
     print(f"誤差を加えた評価値: {E_perturbed:.5f}")
     print(f"評価値の変動: {abs(E_original - E_perturbed):.5f}")
