@@ -72,10 +72,10 @@ normal_evaluations = []  # 通常の評価値を記録
 perturbed_evaluations = []  # 誤差を加えた評価値を記録
 
 
-
+"""
 def combined_evaluation(K: npt.NDArray[np.float_], params: OptimizeKParams) -> float:
     global normal_evaluations, perturbed_evaluations
-
+    #誤差を表示する評価関数
     # 通常の評価値
     E_optimal = optimize_K_func(K, params)
 
@@ -95,11 +95,11 @@ def combined_evaluation(K: npt.NDArray[np.float_], params: OptimizeKParams) -> f
     # 総合評価値（小さいほど良い）
     total_score = E_optimal + delta_E
     return total_score
-
-
-
-
 """
+
+
+
+
 def combined_evaluation(
     K: npt.NDArray[np.float_], params: OptimizeKParams
 ) -> float:
@@ -116,7 +116,7 @@ def combined_evaluation(
     # 総合評価値（小さいほど良い）
     total_score = E_optimal + delta_E  # ペナルティとして変動量を加算
     return total_score
-"""
+
 
 """
 def evaluation_callback(population: npt.NDArray[np.float_], convergence: float) -> None:
