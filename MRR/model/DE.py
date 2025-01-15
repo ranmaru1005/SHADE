@@ -119,14 +119,28 @@ def combined_evaluation(
 """
 
 def evaluation_callback(population: npt.NDArray[np.float_], convergence: float) -> None:
-    # 各世代終了時に通常の評価値、誤差を加えた評価値を出力。
-    
+    """
+    各世代終了時に通常の評価値、誤差を加えた評価値を出力。
+    """
     global normal_evaluations, perturbed_evaluations
 
-    # 各世代の評価値を出力
-    print(f"Generation {len(normal_evaluations) // len(population)}:")
-    print(f"  Normal Evaluations (last): {normal_evaluations[-len(population):]}")
-    print(f"  Perturbed Evaluations (last): {perturbed_evaluations[-len(population):]}")
+    # 現在の世代の個体数
+    population_size = len(population)
+
+    # 評価値が不足している場合はスキップ
+    if len(normal_evaluations) < population_size or len(perturbed_evaluations) < population_size:
+        print(f"Generation {len(normal_evaluations) // population_size}: Evaluations not complete yet.")
+        return
+
+    # 現在の世代の評価値を取得
+    start_idx = len(normal_evaluations) - population_size
+    normal_values = normal_evaluations[start_idx:]
+    perturbed_values = perturbed_evaluations[start_idx:]
+
+    print(f"Generation {len(normal_evaluations) // population_size}:")
+    print(f"  Normal Evaluations (last): {normal_values}")
+    print(f"  Perturbed Evaluations (last): {perturbed_values}")
+
 
 
 
