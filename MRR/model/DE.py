@@ -69,8 +69,7 @@ class OptimizeKParams:
 
 
 
-normal_evaluations = []  # 通常の評価値を記録
-perturbed_evaluations = []  # 誤差を加えた評価値を記録
+
 
 
 def combined_evaluation(
@@ -451,10 +450,10 @@ def optimize(
         
         print("L確認",L)
         print("N確認",N)
-        
-        
 
-        
+
+        normal_evaluations = []  # 通常の評価値を記録
+        perturbed_evaluations = []  # 誤差を加えた評価値を記録
 
 
         #K, E = optimize_K_with_perturbation(
