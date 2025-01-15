@@ -114,15 +114,17 @@ def combined_evaluation(
     return total_score
 """
 
-def evaluation_callback(
-    population: npt.NDArray[np.float_],
-    convergence: float
-) -> None:
-    # 各世代終了時に通常の評価値、誤差を加えた評価値を出力。
+def evaluation_callback(population: npt.NDArray[np.float_], convergence: float) -> None:
+    #各世代終了時に通常の評価値、誤差を加えた評価値を出力。
     
+    if len(normal_evaluations) == 0 or len(perturbed_evaluations) == 0:
+        print(f"Generation {len(normal_evaluations)}: No evaluations yet.")
+        return
+
     print(f"Generation {len(normal_evaluations)}:")
     print(f"  Normal Evaluations: {normal_evaluations[-1]}")
     print(f"  Perturbed Evaluations: {perturbed_evaluations[-1]}")
+
 
 
     #誤差を含んだ評価値を出力する場合
