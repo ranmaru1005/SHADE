@@ -31,7 +31,7 @@ class OptimizeKParams:
 def evaluate_with_error(
     K: npt.NDArray[np.float_],
     params: OptimizeKParams,
-    error_value: float = 0.005
+    error_value: float = -0.005
 ) -> None:
     """
     既存の結合率に誤差を加え、その評価値を再計算する。
