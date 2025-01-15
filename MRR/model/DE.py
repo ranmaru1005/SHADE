@@ -164,7 +164,6 @@ def optimize_K(
         seed=rng,
         disp=True,
         workers=-1,
-        updating="immediate",
         callback=evaluation_callback,  # コールバック関数を指定
     )
 
