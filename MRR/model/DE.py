@@ -73,11 +73,7 @@ perturbed_evaluations = []  # 誤差を加えた評価値を記録
 
 
 
-def combined_evaluation(
-    K: npt.NDArray[np.float_], params: OptimizeKParams
-) -> float:
-    # 通常の評価値と誤差を含む評価値を計算し、それぞれリストに記録。
-    
+def combined_evaluation(K: npt.NDArray[np.float_], params: OptimizeKParams) -> float:
     global normal_evaluations, perturbed_evaluations
 
     # 通常の評価値
@@ -90,12 +86,16 @@ def combined_evaluation(
     normal_evaluations.append(E_optimal)
     perturbed_evaluations.append(E_perturbed)
 
+    # 評価値をその場で表示
+    print(f"Normal Evaluation: {E_optimal}, Perturbed Evaluation: {E_perturbed}")
+
     # 評価値の変動量
     delta_E = abs(E_optimal - E_perturbed)
 
     # 総合評価値（小さいほど良い）
     total_score = E_optimal + delta_E
     return total_score
+
 
 
 
@@ -118,10 +118,10 @@ def combined_evaluation(
     return total_score
 """
 
+"""
 def evaluation_callback(population: npt.NDArray[np.float_], convergence: float) -> None:
-    """
-    各世代終了時に通常の評価値、誤差を加えた評価値を出力。
-    """
+    #各世代終了時に通常の評価値、誤差を加えた評価値を出力。
+    
     global normal_evaluations, perturbed_evaluations
 
     # 現在の世代の個体数
@@ -140,7 +140,7 @@ def evaluation_callback(population: npt.NDArray[np.float_], convergence: float) 
     print(f"Generation {len(normal_evaluations) // population_size}:")
     print(f"  Normal Evaluations (last): {normal_values}")
     print(f"  Perturbed Evaluations (last): {perturbed_values}")
-
+"""
 
 
 
@@ -163,8 +163,7 @@ def optimize_K(
         maxiter=500,
         seed=rng,
         disp=True,
-        workers=-1,
-        callback=evaluation_callback,  # コールバック関数を指定
+        workers=-1
     )
 
     E: float = -result.fun
