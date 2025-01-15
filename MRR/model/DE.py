@@ -68,11 +68,41 @@ class OptimizeKParams:
     weight: list[float]
 
 
+
+normal_evaluations = []  # 通常の評価値を記録
+perturbed_evaluations = []  # 誤差を加えた評価値を記録
+
+
 def combined_evaluation(
     K: npt.NDArray[np.float_], params: OptimizeKParams
 ) -> float:
     """
-    通常の評価値と誤差を考慮した評価値を組み合わせた総合評価関数。
+    通常の評価値と誤差を含む評価値を計算し、それぞれ記録。
+    """
+    # 通常の評価値
+    E_optimal = optimize_K_func(K, params)
+
+    # 誤差を加えた評価値
+    E_perturbed = optimize_perturbed_K_func(K, params)
+
+    # 評価値を記録
+    normal_evaluations.append(E_optimal)
+    perturbed_evaluations.append(E_perturbed)
+
+    # 評価値の変動量
+    delta_E = abs(E_optimal - E_perturbed)
+
+    # 総合評価値（小さいほど良い）
+    total_score = E_optimal + delta_E
+    return total_score
+
+
+"""
+def combined_evaluation(
+    K: npt.NDArray[np.float_], params: OptimizeKParams
+) -> float:
+    """
+    # 通常の評価値と誤差を考慮した評価値を組み合わせた総合評価関数。
     """
     # 通常の評価値
     E_optimal = optimize_K_func(K, params)
@@ -86,9 +116,51 @@ def combined_evaluation(
     # 総合評価値（小さいほど良い）
     total_score = E_optimal + delta_E  # ペナルティとして変動量を加算
     return total_score
+"""
+
+def evaluation_callback(
+    population: npt.NDArray[np.float_],
+    convergence: float
+) -> None:
+    """
+    各世代終了時に通常の評価値、誤差を加えた評価値を出力。
+    """
+    print(f"Generation {len(normal_evaluations)}:")
+    print(f"  Normal Evaluations: {normal_evaluations[-1]}")
+    print(f"  Perturbed Evaluations: {perturbed_evaluations[-1]}")
+
+    #誤差を含んだ評価値を出力する場合
+def optimize_K(
+    eta: float,
+    number_of_rings: int,
+    rng: np.random.Generator,
+    params: OptimizeKParams,
+) -> tuple[npt.NDArray[np.float_], float]:
+    bounds = [(1e-12, eta) for _ in range(number_of_rings + 1)]
+
+    result = differential_evolution(
+        func=combined_evaluation,
+        bounds=bounds,
+        args=(params,),
+        strategy="currenttobest1bin",
+        popsize=15,
+        maxiter=500,
+        seed=rng,
+        disp=True,
+        workers=-1,
+        updating="immediate",
+        callback=evaluation_callback,  # コールバック関数を指定
+    )
+
+    E: float = -result.fun
+    K: npt.NDArray[np.float_] = result.x
+
+    return K, E
 
 
 
+
+"""
     #もともとのプログラムはこれ。
 def optimize_K(
     eta: float,
@@ -114,7 +186,7 @@ def optimize_K(
     K: npt.NDArray[np.float_] = result.x
 
     return K, E
-
+"""
 
 
 """
