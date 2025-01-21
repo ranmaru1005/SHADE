@@ -706,10 +706,10 @@ def optimize_perturbed_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams
     - E_negative: -0.005 の誤差を加えた場合の評価値
     """
     # 正の誤差を加える
-    perturbed_K_positive = np.clip(K + 0.005, 0, params.eta)
+    perturbed_K_positive = np.clip(K + 0.005, 1e-12, params.eta)
 
     # 負の誤差を加える
-    perturbed_K_negative = np.clip(K - 0.005, 0, params.eta)
+    perturbed_K_negative = np.clip(K - 0.005, 1e-12, params.eta)
 
     # 波長を計算
     x = calculate_x(center_wavelength=params.center_wavelength, FSR=params.FSR)
