@@ -621,13 +621,13 @@ def optimize_perturbed_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams
     誤差として全ての結合率を 0.005 増加させる。
     範囲外 (eta) を超えた場合は eta に制限する。
     """
-    error_rate = 0.005
+    error_rate = -0.005
     
     # 誤差を加える
     perturbed_K = K + error_rate
 
     # 範囲外をクリップ
-    perturbed_K = np.clip(perturbed_K, 0, params.eta)
+    perturbed_K = np.clip(perturbed_K, 1e-12, params.eta)
 
     # 波長と透過特性を計算
     x = calculate_x(center_wavelength=params.center_wavelength, FSR=params.FSR)
