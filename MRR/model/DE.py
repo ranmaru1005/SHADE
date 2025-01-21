@@ -75,7 +75,11 @@ perturbed_evaluations = []  # 誤差を加えた評価値を記録
 """
 def combined_evaluation(K: npt.NDArray[np.float_], params: OptimizeKParams) -> float:
     global normal_evaluations, perturbed_evaluations
+
+    
     #誤差を表示する評価関数
+
+    
     # 通常の評価値
     E_optimal = optimize_K_func(K, params)
 
@@ -617,7 +621,7 @@ def optimize_perturbed_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams
     誤差として全ての結合率を 0.005 増加させる。
     範囲外 (eta) を超えた場合は eta に制限する。
     """
-    error_rate = -0.005
+    error_rate = 0.005
     
     # 誤差を加える
     perturbed_K = K + error_rate
