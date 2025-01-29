@@ -5,6 +5,14 @@ import numpy.typing as npt
 from datetime import datetime
 from dataclasses import dataclass
 
+from MRR.simulator import (
+    calculate_practical_FSR,
+    calculate_ring_length,
+    calculate_x,
+    optimize_N,
+)
+from MRR.transfer_function import simulate_transfer_function
+
 @dataclass
 class OptimizeKParams:
     L: npt.NDArray[np.float_]
