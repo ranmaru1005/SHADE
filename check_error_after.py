@@ -5,6 +5,7 @@ import numpy.typing as npt
 from datetime import datetime
 from dataclasses import dataclass
 
+from MRR.evaluator import evaluate_band
 from MRR.simulator import (
     calculate_practical_FSR,
     calculate_ring_length,
