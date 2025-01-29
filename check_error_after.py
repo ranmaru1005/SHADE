@@ -109,3 +109,26 @@ def evaluate_with_error(
 
     # 保存メッセージ
     print(f"結果を '{save_path}' に保存しました。")
+
+
+# 例としての結合率データとパラメータ
+K_theoretical = np.array([0.45630, 0.07501, 0.08411, 0.04153, 0.01652, 0.07898, 0.39775])  # 理論的な結合率
+params = OptimizeKParams(
+    L=np.array([7.75e-5, 7.75e-5, 7.75e-5, 7.75e-5, 6.20e-5, 6.20e-5, 7.75e-5]),
+    n_g=4.4,
+    n_eff=2.2,
+    eta=0.996,
+    alpha=52.96,
+    center_wavelength=1550e-9,
+    length_of_3db_band=1e-9,
+    FSR=35e-9,
+    max_crosstalk=-30,
+    H_p=-20,
+    H_s=-60,
+    H_i=-10,
+    r_max=5,
+    weight=[1.0, 3.5, 1.0, 5.0, 3.5, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+)
+
+# 誤差を加えた評価値の計算
+evaluate_with_error(K=K_theoretical, params=params)
