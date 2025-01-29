@@ -103,6 +103,14 @@ def evaluate_with_error(
         ignore_binary_evaluation=False,
     )
 
+    # 結果の表示
+    print("\n=== 結合率の評価結果 ===")
+    for i in range(len(K)):
+        print(f"K[{i}]: 理論値={K[i]:.5f}, 誤差値={perturbed_K[i]:.5f}")
+    print(f"\n理論値の評価値: {E_original:.5f}")
+    print(f"誤差を加えた評価値: {E_perturbed:.5f}")
+    print(f"評価値の変動: {abs(E_original - E_perturbed):.5f}")
+
     # 結果をデータフレームに格納
     df = pd.DataFrame({
         "Index": np.arange(len(K)),
@@ -113,8 +121,8 @@ def evaluate_with_error(
         "Evaluation_Diff": [abs(E_original - E_perturbed)] * len(K)
     })
 
-    # Excelに保存
-    df.to_excel(save_path, index=False)
+    # TSVに保存（タブ区切り、ヘッダー付き、インデックスなし）
+    df.to_csv(save_path, sep="\t", index=False)
 
     # 保存メッセージ
     print(f"結果を '{save_path}' に保存しました。")
