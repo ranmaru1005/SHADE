@@ -46,7 +46,7 @@ def get_save_path():
     os.makedirs(folder_path, exist_ok=True)  # フォルダが無ければ作成
 
     # Excelの保存先パス
-    return f"{folder_path}/evaluation_results.xlsx"
+    return f"{folder_path}/evaluation_results_transposed.csv"  # CSVの保存先
 
 def evaluate_with_error(
     K: npt.NDArray[np.float_],
@@ -111,18 +111,17 @@ def evaluate_with_error(
     print(f"誤差を加えた評価値: {E_perturbed:.5f}")
     print(f"評価値の変動: {abs(E_original - E_perturbed):.5f}")
 
-    # 結果をデータフレームに格納
+    # **行と列を入れ替えたデータフレームを作成**
     df = pd.DataFrame({
-        "Index": np.arange(len(K)),
         "K_Original": K,
         "K_Perturbed": perturbed_K,
         "Evaluation_Original": [E_original] * len(K),
         "Evaluation_Perturbed": [E_perturbed] * len(K),
         "Evaluation_Diff": [abs(E_original - E_perturbed)] * len(K)
-    })
-
-    # TSVに保存（タブ区切り、ヘッダー付き、インデックスなし）
-    df.to_csv(save_path, sep="\t", index=False)
+    }).T  # **転置（行と列を入れ替え）**
+    
+    # CSVに保存
+    df.to_csv(save_path, header=False)
 
     # 保存メッセージ
     print(f"結果を '{save_path}' に保存しました。")
