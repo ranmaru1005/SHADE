@@ -14,8 +14,8 @@ from config.model import SimulationConfig
 from MRR.simulator import Accumulator, SimulatorResult, simulate_MRR
 
 
-def plot_results(results: list[SimulatorResult], output_folder: Path) -> None:
-    """シミュレーション結果をプロットし、元のグラフと x 軸範囲変更後のグラフを保存"""
+def plot_results(results: list[SimulatorResult], output_folder: Path, x_limits=None, y_limits=None) -> None:
+    """シミュレーション結果をプロットし、元のグラフと範囲変更後のグラフを保存"""
     
     for result in results:
         fig, ax = plt.subplots()
@@ -25,20 +25,53 @@ def plot_results(results: list[SimulatorResult], output_folder: Path) -> None:
         ax.set_xlabel("Wavelength (µm)")
         ax.set_ylabel("Transmission")
         ax.set_title(f"Simulation Result: {result.name}")
+        if y_limits:
+            ax.set_ylim(y_limits)  # y 軸範囲の適用
         ax.legend()
         fig.savefig(output_folder / f"{result.name}_original.png")
         plt.close(fig)
 
-        # 2️⃣ x 軸範囲を変更したグラフ
+        # 2️⃣ x 軸 + y 軸範囲を変更したグラフ
         fig, ax = plt.subplots()
         ax.plot(result.x, result.y, label=result.label)
         ax.set_xlabel("Wavelength (µm)")
         ax.set_ylabel("Transmission")
-        ax.set_xlim(1.50, 1.60)  # x 軸範囲を変更
-        ax.set_title(f"Modified x-axis Range: {result.name}")
+        ax.set_xlim(x_limits)  # x 軸範囲の適用
+        if y_limits:
+            ax.set_ylim(y_limits)  # y 軸範囲の適用
+        ax.set_title(f"Modified x-axis & y-axis Range: {result.name}")
         ax.legend()
         fig.savefig(output_folder / f"{result.name}_modified.png")
         plt.close(fig)
+
+
+def save_tsv_files(basedir: Path, results: list[SimulatorResult], x_limits=None, y_limits=None) -> None:
+    """シミュレーション結果の tsv データを保存"""
+    
+    max_points = 2500
+    steps = [(1 if result.x.size < max_points else result.x.size // max_points) for result in results]
+
+    for result, step in zip(results, steps):
+        # 🔹 全範囲のデータ保存
+        with open(basedir / f"{result.name}_full.tsv", "w") as tsvfile:
+            x = result.x[::step]
+            y = result.y[::step]
+            tsv_writer = csv.writer(tsvfile, delimiter="\t")
+            tsv_writer.writerows(zip(x, y))
+
+        # 🔹 x 軸 + y 軸制限したデータ保存
+        filtered_indices = (result.x >= x_limits[0]) & (result.x <= x_limits[1])
+        filtered_x = result.x[filtered_indices]
+        filtered_y = result.y[filtered_indices]
+
+        if y_limits:
+            filtered_indices = (filtered_y >= y_limits[0]) & (filtered_y <= y_limits[1])
+            filtered_x = filtered_x[filtered_indices]
+            filtered_y = filtered_y[filtered_indices]
+
+        with open(basedir / f"{result.name}_filtered.tsv", "w") as tsvfile:
+            tsv_writer = csv.writer(tsvfile, delimiter="\t")
+            tsv_writer.writerows(zip(filtered_x, filtered_y))
 
 
 if __name__ == "__main__":
@@ -50,6 +83,10 @@ if __name__ == "__main__":
     parser.add_argument("--format", action="store_true")
     parser.add_argument("-f", "--focus", action="store_true")
     parser.add_argument("-s", "--simulate-one-cycle", action="store_true")
+    parser.add_argument("--x-min", type=float, default=1.50, help="X-axis minimum value")
+    parser.add_argument("--x-max", type=float, default=1.60, help="X-axis maximum value")
+    parser.add_argument("--y-min", type=float, help="Y-axis minimum value")
+    parser.add_argument("--y-max", type=float, help="Y-axis maximum value")
     
     args = vars(parser.parse_args())
     ls = args["list"]
@@ -57,6 +94,9 @@ if __name__ == "__main__":
     is_focus = args["focus"]
     format = args["format"]
     simulate_one_cycle = args["simulate_one_cycle"]
+
+    x_limits = (args["x_min"], args["x_max"])
+    y_limits = (args["y_min"], args["y_max"]) if args["y_min"] is not None and args["y_max"] is not None else None
 
     results: list[SimulatorResult] = []
     accumulator = Accumulator(is_focus=is_focus)
@@ -107,12 +147,13 @@ if __name__ == "__main__":
             except ModuleNotFoundError as e:
                 print(e)
 
-        # 🔹 グラフ保存処理を追加 🔹 #
+        # 🔹 グラフ & TSV 保存処理を追加 🔹 #
         if not skip_plot:
             now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             output_folder = Path(f"graphs/{now}")
             output_folder.mkdir(parents=True, exist_ok=True)
 
-            plot_results(results, output_folder)  # グラフを保存
+            plot_results(results, output_folder, x_limits, y_limits)  # グラフを保存
+            save_tsv_files(output_folder, results, x_limits, y_limits)  # TSV を保存
 
-            print(f"グラフを {output_folder} に保存しました。")
+            print(f"グラフと tsv を {output_folder} に保存しました。")
