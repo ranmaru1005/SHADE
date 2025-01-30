@@ -14,29 +14,31 @@ from config.model import SimulationConfig
 from MRR.simulator import Accumulator, SimulatorResult, simulate_MRR
 
 
-def plot_with_pgfplots(basedir: Path, results: list[SimulatorResult], is_focus: bool) -> None:
-    """pgfplots を用いたグラフを作成し、保存"""
-    max_points = 2500
-    steps = [(1 if result.x.size < max_points else result.x.size // max_points) for result in results]
+def plot_results(results: list[SimulatorResult], output_folder: Path) -> None:
+    """シミュレーション結果をプロットし、元のグラフと x 軸範囲変更後のグラフを保存"""
     
-    # tsv ファイルを保存
-    for result, step in zip(results, steps):
-        with open(f"{basedir}/{result.name}_pgfplots.tsv", "w") as tsvfile:
-            x = result.x[::step]
-            y = result.y[::step]
-            tsv_writer = csv.writer(tsvfile, delimiter="\t")
-            tsv_writer.writerows(zip(x, y))
+    for result in results:
+        fig, ax = plt.subplots()
 
-    # LaTeX テンプレートを使ってプロット作成
-    env = Environment(loader=PackageLoader("MRR"))
-    template = env.get_template("pgfplots.tex.j2")
-    legends = "{" + ",".join([result.label for result in results]) + "}"
-    tsvnames = ["{" + result.name + "_pgfplots.tsv}" for result in results]
-    
-    with open(basedir / "pgfplots.tex", "w") as fp:
-        fp.write(template.render(tsvnames=tsvnames, legends=legends, is_focus=is_focus))
-    
-    subprocess.run(["lualatex", "pgfplots"], cwd=basedir, stdout=subprocess.DEVNULL)
+        # 1️⃣ 元のグラフ
+        ax.plot(result.x, result.y, label=result.label)
+        ax.set_xlabel("Wavelength (µm)")
+        ax.set_ylabel("Transmission")
+        ax.set_title(f"Simulation Result: {result.name}")
+        ax.legend()
+        fig.savefig(output_folder / f"{result.name}_original.png")
+        plt.close(fig)
+
+        # 2️⃣ x 軸範囲を変更したグラフ
+        fig, ax = plt.subplots()
+        ax.plot(result.x, result.y, label=result.label)
+        ax.set_xlabel("Wavelength (µm)")
+        ax.set_ylabel("Transmission")
+        ax.set_xlim(1.50, 1.60)  # x 軸範囲を変更
+        ax.set_title(f"Modified x-axis Range: {result.name}")
+        ax.legend()
+        fig.savefig(output_folder / f"{result.name}_modified.png")
+        plt.close(fig)
 
 
 if __name__ == "__main__":
@@ -59,7 +61,6 @@ if __name__ == "__main__":
     results: list[SimulatorResult] = []
     accumulator = Accumulator(is_focus=is_focus)
 
-    # シミュレーション設定リストの表示
     if ls:
         print("\t".join([os.path.splitext(os.path.basename(p))[0] for p in sorted(glob("config/simulate/*.py"))]))
     else:
@@ -68,7 +69,6 @@ if __name__ == "__main__":
                 name = name[:-3]
             
             try:
-                # 設定ファイルのインポート
                 imported_module = import_module(f"config.simulate.{name}")
                 imported_config = getattr(imported_module, "config")
                 simulation_config = SimulationConfig(**imported_config)
@@ -76,7 +76,6 @@ if __name__ == "__main__":
                 simulation_config.format = format
                 simulation_config.simulate_one_cycle = simulate_one_cycle
 
-                # シミュレーション実行
                 result = simulate_MRR(
                     accumulator=accumulator,
                     L=simulation_config.L,
@@ -108,23 +107,12 @@ if __name__ == "__main__":
             except ModuleNotFoundError as e:
                 print(e)
 
-        #  グラフ保存処理を追加  #
+        # 🔹 グラフ保存処理を追加 🔹 #
         if not skip_plot:
             now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             output_folder = Path(f"graphs/{now}")
             output_folder.mkdir(parents=True, exist_ok=True)
 
-            # 1️ 元のグラフ
-            fig1 = accumulator.plot()
-            fig1.savefig(output_folder / "original_plot.png")
-            plt.close(fig1)
-
-            # 2️ x 軸の範囲を変更したグラフ
-            fig2 = accumulator.plot()
-            plt.xlim(1.50, 1.60)  # x 軸を 1.50 ～ 1.60 に変更
-            fig2.savefig(output_folder / "modified_x_range_plot.png")
-            plt.close(fig2)
+            plot_results(results, output_folder)  # グラフを保存
 
             print(f"グラフを {output_folder} に保存しました。")
-
-            accumulator.show()  # 画面に表示も可能
