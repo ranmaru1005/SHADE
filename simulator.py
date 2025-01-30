@@ -1,11 +1,13 @@
 import argparse
 import csv
-import os.path
+import os
 import subprocess
+import datetime
 from glob import glob
 from importlib import import_module
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 from jinja2 import Environment, PackageLoader
 
 from config.model import SimulationConfig
@@ -13,8 +15,11 @@ from MRR.simulator import Accumulator, SimulatorResult, simulate_MRR
 
 
 def plot_with_pgfplots(basedir: Path, results: list[SimulatorResult], is_focus: bool) -> None:
+    """pgfplots を用いたグラフを作成し、保存"""
     max_points = 2500
     steps = [(1 if result.x.size < max_points else result.x.size // max_points) for result in results]
+    
+    # tsv ファイルを保存
     for result, step in zip(results, steps):
         with open(f"{basedir}/{result.name}_pgfplots.tsv", "w") as tsvfile:
             x = result.x[::step]
@@ -22,16 +27,20 @@ def plot_with_pgfplots(basedir: Path, results: list[SimulatorResult], is_focus: 
             tsv_writer = csv.writer(tsvfile, delimiter="\t")
             tsv_writer.writerows(zip(x, y))
 
+    # LaTeX テンプレートを使ってプロット作成
     env = Environment(loader=PackageLoader("MRR"))
     template = env.get_template("pgfplots.tex.j2")
     legends = "{" + ",".join([result.label for result in results]) + "}"
     tsvnames = ["{" + result.name + "_pgfplots.tsv}" for result in results]
+    
     with open(basedir / "pgfplots.tex", "w") as fp:
         fp.write(template.render(tsvnames=tsvnames, legends=legends, is_focus=is_focus))
+    
     subprocess.run(["lualatex", "pgfplots"], cwd=basedir, stdout=subprocess.DEVNULL)
 
 
 if __name__ == "__main__":
+    # コマンドライン引数の設定
     parser = argparse.ArgumentParser()
     parser.add_argument("NAME", help="from config.simulate import NAME", nargs="*")
     parser.add_argument("-l", "--list", action="store_true")
@@ -39,6 +48,7 @@ if __name__ == "__main__":
     parser.add_argument("--format", action="store_true")
     parser.add_argument("-f", "--focus", action="store_true")
     parser.add_argument("-s", "--simulate-one-cycle", action="store_true")
+    
     args = vars(parser.parse_args())
     ls = args["list"]
     skip_plot = args["skip_plot"]
@@ -48,19 +58,25 @@ if __name__ == "__main__":
 
     results: list[SimulatorResult] = []
     accumulator = Accumulator(is_focus=is_focus)
+
+    # シミュレーション設定リストの表示
     if ls:
         print("\t".join([os.path.splitext(os.path.basename(p))[0] for p in sorted(glob("config/simulate/*.py"))]))
     else:
         for name in args["NAME"]:
-            if name[-3:] == ".py":
+            if name.endswith(".py"):
                 name = name[:-3]
+            
             try:
+                # 設定ファイルのインポート
                 imported_module = import_module(f"config.simulate.{name}")
                 imported_config = getattr(imported_module, "config")
                 simulation_config = SimulationConfig(**imported_config)
                 simulation_config.name = name
                 simulation_config.format = format
                 simulation_config.simulate_one_cycle = simulate_one_cycle
+
+                # シミュレーション実行
                 result = simulate_MRR(
                     accumulator=accumulator,
                     L=simulation_config.L,
@@ -85,12 +101,30 @@ if __name__ == "__main__":
                     skip_graph=False,
                     skip_evaluation=not simulate_one_cycle,
                 )
+
                 results.append(result)
                 print("E:", result.evaluation_result)
+
             except ModuleNotFoundError as e:
                 print(e)
 
-        # plot_with_pgfplots(simulator.logger.target, results, simulator.graph.is_focus)
-
+        #  グラフ保存処理を追加  #
         if not skip_plot:
-            accumulator.show()
+            now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            output_folder = Path(f"graphs/{now}")
+            output_folder.mkdir(parents=True, exist_ok=True)
+
+            # 1️ 元のグラフ
+            fig1 = accumulator.plot()
+            fig1.savefig(output_folder / "original_plot.png")
+            plt.close(fig1)
+
+            # 2️ x 軸の範囲を変更したグラフ
+            fig2 = accumulator.plot()
+            plt.xlim(1.50, 1.60)  # x 軸を 1.50 ～ 1.60 に変更
+            fig2.savefig(output_folder / "modified_x_range_plot.png")
+            plt.close(fig2)
+
+            print(f"グラフを {output_folder} に保存しました。")
+
+            accumulator.show()  # 画面に表示も可能
