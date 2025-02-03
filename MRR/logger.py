@@ -51,11 +51,27 @@ class Logger:
     def generate_image_path(self, name: str = "out") -> Path:
         return self.target / f"{name}.pdf"
 
-    def save_data_as_csv(self, x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], name: str = "out") -> None:
-        path = self.target / f"{name}.tsv"
-        with open(path, "w") as tsvfile:
-            tsv_writer = csv.writer(tsvfile, delimiter="\t")
-            tsv_writer.writerows(zip(x.tolist(), y.tolist()))
+    def save_data_as_csv(self, x: Any, y: Any, name: str = "out") -> None:
+        """データを CSV 形式で保存する（タプルなら NumPy 配列に変換）"""
+        
+        # 🔹 NumPy 配列に変換（タプルだった場合）
+        if isinstance(x, tuple):
+            x = np.array(x)
+        if isinstance(y, tuple):
+            y = np.array(y)
+
+        # 🔹 NumPy 配列なら `.tolist()` に変換
+        x = x.tolist() if isinstance(x, np.ndarray) else x
+        y = y.tolist() if isinstance(y, np.ndarray) else y
+
+        # 🔹 CSV 保存処理
+        path = self.target / f"{name}.csv"
+        with open(path, "w", newline="") as csvfile:
+            csv_writer = csv.writer(csvfile)
+            csv_writer.writerow(["Wavelength (nm)", "Transmittance (dB)"])  # ヘッダー
+            csv_writer.writerows(zip(x, y))
+
+        print(f"✅ {name}.csv を保存しました: {path}")
 
     def save_evaluation_value(
         self, E_list: list[float], method_list: list[int], name: str = "evaluation_value"
