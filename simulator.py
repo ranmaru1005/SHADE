@@ -15,7 +15,7 @@ from MRR.simulator import Accumulator, SimulatorResult, simulate_MRR
 
 
 def plot_results(results: list[SimulatorResult], output_folder: Path, x_limits=None, y_limits=None) -> None:
-    """シミュレーション結果をプロットし、元のグラフと範囲変更後のグラフを保存"""
+    """シミュレーション結果をプロットし、元のグラフを保存"""
     
     for result in results:
         fig, ax = plt.subplots()
@@ -25,23 +25,13 @@ def plot_results(results: list[SimulatorResult], output_folder: Path, x_limits=N
         ax.set_xlabel("Wavelength (nm)")
         ax.set_ylabel("Transmittance (dB)")
         ax.set_ylim(-60, 0)  # y 軸範囲固定
+        ax.set_xlim(x_limits)  # x 軸の範囲を適用
         ax.legend()
         fig.savefig(output_folder / f"{result.name}_original.png")
         plt.close(fig)
 
-        # 2️⃣ x 軸範囲を変更したグラフ
-        fig, ax = plt.subplots()
-        ax.plot(result.x * 1e9, result.y, label=result.label)  # nm単位に変換
-        ax.set_xlabel("Wavelength (nm)")
-        ax.set_ylabel("Transmittance (dB)")
-        ax.set_xlim(x_limits)  # x 軸範囲を適用
-        ax.set_ylim(-60, 0)  # y 軸範囲固定
-        ax.legend()
-        fig.savefig(output_folder / f"{result.name}_modified.png")
-        plt.close(fig)
 
-
-def save_tsv_files(basedir: Path, results: list[SimulatorResult], x_limits=None, y_limits=None) -> None:
+def save_tsv_files(basedir: Path, results: list[SimulatorResult], x_limits=None) -> None:
     """シミュレーション結果の tsv データを保存"""
     
     max_points = 2500
@@ -105,6 +95,7 @@ if __name__ == "__main__":
                 simulation_config.format = format
                 simulation_config.simulate_one_cycle = simulate_one_cycle
 
+                # 🔹 `lambda_limit` を x軸範囲に合わせて設定
                 result = simulate_MRR(
                     accumulator=accumulator,
                     L=simulation_config.L,
@@ -123,7 +114,7 @@ if __name__ == "__main__":
                     weight=simulation_config.weight,
                     format=simulation_config.format,
                     simulate_one_cycle=simulate_one_cycle,
-                    lambda_limit=simulation_config.lambda_limit,
+                    lambda_limit=(x_limits[0] * 1e-9, x_limits[1] * 1e-9),  # nm → m に変換
                     name=simulation_config.name,
                     label=simulation_config.label,
                     skip_graph=False,
@@ -143,6 +134,6 @@ if __name__ == "__main__":
             output_folder.mkdir(parents=True, exist_ok=True)
 
             plot_results(results, output_folder, x_limits, y_limits=None)  # グラフを保存
-            save_tsv_files(output_folder, results, x_limits, y_limits=None)  # TSV を保存
+            save_tsv_files(output_folder, results, x_limits)  # TSV を保存
 
             print(f"グラフと tsv を {output_folder} に保存しました。")
