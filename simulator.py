@@ -26,6 +26,10 @@ def plot_results(results: list[SimulatorResult], output_folder: Path, x_limits=N
         ax.set_ylabel("Transmittance (dB)")
         ax.set_ylim(-60, 0)  # y 軸範囲固定
         ax.legend()
+
+        # ✅ 目盛りを内向きにする
+        ax.tick_params(direction="in", length=6, width=1, which="both")
+
         fig.savefig(output_folder / f"{result.name}_original.png")
         plt.close(fig)
 
@@ -37,6 +41,10 @@ def plot_results(results: list[SimulatorResult], output_folder: Path, x_limits=N
         ax.set_xlim(x_limits)  # x 軸範囲を適用
         ax.set_ylim(-60, 0)  # y 軸範囲固定
         ax.legend()
+
+        # ✅ 目盛りを内向きにする
+        ax.tick_params(direction="in", length=6, width=1, which="both")
+
         fig.savefig(output_folder / f"{result.name}_modified.png")
         plt.close(fig)
 
