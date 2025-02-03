@@ -6,6 +6,7 @@ import datetime
 from glob import glob
 from importlib import import_module
 from pathlib import Path
+import numpy as np
 
 import matplotlib.pyplot as plt
 from jinja2 import Environment, PackageLoader
@@ -14,18 +15,30 @@ from config.model import SimulationConfig
 from MRR.simulator import Accumulator, SimulatorResult, simulate_MRR
 
 
-def plot_results(results: list[SimulatorResult], output_folder: Path, x_limits=None, y_limits=None) -> None:
+
+
+def plot_results(results, output_folder: Path, x_limits=None, y_limits=None):
     """シミュレーション結果をプロットし、元のグラフを保存"""
     
     for result in results:
         fig, ax = plt.subplots()
 
-        # 1️⃣ 元のグラフ
-        ax.plot(result.x * 1e9, result.y, label=result.label)  # nm単位に変換
-        ax.set_xlabel("Wavelength (nm)")
-        ax.set_ylabel("Transmittance (dB)")
-        ax.set_ylim(-60, 0)  # y 軸範囲固定
-        ax.set_xlim(x_limits)  # x 軸の範囲を適用
+        # 🔹 NumPy 配列に変換（リストが来ても問題なし）
+        x_data = np.array(result.x) * 1e9
+        y_data = np.array(result.y)
+
+        # 🔹 元のグラフをプロット
+        ax.plot(x_data, y_data, label=result.label)
+        ax.set_xlabel(r"Wavelength $\lambda$ (nm)", fontsize=14)
+        ax.set_ylabel("Transmittance (dB)", fontsize=14)
+        ax.set_title(f"Simulation Result: {result.name}")
+
+        # 🔹 軸範囲の設定
+        if x_limits:
+            ax.set_xlim(x_limits)
+        if y_limits:
+            ax.set_ylim(y_limits)
+
         ax.legend()
         fig.savefig(output_folder / f"{result.name}_original.png")
         plt.close(fig)
