@@ -20,34 +20,43 @@ class Graph:
 
     def plot(
         self,
-        x: npt.NDArray[np.float_],
-        y: npt.NDArray[np.float_],
+        x: npt.NDArray[np.float_] | list,
+        y: npt.NDArray[np.float_] | list,
         label: Optional[str] = None,
     ) -> None:
+        """ x, y がリストでも NumPy 配列に変換してプロット """
+
+        # 🔹 NumPy 配列に変換
+        x = np.array(x) if not isinstance(x, np.ndarray) else x
+        y = np.array(y) if not isinstance(y, np.ndarray) else y
+
+        # 🔹 x 軸の単位を nm に変換
         self.ax.semilogx(x * 1e9, y, label=label)
 
     def show(
         self,
         img_path: Path = Path("img/out.pdf"),
     ) -> None:
-        self.ax.set_xlabel(r"Wavelength \(\lambda\) (nm)", fontsize=24)
-        self.ax.set_ylabel("Transmittance (dB)", fontsize=24)
-        self.ax.axis([None, None, None, 5])
+        """ グラフの表示と保存 """
 
-        if self.is_focus:
-            self.ax.set_xlim([1549, 1551])
-            self.ax.set_ylim([-12, 0])
-            self.ax.xaxis.set_major_formatter(FormatStrFormatter("%.1f"))
-            self.ax.xaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
-            self.ax.xaxis.set_minor_locator(MultipleLocator(0.5))
-            self.ax.yaxis.set_major_locator(MultipleLocator(2))
-        else:
-            self.ax.xaxis.set_major_formatter(FormatStrFormatter("%d"))
-            self.ax.xaxis.set_minor_formatter(FormatStrFormatter("%d"))
-            self.ax.xaxis.set_major_locator(AutoLocator())
-            self.ax.set_ylim([-60, 0])
+        # 🔹 軸ラベル設定
+        self.ax.set_xlabel(r"Wavelength $\lambda$ (nm)", fontsize=24)
+        self.ax.set_ylabel("Transmittance (dB)", fontsize=24)
+
+        # 🔹 軸範囲の設定
+        self.ax.set_xlim([1530, 1570])  # 🔹 x 軸: 1530 ~ 1570 nm
+        self.ax.set_ylim([-60, 5])  # 🔹 y 軸: -60 ~ 5 dB
+
+        # 🔹 軸目盛りの設定
+        self.ax.xaxis.set_major_locator(MultipleLocator(10))  # 10 nm 間隔
+        self.ax.xaxis.set_major_formatter(FormatStrFormatter("%d"))
+        self.ax.xaxis.set_minor_locator(MultipleLocator(5))  # 5 nm の補助目盛り
+        self.ax.yaxis.set_major_locator(MultipleLocator(10))  # 10 dB 間隔
+        self.ax.yaxis.set_minor_locator(MultipleLocator(5))  # 5 dB の補助目盛り
+
+        # 🔹 判例を設定
         plt.legend(loc="upper center", fontsize=12, frameon=False)
-        #
-        # plt.legend(loc="lower right", ncol=2)
+
+        # 🔹 グラフ保存
         self.fig.savefig(img_path)
         plt.show()
