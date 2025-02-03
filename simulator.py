@@ -6,7 +6,6 @@ import datetime
 from glob import glob
 from importlib import import_module
 from pathlib import Path
-import numpy as np
 
 import matplotlib.pyplot as plt
 from jinja2 import Environment, PackageLoader
@@ -15,65 +14,55 @@ from config.model import SimulationConfig
 from MRR.simulator import Accumulator, SimulatorResult, simulate_MRR
 
 
-
-
-def plot_results(results, output_folder: Path, x_limits=None, y_limits=None):
-    """シミュレーション結果をプロットし、元のグラフを保存"""
+def plot_results(results: list[SimulatorResult], output_folder: Path, x_limits=None, y_limits=None) -> None:
+    """シミュレーション結果をプロットし、元のグラフと範囲変更後のグラフを保存"""
     
     for result in results:
         fig, ax = plt.subplots()
 
-        # 🔹 NumPy 配列に変換（リストが来ても問題なし）
-        x_data = np.array(result.x) * 1e9
-        y_data = np.array(result.y)
-
-        # 🔹 元のグラフをプロット
-        ax.plot(x_data, y_data, label=result.label)
-        ax.set_xlabel(r"Wavelength $\lambda$ (nm)", fontsize=14)
-        ax.set_ylabel("Transmittance (dB)", fontsize=14)
-        ax.set_title(f"Simulation Result: {result.name}")
-
-        # 🔹 軸範囲の設定
-        if x_limits:
-            ax.set_xlim(x_limits)
-        if y_limits:
-            ax.set_ylim(y_limits)
-
+        # 1️⃣ 元のグラフ
+        ax.plot(result.x * 1e9, result.y, label=result.label)  # nm単位に変換
+        ax.set_xlabel("Wavelength (nm)")
+        ax.set_ylabel("Transmittance (dB)")
+        ax.set_ylim(-60, 0)  # y 軸範囲固定
         ax.legend()
         fig.savefig(output_folder / f"{result.name}_original.png")
         plt.close(fig)
 
+        # 2️⃣ x 軸範囲を変更したグラフ
+        fig, ax = plt.subplots()
+        ax.plot(result.x * 1e9, result.y, label=result.label)  # nm単位に変換
+        ax.set_xlabel("Wavelength (nm)")
+        ax.set_ylabel("Transmittance (dB)")
+        ax.set_xlim(x_limits)  # x 軸範囲を適用
+        ax.set_ylim(-60, 0)  # y 軸範囲固定
+        ax.legend()
+        fig.savefig(output_folder / f"{result.name}_modified.png")
+        plt.close(fig)
 
-def save_tsv_files(basedir: Path, results, x_limits=None, y_limits=None):
+
+def save_tsv_files(basedir: Path, results: list[SimulatorResult], x_limits=None, y_limits=None) -> None:
     """シミュレーション結果の tsv データを保存"""
-
+    
     max_points = 2500
-    steps = [(1 if np.array(result.x).size < max_points else np.array(result.x).size // max_points) for result in results]
+    steps = [(1 if result.x.size < max_points else result.x.size // max_points) for result in results]
 
     for result, step in zip(results, steps):
-        # 🔹 NumPy 配列に変換
-        x_data = np.array(result.x)
-        y_data = np.array(result.y)
-
         # 🔹 全範囲のデータ保存
         with open(basedir / f"{result.name}_full.tsv", "w") as tsvfile:
+            x = result.x[::step] * 1e9  # nm単位に変換
+            y = result.y[::step]
             tsv_writer = csv.writer(tsvfile, delimiter="\t")
-            tsv_writer.writerows(zip(x_data[::step], y_data[::step]))
+            tsv_writer.writerows(zip(x, y))
 
         # 🔹 x 軸制限したデータ保存
-        if x_limits:
-            filtered_indices = (x_data >= x_limits[0]) & (x_data <= x_limits[1])
-            x_filtered = x_data[filtered_indices]
-            y_filtered = y_data[filtered_indices]
+        filtered_indices = (result.x * 1e9 >= x_limits[0]) & (result.x * 1e9 <= x_limits[1])
+        filtered_x = result.x[filtered_indices] * 1e9  # nm単位に変換
+        filtered_y = result.y[filtered_indices]
 
-            if y_limits:
-                filtered_indices = (y_filtered >= y_limits[0]) & (y_filtered <= y_limits[1])
-                x_filtered = x_filtered[filtered_indices]
-                y_filtered = y_filtered[filtered_indices]
-
-            with open(basedir / f"{result.name}_filtered.tsv", "w") as tsvfile:
-                tsv_writer = csv.writer(tsvfile, delimiter="\t")
-                tsv_writer.writerows(zip(x_filtered, y_filtered))
+        with open(basedir / f"{result.name}_filtered.tsv", "w") as tsvfile:
+            tsv_writer = csv.writer(tsvfile, delimiter="\t")
+            tsv_writer.writerows(zip(filtered_x, filtered_y))
 
 
 if __name__ == "__main__":
@@ -116,7 +105,6 @@ if __name__ == "__main__":
                 simulation_config.format = format
                 simulation_config.simulate_one_cycle = simulate_one_cycle
 
-                # 🔹 `lambda_limit` を x軸範囲に合わせて設定
                 result = simulate_MRR(
                     accumulator=accumulator,
                     L=simulation_config.L,
@@ -135,7 +123,7 @@ if __name__ == "__main__":
                     weight=simulation_config.weight,
                     format=simulation_config.format,
                     simulate_one_cycle=simulate_one_cycle,
-                    lambda_limit=(x_limits[0] * 1e-9, x_limits[1] * 1e-9),  # nm → m に変換
+                    lambda_limit=simulation_config.lambda_limit,
                     name=simulation_config.name,
                     label=simulation_config.label,
                     skip_graph=False,
@@ -155,6 +143,6 @@ if __name__ == "__main__":
             output_folder.mkdir(parents=True, exist_ok=True)
 
             plot_results(results, output_folder, x_limits, y_limits=None)  # グラフを保存
-            save_tsv_files(output_folder, results, x_limits)  # TSV を保存
+            save_tsv_files(output_folder, results, x_limits, y_limits=None)  # TSV を保存
 
             print(f"グラフと tsv を {output_folder} に保存しました。")
