@@ -44,28 +44,36 @@ def plot_results(results, output_folder: Path, x_limits=None, y_limits=None):
         plt.close(fig)
 
 
-def save_tsv_files(basedir: Path, results: list[SimulatorResult], x_limits=None) -> None:
+def save_tsv_files(basedir: Path, results, x_limits=None, y_limits=None):
     """シミュレーション結果の tsv データを保存"""
-    
+
     max_points = 2500
-    steps = [(1 if result.x.size < max_points else result.x.size // max_points) for result in results]
+    steps = [(1 if np.array(result.x).size < max_points else np.array(result.x).size // max_points) for result in results]
 
     for result, step in zip(results, steps):
+        # 🔹 NumPy 配列に変換
+        x_data = np.array(result.x)
+        y_data = np.array(result.y)
+
         # 🔹 全範囲のデータ保存
         with open(basedir / f"{result.name}_full.tsv", "w") as tsvfile:
-            x = result.x[::step] * 1e9  # nm単位に変換
-            y = result.y[::step]
             tsv_writer = csv.writer(tsvfile, delimiter="\t")
-            tsv_writer.writerows(zip(x, y))
+            tsv_writer.writerows(zip(x_data[::step], y_data[::step]))
 
         # 🔹 x 軸制限したデータ保存
-        filtered_indices = (result.x * 1e9 >= x_limits[0]) & (result.x * 1e9 <= x_limits[1])
-        filtered_x = result.x[filtered_indices] * 1e9  # nm単位に変換
-        filtered_y = result.y[filtered_indices]
+        if x_limits:
+            filtered_indices = (x_data >= x_limits[0]) & (x_data <= x_limits[1])
+            x_filtered = x_data[filtered_indices]
+            y_filtered = y_data[filtered_indices]
 
-        with open(basedir / f"{result.name}_filtered.tsv", "w") as tsvfile:
-            tsv_writer = csv.writer(tsvfile, delimiter="\t")
-            tsv_writer.writerows(zip(filtered_x, filtered_y))
+            if y_limits:
+                filtered_indices = (y_filtered >= y_limits[0]) & (y_filtered <= y_limits[1])
+                x_filtered = x_filtered[filtered_indices]
+                y_filtered = y_filtered[filtered_indices]
+
+            with open(basedir / f"{result.name}_filtered.tsv", "w") as tsvfile:
+                tsv_writer = csv.writer(tsvfile, delimiter="\t")
+                tsv_writer.writerows(zip(x_filtered, y_filtered))
 
 
 if __name__ == "__main__":
