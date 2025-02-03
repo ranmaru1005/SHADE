@@ -14,21 +14,27 @@ from config.model import SimulationConfig
 from MRR.simulator import Accumulator, SimulatorResult, simulate_MRR
 
 
-def plot_results(results: list[SimulatorResult], output_folder: Path) -> None:
-    """ シミュレーション結果をプロットし、x軸全体のグラフを保存 """
+def plot_results(results: list[SimulatorResult], output_folder: Path, x_limits=None) -> None:
+    """シミュレーション結果をプロットし、元のグラフを保存"""
+    
     for result in results:
         fig, ax = plt.subplots()
 
-        # グラフをプロット
-        ax.plot(result.x, result.y, label=result.label)
-        ax.set_xlabel("Wavelength (µm)")
-        ax.set_ylabel("Transmission")
-        ax.set_title(f"Simulation Result: {result.name}")
+        # 🔹 μm → nm へ変換
+        x_nm = result.x * 1000  
 
+        # 🔹 全体のグラフ
+        ax.plot(x_nm, result.y, label=result.label)
+        ax.set_xlabel("Wavelength λ(nm)")
+        ax.set_ylabel("Transmittance(dB)")
+        ax.set_ylim(-60, 0)  # Y軸を -60dB までに固定
+        ax.set_xticks(range(int(x_nm.min()), int(x_nm.max()) + 1, 10))  # X軸を整数表示
+        ax.set_title(f"Simulation Result: {result.name}")
         ax.legend()
+        
+        # 🔹 グラフを保存
         fig.savefig(output_folder / f"{result.name}_original.png")
         plt.close(fig)
-
 
 def save_tsv_files(basedir: Path, results: list[SimulatorResult], x_limits=None) -> None:
     """ シミュレーション結果の TSV データを保存 """
