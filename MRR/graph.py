@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,8 +20,8 @@ class Graph:
 
     def plot(
         self,
-        x: npt.NDArray[np.float_] | list,
-        y: npt.NDArray[np.float_] | list,
+        x: Union[npt.NDArray[np.float_], list],
+        y: Union[npt.NDArray[np.float_], list],
         label: Optional[str] = None,
     ) -> None:
         """ x, y がリストでも NumPy 配列に変換してプロット """
@@ -48,10 +48,10 @@ class Graph:
         self.ax.set_ylim([-60, 5])  # 🔹 y 軸: -60 ~ 5 dB
 
         # 🔹 軸目盛りの設定
-        self.ax.xaxis.set_major_locator(MultipleLocator(10))  # 10 nm 間隔
+        self.ax.xaxis.set_major_locator(MultipleLocator(10))  # 10 nm ごとに目盛り
         self.ax.xaxis.set_major_formatter(FormatStrFormatter("%d"))
         self.ax.xaxis.set_minor_locator(MultipleLocator(5))  # 5 nm の補助目盛り
-        self.ax.yaxis.set_major_locator(MultipleLocator(10))  # 10 dB 間隔
+        self.ax.yaxis.set_major_locator(MultipleLocator(10))  # 10 dB ごとに目盛り
         self.ax.yaxis.set_minor_locator(MultipleLocator(5))  # 5 dB の補助目盛り
 
         # 🔹 判例を設定
