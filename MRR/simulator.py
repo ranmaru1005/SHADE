@@ -114,10 +114,15 @@ def calc_min_N(
 def calculate_x(center_wavelength: float, FSR: np.float_) -> npt.NDArray[np.float_]:
     """X 軸の波長範囲を設定（nm単位で指定可能）"""
     center_wavelength_ = np.float_(center_wavelength)
-    return np.array(np.hstack((
-        np.arange(center_wavelength_ - FSR / 2, center_wavelength_, 1e-12),
-        np.arange(center_wavelength_, center_wavelength_ + FSR / 2, 1e-12),
-    )))
+
+    # np.linspace を使い、データ点を均等に取得
+    num_points = 1000  # 1000点で分割
+    x_values = np.linspace(
+        center_wavelength_ - FSR / 2, center_wavelength_ + FSR / 2, num=num_points
+    )
+    
+    return x_values
+
 
 def calculate_ring_length(center_wavelength: float, n_eff: float, N: npt.NDArray[np.int_]) -> npt.NDArray[np.float_]:
     center_wavelength_ = np.float_(center_wavelength)
