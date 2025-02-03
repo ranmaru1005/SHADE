@@ -66,15 +66,11 @@ def simulate_MRR(
     if simulate_one_cycle:
         x = calculate_x(center_wavelength=center_wavelength, FSR=practical_FSR)
     else:
-        x = np.array(lambda_limit)  # NumPy 配列に変換
+        x = lambda_limit
 
     y = simulate_transfer_function(
         wavelength=x, L=L, K=K, alpha=alpha, eta=eta, n_eff=n_eff, n_g=n_g, center_wavelength=center_wavelength
     )
-
-    # NumPy 配列に変換
-    x = np.array(x)
-    y = np.array(y)
 
     if skip_evaluation:
         evaluation_result = np.float_(0)
@@ -97,8 +93,8 @@ def simulate_MRR(
     if not skip_graph:
         accumulator.logger.save_data_as_csv(x, y, name)
         accumulator.graph.plot(x, y, label)
-    
     return SimulatorResult(name, x, y, label, evaluation_result)
+
 
 def calc_min_N(
     center_wavelength: float,
@@ -111,17 +107,14 @@ def calc_min_N(
     return min_ring_length_ * n_eff_ / center_wavelength_
 
 
-def calculate_x(center_wavelength: float, FSR: np.float_) -> npt.NDArray[np.float_]:
-    """X 軸の波長範囲を設定（nm単位で指定可能）"""
+def calculate_x(center_wavelength: float, FSR: np.float_) -> npt.NDArray[np.float_]:    #ここは行列計算に必要なxの範囲を指定する部分
     center_wavelength_ = np.float_(center_wavelength)
-
-    # np.linspace を使い、データ点を均等に取得
-    num_points = 1000  # 1000点で分割
-    x_values = np.linspace(
-        center_wavelength_ - FSR / 2, center_wavelength_ + FSR / 2, num=num_points
+    return np.hstack(
+        (
+            np.arange(center_wavelength_ - FSR / 2, center_wavelength_, 1e-12),        
+            np.arange(center_wavelength_, center_wavelength_ + FSR / 2, 1e-12),
+        )
     )
-    
-    return x_values
 
 
 def calculate_ring_length(center_wavelength: float, n_eff: float, N: npt.NDArray[np.int_]) -> npt.NDArray[np.float_]:
