@@ -20,27 +20,39 @@ from MRR.simulator import Accumulator, SimulatorResult, simulate_MRR
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_results(results: list[SimulatorResult], output_folder: Path) -> None:
+import numpy as np
+import matplotlib.pyplot as plt
+
+def plot_results(results: list[SimulatorResult], output_folder: Path, 
+                 title="Simulation Result", legend_label=None) -> None:
     """シミュレーション結果をプロットし、元のグラフを保存"""
-    
+
     for result in results:
         fig, ax = plt.subplots()
 
+        # 🔹【修正①】グラフのタイトルを変更できるように
+        graph_title = f"{title}: {result.name}"  # デフォルトは "Simulation Result: {result.name}"
+        
         # 🔹 m → nm 変換
         x_nm = result.x * 1e9  
 
         # 🔹 X軸・Y軸の設定
-        ax.plot(x_nm, result.y, label=result.label)
+        ax.plot(x_nm, result.y, label=legend_label if legend_label else result.label)  # 【修正④】判例の変更を可能に
         ax.set_xlabel(r"Wavelength $\lambda$ (nm)")  
         ax.set_ylabel("Transmittance (dB)")
         ax.set_ylim(-60, 0)  # Y軸を -60dB までに固定
-        ax.set_xlim(x_nm.min(), x_nm.max())  # X軸の範囲をデータに合わせる
-        ax.set_xticks(np.linspace(x_nm.min(), x_nm.max(), num=6).astype(int))  # 目盛りを整数にする
-        ax.set_title(f"Simulation Result: {result.name}")
+
+        # 🔹【修正②】x軸の目盛りを 1510 から 10刻みに
+        x_min = 1510
+        x_max = int(np.ceil(x_nm.max()))  # 最大値を整数に丸める
+        ax.set_xticks(np.arange(x_min, x_max + 1, 10))  
+
+        # 🔹【修正③】x, y 軸の目盛りを内向きに
+        ax.tick_params(axis="both", direction="in")  
+
+        ax.set_title(graph_title)
         ax.legend()
 
-        print("修正後の x の範囲:", x_nm.min(), x_nm.max())
-        
         # 🔹 グラフを保存
         fig.savefig(output_folder / f"{result.name}_original.png")
         plt.close(fig)
@@ -147,7 +159,9 @@ if __name__ == "__main__":
             output_folder = Path(f"graphs/{now}")
             output_folder.mkdir(parents=True, exist_ok=True)
 
-            plot_results(results, output_folder)  # グラフを保存
+            plot_results(results, output_folder, 
+             title="Optimized Transmission Spectrum",  # 【修正①】タイトル変更
+             legend_label="Experimental Data")  # 【修正④】判例を変更
             save_tsv_files(output_folder, results, x_limits)  # TSV を保存
 
             print(f"グラフと tsv を {output_folder} に保存しました。")
