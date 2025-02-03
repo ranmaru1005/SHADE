@@ -15,6 +15,8 @@ from config.model import SimulationConfig
 from MRR.simulator import Accumulator, SimulatorResult, simulate_MRR
 
 
+
+
 def plot_results(results: list[SimulatorResult], output_folder: Path) -> None:
     """シミュレーション結果をプロットし、元のグラフを保存"""
     
@@ -24,19 +26,23 @@ def plot_results(results: list[SimulatorResult], output_folder: Path) -> None:
         # 🔹 μm → nm 変換
         x_nm = result.x * 1000  
 
-        # 🔹 全体のグラフ
+        # 🔹 X軸・Y軸の設定
         ax.plot(x_nm, result.y, label=result.label)
-        ax.set_xlabel(r"Wavelength $\lambda$ (nm)")  # λを LaTeX 記法で修正
+        ax.set_xlabel(r"Wavelength $\lambda$ (nm)")  
         ax.set_ylabel("Transmittance (dB)")
         ax.set_ylim(-60, 0)  # Y軸を -60dB までに固定
-        ax.set_xlim(x_nm.min(), x_nm.max())  # データ範囲に基づいた適切なスケール
-        ax.set_xticks(np.linspace(x_nm.min(), x_nm.max(), num=6).astype(int))  # 目盛りを整数表示
+        ax.set_xlim(x_nm.min(), x_nm.max())  # X軸の範囲をデータに合わせる
+        ax.set_xticks(np.linspace(x_nm.min(), x_nm.max(), num=6).astype(int))  # 目盛りを整数にする
         ax.set_title(f"Simulation Result: {result.name}")
         ax.legend()
+
+        print(result.x.min(), result.x.max())  # → 1.5 〜 1.6 のはず
+        print(x_nm.min(), x_nm.max())  # → 1500 〜 1600 になるべき
         
         # 🔹 グラフを保存
         fig.savefig(output_folder / f"{result.name}_original.png")
         plt.close(fig)
+
 
 def save_tsv_files(basedir: Path, results: list[SimulatorResult], x_limits=None) -> None:
     """ シミュレーション結果の TSV データを保存 """
