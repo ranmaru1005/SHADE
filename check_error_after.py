@@ -129,13 +129,13 @@ def evaluate_with_error(
 
 # 例としての結合率データとパラメータ
 K_theoretical = np.array([
-        0.10689,
-        0.04268,
-        0.05098,
-        0.05410,
-        0.07308,
-        0.15398,
-        0.68369
+        0.10763,
+        0.04857,
+        0.04164,
+        0.05322,
+        0.06710,
+        0.15076,
+        0.67846
     ])  # 理論的な結合率
 params = OptimizeKParams(
     L=np.array([6.20e-5, 6.20e-5, 7.75e-5, 7.75e-5, 7.75e-5, 7.75e-5 ]),
@@ -155,4 +155,4 @@ params = OptimizeKParams(
 )
 
 # 誤差を加えた評価値の計算
-evaluate_with_error(K=K_theoretical, params=params)
+evaluate_with_error(K=K_theoretical, params=params, error_value = 0.005)
