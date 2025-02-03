@@ -17,14 +17,17 @@ from MRR.simulator import Accumulator, SimulatorResult, simulate_MRR
 
 
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 def plot_results(results: list[SimulatorResult], output_folder: Path) -> None:
     """シミュレーション結果をプロットし、元のグラフを保存"""
     
     for result in results:
         fig, ax = plt.subplots()
 
-        # 🔹 μm → nm 変換
-        x_nm = result.x * 1000  
+        # 🔹 m → nm 変換
+        x_nm = result.x * 1e9  
 
         # 🔹 X軸・Y軸の設定
         ax.plot(x_nm, result.y, label=result.label)
@@ -36,12 +39,12 @@ def plot_results(results: list[SimulatorResult], output_folder: Path) -> None:
         ax.set_title(f"Simulation Result: {result.name}")
         ax.legend()
 
-        print(result.x.min(), result.x.max())  # → 1.5 〜 1.6 のはず
-        print(x_nm.min(), x_nm.max())  # → 1500 〜 1600 になるべき
+        print("修正後の x の範囲:", x_nm.min(), x_nm.max())
         
         # 🔹 グラフを保存
         fig.savefig(output_folder / f"{result.name}_original.png")
         plt.close(fig)
+
 
 
 def save_tsv_files(basedir: Path, results: list[SimulatorResult], x_limits=None) -> None:
