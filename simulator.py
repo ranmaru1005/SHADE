@@ -25,8 +25,8 @@ def plot_results(results: list[SimulatorResult], output_folder: Path, x_limits=N
 
         # 🔹 全体のグラフ
         ax.plot(x_nm, result.y, label=result.label)
-        ax.set_xlabel("Wavelength λ(nm)")
-        ax.set_ylabel("Transmittance(dB)")
+        ax.set_xlabel(r"Wavelength $\lambda$ (nm)")  # λを LaTeX 記法で修正
+        ax.set_ylabel("Transmittance (dB)")
         ax.set_ylim(-60, 0)  # Y軸を -60dB までに固定
         ax.set_xticks(range(int(x_nm.min()), int(x_nm.max()) + 1, 10))  # X軸を整数表示
         ax.set_title(f"Simulation Result: {result.name}")
