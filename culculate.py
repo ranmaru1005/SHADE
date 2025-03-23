@@ -123,6 +123,6 @@ graph = simulate_transfer_function(
     n_eff=2.2,
     n_g=4.4,
     center_wavelength = 1550e-9
-)
+))
 
 evaluate_graph(graph)
