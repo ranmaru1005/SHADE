@@ -110,7 +110,7 @@ def _get_3db_band(x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: i
 
     return index
 
-
+"""
 def _evaluate_pass_band(
     x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], H_p: float, start: int, end: int
 ) -> tuple[np.float_, bool]:
@@ -123,6 +123,42 @@ def _evaluate_pass_band(
     b = abs(np.sum(H_p - y[start:end]) * distance)
     E = b / a
 
+    return (E, True)
+"""
+
+def _evaluate_ripple(
+    x: npt.NDArray[np.float_],
+    y: npt.NDArray[np.float_],
+    r_max: float = 1.0,
+    start: int = 0,
+    end: int = -1
+) -> tuple[np.float_, bool]:
+    # 3dB帯域のみを取り出す
+    pass_band = y[start:end]
+    index = _get_3db_band(x=x, y=y, start=start, end=end)
+
+    if index.size <= 1:
+        return (np.float_(0), False)
+
+    three_db_band = pass_band[index[0]: index[-1]]
+
+    # ピーク・谷の検出
+    maxid = argrelmax(three_db_band, order=1)
+    minid = argrelmin(three_db_band, order=1)
+
+    if len(minid[0]) == 0:
+        # 谷が存在しない場合、最大値-最小値でリップル計算
+        ripple = three_db_band.max() - three_db_band.min()
+    else:
+        # 谷が存在する場合、従来通り最大山と最小谷でリップル計算
+        peak_max = three_db_band[maxid]
+        peak_min = three_db_band[minid]
+        ripple = peak_max.max() - peak_min.min()
+
+    # 評価
+    if ripple > r_max:
+        return (np.float_(0), False)
+    E = 1 - ripple / r_max
     return (E, True)
 
 
