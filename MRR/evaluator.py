@@ -34,6 +34,7 @@ def evaluate_band(
         _evaluate_cross_talk(y=y, max_crosstalk=max_crosstalk, pass_band_start=start, pass_band_end=end),
         _evaluate_shape_factor(x=x, y=y, start=start, end=end),
     ]
+    """
     print("_evaluate_pass_band = ",result[0])
     print("_evaluate_stop_band = ",result[1])
     print("_evaluate_insertion_loss = ",result[2])
@@ -41,6 +42,7 @@ def evaluate_band(
     print("_evaluate_ripple = ",result[4])
     print("_evaluate_cross_talk = ",result[5])
     print("_evaluate_shape_factor = ",result[6])
+    """
 
 
 
