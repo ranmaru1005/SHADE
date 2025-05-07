@@ -110,7 +110,7 @@ def _get_3db_band(x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: i
 
     return index
 
-"""
+
 def _evaluate_pass_band(
     x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], H_p: float, start: int, end: int
 ) -> tuple[np.float_, bool]:
@@ -124,7 +124,7 @@ def _evaluate_pass_band(
     E = b / a
 
     return (E, True)
-"""
+
 
 def _evaluate_ripple(
     x: npt.NDArray[np.float_],
