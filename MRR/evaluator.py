@@ -136,6 +136,9 @@ def _evaluate_ripple(
     start: int = 0,
     end: int = -1
 ) -> tuple[np.float_, bool]:
+    if end == -1:
+        end = len(x)
+
     # 3dB帯域のみを取り出す
     pass_band = y[start:end]
     index = _get_3db_band(x=x, y=y, start=start, end=end)
