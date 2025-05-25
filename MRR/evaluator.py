@@ -145,6 +145,11 @@ def _evaluate_ripple(
 
     three_db_band = pass_band[index[0]: index[-1]]
 
+    # 実際の波長値に変換
+    start_wavelength = x[start + index[0]]
+    end_wavelength = x[start + index[-1]]
+    print(f"3dB波長帯域: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
+
     # ピーク・谷の検出
     maxid = argrelmax(three_db_band, order=1)
     minid = argrelmin(three_db_band, order=1)
