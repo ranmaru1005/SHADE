@@ -128,7 +128,7 @@ def _evaluate_pass_band(
     return (E, True)
 
 
-"""
+
 def _evaluate_ripple(
     x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
@@ -163,7 +163,7 @@ def _evaluate_ripple(
         return (np.float_(0), False)
     E = 1 - ripple / r_max
     return (E, True)
-"""
+
 
 def _evaluate_stop_band(
     x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], H_p: float, H_s: float, start: int, end: int
@@ -235,7 +235,7 @@ def _evaluate_ripple(
     return (E, True)
 """
 
-
+"""
 #最大最小のみでやるやつ、極大極小を考慮しない
 def _evaluate_ripple(
     x: npt.NDArray[np.float_],
@@ -261,7 +261,7 @@ def _evaluate_ripple(
     E = 1 - ripple / r_max
     return (E, True)
 
-
+"""
 
 def _evaluate_cross_talk(
     y: npt.NDArray[np.float_], max_crosstalk: float, pass_band_start: int, pass_band_end: int
