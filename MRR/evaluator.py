@@ -128,6 +128,7 @@ def _evaluate_pass_band(
     return (E, True)
 
 
+
 def _evaluate_ripple(
     x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
@@ -213,7 +214,8 @@ def _evaluate_3db_band(
     E = E ** 3
     return (E, True)
 
-
+"""
+#宇田川さんのやつ
 def _evaluate_ripple(
     x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], r_max: float, start: int, end: int
 ) -> tuple[np.float_, bool]:
@@ -233,6 +235,34 @@ def _evaluate_ripple(
         return (np.float_(0), False)
     E = 1 - dif / r_max
     return (E, True)
+"""
+
+"""
+#最大最小のみでやるやつ、極大極小を考慮しない
+def _evaluate_ripple(
+    x: npt.NDArray[np.float_],
+    y: npt.NDArray[np.float_],
+    r_max: float = 1.0,
+    start: int = 0,
+    end: int = -1
+) -> tuple[np.float_, bool]:
+    # 3dB帯域のみを取り出す
+    index = _get_3db_band(x=x, y=y, start=start, end=end)
+    if index.size <= 1:
+        return (np.float_(0), False)
+
+    pass_band = y[start:end]
+    three_db_band = pass_band[index[0]: index[-1]]
+
+    # 最大値 - 最小値でリップルを計算
+    ripple = three_db_band.max() - three_db_band.min()
+
+    # 評価
+    if ripple > r_max:
+        return (np.float_(0), False)
+    E = 1 - ripple / r_max
+    return (E, True)
+
 
 
 def _evaluate_cross_talk(
