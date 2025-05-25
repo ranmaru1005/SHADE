@@ -262,7 +262,7 @@ def _evaluate_ripple(
         return (np.float_(0), False)
     E = 1 - ripple / r_max
     return (E, True)
-
+"""
 
 
 def _evaluate_cross_talk(
