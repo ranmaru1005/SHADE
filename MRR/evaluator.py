@@ -150,11 +150,9 @@ def _evaluate_ripple(
     minid = argrelmin(three_db_band, order=1)
 
     if len(minid[0]) == 0:
-        print("リプルに谷無し")
         # 谷が存在しない場合、最大値-最小値でリップル計算
         ripple = three_db_band.max() - three_db_band.min()
     else:
-        print("リプルに谷有り")
         # 谷が存在する場合、従来通り最大山と最小谷でリップル計算
         peak_max = three_db_band[maxid]
         peak_min = three_db_band[minid]
