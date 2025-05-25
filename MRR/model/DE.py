@@ -179,7 +179,7 @@ def evaluation_callback(population: npt.NDArray[np.float_], convergence: float) 
 
 
 
-
+"""
     #誤差を含んだ評価値を出力する場合
 def optimize_K(
     eta: float,
@@ -206,7 +206,7 @@ def optimize_K(
 
     return K, E
 
-
+"""
 
 
 """
@@ -272,7 +272,7 @@ def optimize_K_with_perturbation(
 """
 
 
-"""
+
 
 def optimize_K(             #通常のSHADE用
     eta: float,
@@ -298,7 +298,7 @@ def optimize_K(             #通常のSHADE用
 
     return K, E
 
-"""
+
 
 """
 
