@@ -178,7 +178,7 @@ def evaluation_callback(population: npt.NDArray[np.float_], convergence: float) 
 
 
 
-
+"""
     #誤差を含んだ評価値を出力する場合
 def optimize_K(
     eta: float,
@@ -204,7 +204,7 @@ def optimize_K(
     K: npt.NDArray[np.float_] = result.x
 
     return K, E
-
+"""
 
 
 
@@ -297,6 +297,31 @@ def optimize_K(             #通常のSHADE用
 
     return K, E
 """
+
+def optimize_K(             #通常のSHADE用,誤差を考慮
+    eta: float,
+    number_of_rings: int,
+    rng: np.random.Generator,
+    params: OptimizeKParams,
+) -> tuple[npt.NDArray[np.float_], float]:
+    bounds = np.array([(1e-12, eta) for _ in range(number_of_rings + 1)])
+
+    result = SHADE(combined_evaluation, 
+                   bounds, 
+                   params, 
+                   pop_size=15, 
+                   max_iter = 1500,
+                   H = 50,
+                   tol = 0.01, 
+                   callback = None, 
+                   rng = None
+                  )
+    
+    E: float = -result[1]
+    K: npt.NDArray[np.float_] = result[0]
+
+    return K, E
+
 
 
 """
