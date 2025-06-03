@@ -227,7 +227,7 @@ def optimize_K(
         workers=-1,
         updating="immediate",
         popsize=15,
-        maxiter=500,
+        maxiter=1000,
         seed=rng,
     )
     E: float = -result.fun
