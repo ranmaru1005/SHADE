@@ -91,7 +91,7 @@ def combined_evaluation(K: npt.NDArray[np.float_], params: OptimizeKParams) -> f
     perturbed_evaluations.append(E_perturbed)
 
     # 評価値をその場で表示
-    print(f"Normal Evaluation: {E_optimal}, Perturbed Evaluation: {E_perturbed}")
+    #print(f"Normal Evaluation: {E_optimal}, Perturbed Evaluation: {E_perturbed}")
 
     # 評価値の変動量
     delta_E = abs(E_optimal - E_perturbed)
