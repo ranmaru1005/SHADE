@@ -20,11 +20,10 @@ def evaluate_band(
     if pass_band.shape[0] == 1:
         start = pass_band[0][0]
         end = pass_band[0][1]
-    # elif cross_talk.shape[0] == 1:
-    #     start = cross_talk[0][0]
-    #     end = cross_talk[0][1]
+
     else:
         return np.float_(0)
+
     result = [
         _evaluate_pass_band(x=x, y=y, H_p=H_p, start=start, end=end),
         _evaluate_stop_band(x=x, y=y, H_p=H_p, H_s=H_s, start=start, end=end),
@@ -34,7 +33,6 @@ def evaluate_band(
         _evaluate_cross_talk(y=y, max_crosstalk=max_crosstalk, pass_band_start=start, pass_band_end=end),
         _evaluate_shape_factor(x=x, y=y, start=start, end=end),
     ]
-   
     n_eval = len(result)
     W_c = weight[:n_eval]
     W_b = weight[n_eval:]
@@ -47,8 +45,16 @@ def evaluate_band(
     if ignore_binary_evaluation:
         return E_c
     E = E_c * E_b
+    # 各評価関数の結果を表示
+    """
+    print(E_b)
+    print(E_c)
+    for i, res in enumerate(result):
+        print(f"評価関数 {i+1}: 値 = {res[0]}, バイナリ評価 = {res[1]}")
+    """
 
     return E
+    
 
 
 def _calculate_pass_band_range(
@@ -100,6 +106,7 @@ def _get_3db_band1(x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: 
 
     return index
 
+
 def _get_3db_band(
     x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
@@ -120,22 +127,17 @@ def _get_3db_band(
     # 通過帯域の範囲（インデックスそのものを返す）
     return idx
 
-
 def _evaluate_pass_band(
     x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], H_p: float, start: int, end: int
 ) -> tuple[np.float_, bool]:
     distance: np.float_ = x[1] - x[0]
     a = abs(H_p * (x[end] - x[start]))
-
-    if a == 0:
-        return (np.float_(0), False)
-
+    if a < 1e-9:
+        penalty = np.exp(-a/1e-9)
+        return (np.float_(penalty),False)
     b = abs(np.sum(H_p - y[start:end]) * distance)
     E = b / a
-
     return (E, True)
-
-
 
 
 def _evaluate_stop_band(
@@ -144,8 +146,9 @@ def _evaluate_stop_band(
     distance: np.float_ = x[1] - x[0]
     c = abs((H_s - H_p) * ((x[start] - x[0]) + (x[-1] - x[end])))
 
-    if c == 0:
-        return (np.float_(0), False)
+    if c < 1e-9:
+        penalty = np.exp(-c/1e-9)
+        return (np.float_(penalty),False)
 
     y1 = np.where(y[0:start] > H_s, H_p - y[0:start], H_p - H_s)
     y1 = np.where(y1 > 0, y1, 0)
@@ -164,9 +167,14 @@ def _evaluate_insertion_loss(
     center_wavelength: float,
 ) -> tuple[np.float_, bool]:
     insertion_loss = y[x == center_wavelength]
+    if insertion_loss.size == 0:
+        return (np.float_(1e-6), False)
+
     if insertion_loss[0] < H_i:
-        return (np.float_(0), False)
-    E = 1 - insertion_loss[0] / H_i
+        E = H_i / (insertion_loss[0] + 1e-6)  # ペナルティ計算を連続化
+    else:
+        E = 1 - insertion_loss[0] / H_i
+
     return (E, True)
 
 
@@ -176,7 +184,9 @@ def _evaluate_3db_band(
     distance: np.float_ = x[1] - x[0]
     index = _get_3db_band(x=x, y=y, start=start, end=end)
     if index.size <= 1:
+        # ペナルティ計算を追加
         return (np.float_(0), False)
+
     practical_length_of_3db_band = distance * (index[-1] - index[0])
     if practical_length_of_3db_band > length_of_3db_band:
         E = (2 * length_of_3db_band - practical_length_of_3db_band) / length_of_3db_band
@@ -184,8 +194,60 @@ def _evaluate_3db_band(
         E = practical_length_of_3db_band / length_of_3db_band
     E = E ** 3
     return (E, True)
+"""
+#最大最小型
+def _evaluate_ripple(
+    x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], r_max: float, start: int, end: int
+) -> tuple[np.float_, bool]:
+    pass_band = y[start:end]
+    index = _get_3db_band(x=x, y=y, start=start, end=end)
+    if index.size <= 1:
+        return (np.float_(0), False)
+    three_db_band = pass_band[index[0] : index[-1]]
+    maxid = argrelmax(three_db_band, order=1)
+    minid = argrelmin(three_db_band, order=1)
+    peak_max = three_db_band[maxid]
+    peak_min = three_db_band[minid]
+    if len(peak_min) == 0:
+        return (1, True)
+    dif = peak_max.max() - peak_min.min()
+    if dif > r_max:
+        E = 0
+    else:
+        E = 1 - dif / r_max
 
+    return (E, True)
 
+#条件分岐型
+def _evaluate_ripple(
+    x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], r_max: float, start: int, end: int
+) -> tuple[np.float_, bool]:
+    pass_band = y[start:end]
+    index = _get_3db_band(x=x, y=y, start=start, end=end)
+    if index.size <= 1:
+        # ペナルティ計算
+        return (np.float_(0), False)
+
+    three_db_band = pass_band[index[0] : index[-1]]
+   
+    maxid = argrelmax(three_db_band, order=1)
+    minid = argrelmin(three_db_band, order=1)
+   
+    if len(minid[0])==0 or len(maxid[0])==0:
+        peak_max = three_db_band.max()
+        peak_min = three_db_band.min()
+    else:
+        peak_max = three_db_band[maxid].max()
+        peak_min = three_db_band[minid].min()
+
+    dif = peak_max.max() - peak_min.min()
+    if dif > r_max:
+        E = 0
+    else:
+        E = 1 - dif / r_max
+
+    return (E, True)
+"""
 #標準偏差型
 def _evaluate_ripple(
     x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], r_max: float, start: int, end: int
@@ -219,102 +281,6 @@ def _evaluate_ripple(
 
 
 
-"""
-def _evaluate_ripple(
-    x: npt.NDArray[np.float_],
-    y: npt.NDArray[np.float_],
-    r_max: float = 1.0,
-    start: int = 0,
-    end: int = -1
-) -> tuple[np.float_, bool]:
-    if end == -1:
-        end = len(x)
-
-    # 3dB帯域のみを取り出す
-    pass_band = y[start:end]
-    index = _get_3db_band(x=x, y=y, start=start, end=end)
-
-    if index.size <= 1:
-        return (np.float_(0), False)
-
-    three_db_band = pass_band[index[0]: index[-1]]
-
-    # 実際の波長値に変換
-    start_wavelength = x[start + index[0]]
-    end_wavelength = x[start + index[-1]]
-    print(f"3dB波長帯域: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
-
-    # ピーク・谷の検出
-    maxid = argrelmax(three_db_band, order=1)
-    minid = argrelmin(three_db_band, order=1)
-
-    if len(minid[0]) == 0:
-        # 谷が存在しない場合、最大値-最小値でリップル計算
-        ripple = three_db_band.max() - three_db_band.min()
-    else:
-        # 谷が存在する場合、従来通り最大山と最小谷でリップル計算
-        peak_max = three_db_band[maxid]
-        peak_min = three_db_band[minid]
-        ripple = peak_max.max() - peak_min.min()
-
-    # 評価
-    if ripple > r_max:
-        return (np.float_(0), False)
-    E = 1 - ripple / r_max
-    return (E, True)
-"""
-
-"""
-#宇田川さんのやつ
-def _evaluate_ripple(
-    x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], r_max: float, start: int, end: int
-) -> tuple[np.float_, bool]:
-    pass_band = y[start:end]
-    index = _get_3db_band(x=x, y=y, start=start, end=end)
-    if index.size <= 1:
-        return (np.float_(0), False)
-    three_db_band = pass_band[index[0] : index[-1]]
-    maxid = argrelmax(three_db_band, order=1)
-    minid = argrelmin(three_db_band, order=1)
-    peak_max = three_db_band[maxid]
-    peak_min = three_db_band[minid]
-    if len(peak_min) == 0:
-        return (1, True)
-    dif = peak_max.max() - peak_min.min()
-    if dif > r_max:
-        return (np.float_(0), False)
-    E = 1 - dif / r_max
-    return (E, True)
-"""
-
-"""
-#最大最小のみでやるやつ、極大極小を考慮しない
-def _evaluate_ripple(
-    x: npt.NDArray[np.float_],
-    y: npt.NDArray[np.float_],
-    r_max: float = 1.0,
-    start: int = 0,
-    end: int = -1
-) -> tuple[np.float_, bool]:
-    # 3dB帯域のみを取り出す
-    index = _get_3db_band(x=x, y=y, start=start, end=end)
-    if index.size <= 1:
-        return (np.float_(0), False)
-
-    pass_band = y[start:end]
-    three_db_band = pass_band[index[0]: index[-1]]
-
-    # 最大値 - 最小値でリップルを計算
-    ripple = three_db_band.max() - three_db_band.min()
-
-    # 評価
-    if ripple > r_max:
-        return (np.float_(0), False)
-    E = 1 - ripple / r_max
-    return (E, True)
-
-"""
-
 def _evaluate_cross_talk(
     y: npt.NDArray[np.float_], max_crosstalk: float, pass_band_start: int, pass_band_end: int
 ) -> tuple[np.float_, bool]:
@@ -324,11 +290,10 @@ def _evaluate_cross_talk(
     maxid_end = np.append(argrelmax(end), -1)
     start_peak = start[maxid_start]
     end_peak = end[maxid_end]
-    a = np.any(start_peak > max_crosstalk)
-    b = np.any(end_peak > max_crosstalk)
-    if a or b:
-        return (np.float_(0), False)
-    return (np.float_(0), True)
+    excess_start = np.maximum(start_peak - max_crosstalk, 0)
+    excess_end = np.maximum(end_peak - max_crosstalk, 0)
+    penalty = np.sum(excess_start) + np.sum(excess_end)
+    return (1 / (1 + penalty), True)
 
 
 def _evaluate_shape_factor(
@@ -336,8 +301,12 @@ def _evaluate_shape_factor(
 ) -> tuple[np.float_, bool]:
     index = _get_3db_band1(x=x, y=y, start=start, end=end)
     if index.size <= 1:
-        return (np.float_(0), False)
-    E = (index[-1] - index[0]) / (end - start)
+        return (np.float_(1e-6), False)
+
+    practical_length = x[index[-1]] - x[index[0]]
+    total_length = x[end] - x[start]
+    E = practical_length / total_length
     if E < 0.5:
-        return (E, False)
+        return (E ** 2, False)  # ペナルティを連続化
     return (E, True)
+
