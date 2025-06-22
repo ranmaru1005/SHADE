@@ -218,19 +218,19 @@ def _evaluate_ripple(
         lower = center_wavelength - length_of_3db_band / 2
         upper = center_wavelength + length_of_3db_band / 2
         indices = np.where((x >= lower) & (x <= upper))[0]
-        print(f"固定帯域を使用: {lower*1e9:.3f} nm ～ {upper*1e9:.3f} nm")
+        #print(f"固定帯域を使用: {lower*1e9:.3f} nm ～ {upper*1e9:.3f} nm")
     else:
         indices = np.arange(idx_start, idx_end)
-        print(f"実測帯域を使用: {x[idx_start]*1e9:.3f} nm ～ {x[idx_end]*1e9:.3f} nm")
+        #print(f"実測帯域を使用: {x[idx_start]*1e9:.3f} nm ～ {x[idx_end]*1e9:.3f} nm")
 
     if indices.size < 2:
-        print("評価対象のデータが不足しています")
+        #print("評価対象のデータが不足しています")
         return (np.float_(0), False)
 
     band_y = y[indices]
     std = np.std(band_y)
 
-    print(f"標準偏差（ripple）= {std:.4f} dB")
+    #print(f"標準偏差（ripple）= {std:.4f} dB")
 
     if std > r_max:
         return (np.float_(0), False)
@@ -364,8 +364,39 @@ def _evaluate_ripple(
     return (E, True)
 """
 
+#クロストークの制限を取り払ったもの
+def _evaluate_cross_talk(
+    y: npt.NDArray[np.float_],
+    max_crosstalk: float,
+    pass_band_start: int,
+    pass_band_end: int
+) -> tuple[np.float_, bool]:
+    # ストップバンドの前後データを抽出
+    start_band = y[:pass_band_start]
+    end_band = y[pass_band_end:]
+
+    # 局所的なピーク検出
+    maxid_start = np.append(0, argrelmax(start_band)[0])
+    maxid_end = np.append(argrelmax(end_band)[0], -1)
+
+    # 各ストップバンドにおける最大ピーク値取得
+    start_peak = start_band[maxid_start].max() if maxid_start.size > 0 else 0
+    end_peak = end_band[maxid_end].max() if maxid_end.size > 0 else 0
+
+    # クロストーク評価用ピーク値（左右のうち大きい方）
+    peak = max(start_peak, end_peak)
+
+    print(f"クロストーク最大ピーク: {peak:.3f} dB")
+
+    # スコア計算（必ず 0〜1 の範囲に収める）
+    score = max(0.0, 1.0 - (peak / max_crosstalk))
+
+    return (np.float_(score), True)
 
 
+
+
+"""
 def _evaluate_cross_talk(
     y: npt.NDArray[np.float_], max_crosstalk: float, pass_band_start: int, pass_band_end: int
 ) -> tuple[np.float_, bool]:
@@ -380,7 +411,7 @@ def _evaluate_cross_talk(
     if a or b:
         return (np.float_(0), False)
     return (np.float_(0), True)
-
+"""
 
 def _evaluate_shape_factor(
     x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: int, end: int
