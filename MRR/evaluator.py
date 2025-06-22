@@ -216,7 +216,7 @@ def _evaluate_ripple(
     index = _get_3db_band(x=x, y=y, start=start, end=end)
 
     if index.size < 2:
-        print("3dB帯域のインデックスが見つかりません")
+        #print("3dB帯域のインデックスが見つかりません")
         return (np.float_(0), False)
 
     idx_start = start + index[0]
