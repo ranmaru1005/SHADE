@@ -30,7 +30,7 @@ def evaluate_band(
         _evaluate_stop_band(x=x, y=y, H_p=H_p, H_s=H_s, start=start, end=end),
         _evaluate_insertion_loss(x=x, y=y, H_i=H_i, center_wavelength=center_wavelength),
         _evaluate_3db_band(x=x, y=y, length_of_3db_band=length_of_3db_band, start=start, end=end),
-        _evaluate_ripple(x=x, y=y, r_max=r_max, start=start, end=end),
+        _evaluate_ripple(x=x, y=y, r_max=r_max, start=start, end=end, center_wavelength=center_wavelength, length_of_3db_band=length_of_3db_band),
         _evaluate_cross_talk(y=y, max_crosstalk=max_crosstalk, pass_band_start=start, pass_band_end=end),
         _evaluate_shape_factor(x=x, y=y, start=start, end=end),
     ]
@@ -175,7 +175,61 @@ def _evaluate_3db_band(
     return (E, True)
 
 
+#3dB波長帯域を中心波長から1nmで固定
+def _evaluate_ripple(
+    x: npt.NDArray[np.float_],
+    y: npt.NDArray[np.float_],
+    r_max: float,
+    start: int,
+    end: int,
+    center_wavelength: float = None,
+    length_of_3db_band: float = None
+) -> tuple[np.float_, bool]:
+    # 中心波長と評価幅が与えられている場合はそれを使用
+    if center_wavelength is not None and length_of_3db_band is not None:
+        half_band = length_of_3db_band / 2
+        lower = center_wavelength - half_band
+        upper = center_wavelength + half_band
 
+        # 評価範囲内のインデックス取得
+        band_indices = np.where((x >= lower) & (x <= upper))[0]
+
+        if band_indices.size < 2:
+            print("指定した中心波長と3dB帯域幅で十分なデータがありません。")
+            return (np.float_(0), False)
+
+        band_y = y[band_indices]
+        std = np.std(band_y)
+
+        print(f"評価範囲: {lower*1e9:.3f} nm ～ {upper*1e9:.3f} nm")
+        print(f"標準偏差 (ripple): {std:.4f}")
+
+        if std > r_max:
+            return (np.float_(0), False)
+
+        score = 1 - std / r_max
+        return (np.float_(score), True)
+
+    else:
+        # fallback: 元の方式で3dB帯域を使ったリップル評価
+        pass_band = y[start:end]
+        index = _get_3db_band(x=x, y=y, start=start, end=end)
+        if index.size <= 1:
+            return (np.float_(0), False)
+        three_db_band = pass_band[index[0]: index[-1]]
+        std = np.std(three_db_band)
+
+        if std > r_max:
+            return (np.float_(0), False)
+        score = 1 - std / r_max
+        return (np.float_(score), True)
+
+
+
+
+
+
+"""
 #標準偏差を用いる
 def _evaluate_ripple(
     x: npt.NDArray[np.float_],
@@ -215,7 +269,7 @@ def _evaluate_ripple(
 
     score = 1 - std / r_max
     return (score, True)
-
+"""
 
 
 """
