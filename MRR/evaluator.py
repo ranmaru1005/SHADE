@@ -175,6 +175,73 @@ def _evaluate_3db_band(
     return (E, True)
 
 
+#3dB波長帯域の選択を場合で分ける
+def _evaluate_ripple(
+    x: npt.NDArray[np.float_],
+    y: npt.NDArray[np.float_],
+    r_max: float = 1.0,
+    start: int = 0,
+    end: int = -1,
+    center_wavelength: float = None,
+    length_of_3db_band: float = None
+) -> tuple[np.float_, bool]:
+    if end == -1:
+        end = len(x)
+
+    index = _get_3db_band(x=x, y=y, start=start, end=end)
+
+    if index.size < 2:
+        print("3dB帯域のインデックスが見つかりません")
+        return (np.float_(0), False)
+
+    idx_start = start + index[0]
+    idx_end = start + index[1]
+
+    if idx_end > len(x):
+        return (np.float_(0), False)
+
+    # 実測3dB波長帯域の範囲
+    actual_range = x[idx_end] - x[idx_start]
+
+    use_fixed_band = True
+    if center_wavelength is not None and length_of_3db_band is not None:
+        expected_range = length_of_3db_band
+        lower_bound = 0.9 * expected_range
+        upper_bound = 1.1 * expected_range
+
+        if lower_bound <= actual_range <= upper_bound:
+            use_fixed_band = False  # 実測3dB帯域を使う
+
+    # 波長範囲とスペクトル取得
+    if use_fixed_band:
+        # 中心波長 ± length_of_3db_band/2 を使用
+        lower = center_wavelength - length_of_3db_band / 2
+        upper = center_wavelength + length_of_3db_band / 2
+        indices = np.where((x >= lower) & (x <= upper))[0]
+        print(f"固定帯域を使用: {lower*1e9:.3f} nm ～ {upper*1e9:.3f} nm")
+    else:
+        indices = np.arange(idx_start, idx_end)
+        print(f"実測帯域を使用: {x[idx_start]*1e9:.3f} nm ～ {x[idx_end]*1e9:.3f} nm")
+
+    if indices.size < 2:
+        print("評価対象のデータが不足しています")
+        return (np.float_(0), False)
+
+    band_y = y[indices]
+    std = np.std(band_y)
+
+    print(f"標準偏差（ripple）= {std:.4f} dB")
+
+    if std > r_max:
+        return (np.float_(0), False)
+
+    score = 1 - std / r_max
+    return (np.float_(score), True)
+
+
+
+
+"""
 #3dB波長帯域を中心波長から1nmで固定
 def _evaluate_ripple(
     x: npt.NDArray[np.float_],
@@ -223,9 +290,7 @@ def _evaluate_ripple(
             return (np.float_(0), False)
         score = 1 - std / r_max
         return (np.float_(score), True)
-
-
-
+"""
 
 
 
