@@ -197,8 +197,9 @@ def _evaluate_3db_band(
     E = E ** 3
     return (E, True)
 
-#3dB波長帯域を表示させるため
 
+
+#3dB波長帯域を表示させるため
 def _evaluate_ripple(
     x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
@@ -216,23 +217,28 @@ def _evaluate_ripple(
         print("3dB帯域のインデックスが見つかりません")
         return (np.float_(0), False)
 
-    pass_band = y[start:end]
-    three_db_band = pass_band[index[0]: index[-1]]
+    # 実際の波長値に変換（安全チェック付き）
+    idx_start = start + index[0]
+    idx_end = start + index[1]
+    if idx_start >= len(x) or idx_end >= len(x):
+        print("インデックスがxの範囲外です")
+        return (np.float_(0), False)
 
-    # 実際の波長値に変換
-    start_wavelength = x[start + index[0]]
-    end_wavelength = x[start + index[-1]]
+    start_wavelength = x[idx_start]
+    end_wavelength = x[idx_end]
     print(f"3dB波長帯域の範囲: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
 
+    pass_band = y[idx_start:idx_end]
+
     # ピーク・谷の検出
-    maxid = argrelmax(three_db_band, order=1)
-    minid = argrelmin(three_db_band, order=1)
+    maxid = argrelmax(pass_band, order=1)
+    minid = argrelmin(pass_band, order=1)
 
     if len(minid[0]) == 0:
-        ripple = three_db_band.max() - three_db_band.min()
+        ripple = pass_band.max() - pass_band.min()
     else:
-        peak_max = three_db_band[maxid]
-        peak_min = three_db_band[minid]
+        peak_max = pass_band[maxid]
+        peak_min = pass_band[minid]
         ripple = peak_max.max() - peak_min.min()
 
     if ripple > r_max:
