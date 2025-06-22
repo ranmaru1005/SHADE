@@ -100,6 +100,18 @@ def _get_3db_band1(x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: 
 
     return index
 
+def _get_3db_band(x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: int, end: int) -> npt.ArrayLike:
+    y_range = y[start:end]
+    threshold = y.max() - 3
+
+    # 値がしきい値を下回る前後を探す
+    below = y_range < threshold
+    crossings = np.where(np.diff(below.astype(int)) != 0)[0]
+
+    return crossings
+
+
+"""
 def _get_3db_band(
     x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
@@ -119,7 +131,7 @@ def _get_3db_band(
 
     # 通過帯域の範囲（インデックスそのものを返す）
     return idx
-
+"""
 
 def _evaluate_pass_band(
     x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], H_p: float, start: int, end: int
@@ -185,7 +197,52 @@ def _evaluate_3db_band(
     E = E ** 3
     return (E, True)
 
+# 修正版: 確実に3dB点を検出する
+def _evaluate_ripple(
+    x: npt.NDArray[np.float_],
+    y: npt.NDArray[np.float_],
+    r_max: float = 1.0,
+    start: int = 0,
+    end: int = -1
+) -> tuple[np.float_, bool]:
+    if end == -1:
+        end = len(x)
 
+    # 3dB帯域インデックスの取得
+    index = _get_3db_band(x=x, y=y, start=start, end=end)
+
+    if index.size <= 1:
+        return (np.float_(0), False)
+
+    pass_band = y[start:end]
+    three_db_band = pass_band[index[0]: index[-1]]
+
+    # 実際の波長値に変換
+    start_wavelength = x[start + index[0]]
+    end_wavelength = x[start + index[-1]]
+    print(f"3dB波長帯域: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
+
+    # ピーク・谷の検出
+    maxid = argrelmax(three_db_band, order=1)
+    minid = argrelmin(three_db_band, order=1)
+
+    if len(minid[0]) == 0:
+        ripple = three_db_band.max() - three_db_band.min()
+    else:
+        peak_max = three_db_band[maxid]
+        peak_min = three_db_band[minid]
+        ripple = peak_max.max() - peak_min.min()
+
+    if ripple > r_max:
+        return (np.float_(0), False)
+    E = 1 - ripple / r_max
+    return (E, True)
+
+
+
+
+
+"""
 #標準偏差型
 def _evaluate_ripple(
     x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], r_max: float, start: int, end: int
@@ -216,7 +273,7 @@ def _evaluate_ripple(
         E = 1 - (std_ripple + range_ripple) / (r_max1 * r_max)
 
     return (np.float_(E), True)
-
+"""
 
 
 """
