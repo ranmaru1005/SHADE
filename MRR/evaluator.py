@@ -197,6 +197,58 @@ def _evaluate_3db_band(
     E = E ** 3
     return (E, True)
 
+#フラットさを追加
+def _evaluate_ripple(
+    x: npt.NDArray[np.float_],
+    y: npt.NDArray[np.float_],
+    r_max: float = 1.0,
+    start: int = 0,
+    end: int = -1
+) -> tuple[np.float_, bool]:
+    if end == -1:
+        end = len(x)
+
+    # 3dB帯域インデックスの取得
+    index = _get_3db_band(x=x, y=y, start=start, end=end)
+
+    if index.size <= 1:
+        return (np.float_(0), False)
+
+    pass_band = y[start:end]
+    three_db_band = pass_band[index[0]: index[-1]]
+
+    # 実際の波長値に変換
+    start_wavelength = x[start + index[0]]
+    end_wavelength = x[start + index[-1]]
+    print(f"3dB波長帯域: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
+
+    # ピーク・谷の検出
+    maxid = argrelmax(three_db_band, order=1)
+    minid = argrelmin(three_db_band, order=1)
+
+    if len(minid[0]) == 0:
+        ripple = three_db_band.max() - three_db_band.min()
+    else:
+        peak_max = three_db_band[maxid]
+        peak_min = three_db_band[minid]
+        ripple = peak_max.max() - peak_min.min()
+
+    # フラットさの評価（平均値が低いほど良い）
+    flatness_score = 1 - (three_db_band.mean() / y.max())
+    flatness_score = max(0.0, min(flatness_score, 1.0))  # 0〜1に正規化
+
+    if ripple > r_max:
+        return (np.float_(0), False)
+
+    # リップル評価とフラットさ評価の積（組み合わせ）
+    ripple_score = 1 - ripple / r_max
+    combined_score = ripple_score * flatness_score
+
+    return (combined_score, True)
+
+
+
+"""
 # 修正版: 確実に3dB点を検出する
 def _evaluate_ripple(
     x: npt.NDArray[np.float_],
@@ -238,7 +290,7 @@ def _evaluate_ripple(
         return (np.float_(0), False)
     E = 1 - ripple / r_max
     return (E, True)
-
+"""
 
 
 
