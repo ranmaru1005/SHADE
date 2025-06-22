@@ -386,7 +386,7 @@ def _evaluate_cross_talk(
     # クロストーク評価用ピーク値（左右のうち大きい方）
     peak = max(start_peak, end_peak)
 
-    print(f"クロストーク最大ピーク: {peak:.3f} dB")
+    #print(f"クロストーク最大ピーク: {peak:.3f} dB")
 
     # スコア計算（必ず 0〜1 の範囲に収める）
     score = max(0.0, 1.0 - (peak / max_crosstalk))
