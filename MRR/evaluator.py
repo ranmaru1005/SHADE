@@ -370,7 +370,7 @@ def _evaluate_cross_talk(
     max_crosstalk: float,
     pass_band_start: int,
     pass_band_end: int,
-    alpha: float = 1.0  # 減衰の強さ
+    alpha: float = 2.0  # 減衰の強さ
 ) -> tuple[np.float_, bool]:
     # 前後ストップバンドのスペクトル抽出
     start_band = y[:pass_band_start]
