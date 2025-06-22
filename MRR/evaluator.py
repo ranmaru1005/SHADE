@@ -201,8 +201,7 @@ def _evaluate_3db_band(
     return (E, True)
 
 
-
-#3dB波長帯域を表示させるため
+#3dB波長帯域内の大小が1dBになるように。
 def _evaluate_ripple(
     x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
@@ -229,26 +228,19 @@ def _evaluate_ripple(
     # 波長値をnm単位で表示
     start_wavelength = x[idx_start] * 1e9
     end_wavelength = x[idx_end] * 1e9
-    print(f"3dB波長帯域の範囲: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
+    #print(f"3dB波長帯域の範囲: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
 
     pass_band = y[idx_start:idx_end]
 
-    # ピーク・谷の検出
-    maxid = argrelmax(pass_band, order=1)
-    minid = argrelmin(pass_band, order=1)
+    # リップル = 最大 - 最小
+    ripple = pass_band.max() - pass_band.min()
 
-    if len(minid[0]) == 0:
-        ripple = pass_band.max() - pass_band.min()
+    # 新しい評価方法：ripple が r_max 以下であれば高評価
+    if ripple <= r_max:
+        ripple_score = 1 - ripple / r_max  # ripple が小さいほどスコアは高くなる（最大1）
+        return (ripple_score, True)
     else:
-        peak_max = pass_band[maxid]
-        peak_min = pass_band[minid]
-        ripple = peak_max.max() - peak_min.min()
-
-    if ripple > r_max:
         return (np.float_(0), False)
-
-    ripple_score = 1 - ripple / r_max
-    return (ripple_score, True)
 
 
 
