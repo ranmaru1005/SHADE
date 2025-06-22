@@ -100,16 +100,20 @@ def _get_3db_band1(x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: 
 
     return index
 
+
+#3dB波長帯域を確認したい
 def _get_3db_band(x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: int, end: int) -> npt.ArrayLike:
     y_range = y[start:end]
     threshold = y.max() - 3
 
-    # 値がしきい値を下回る前後を探す
     below = y_range < threshold
     crossings = np.where(np.diff(below.astype(int)) != 0)[0]
+    print("crossings =", crossings)
 
-    return crossings
-
+    if crossings.size >= 2:
+        return np.array([crossings[0], crossings[-1]])
+    else:
+        return np.array([])
 
 """
 def _get_3db_band(
@@ -212,14 +216,17 @@ def _evaluate_ripple(
 
     # 3dB帯域インデックスの取得
     index = _get_3db_band(x=x, y=y, start=start, end=end)
+    print("3dBインデックス: ", index)
 
     if index.size < 2:
         print("3dB帯域のインデックスが見つかりません")
         return (np.float_(0), False)
 
-    # 実際の波長値に変換（安全チェック付き）
     idx_start = start + index[0]
     idx_end = start + index[1]
+    print(f"start = {start}, index[0] = {index[0]}, index[1] = {index[1]}")
+    print(f"idx_start = {idx_start}, idx_end = {idx_end}, x size = {len(x)}")
+
     if idx_start >= len(x) or idx_end >= len(x):
         print("インデックスがxの範囲外です")
         return (np.float_(0), False)
@@ -246,6 +253,7 @@ def _evaluate_ripple(
 
     ripple_score = 1 - ripple / r_max
     return (ripple_score, True)
+
 
 
 
