@@ -34,7 +34,17 @@ def evaluate_band(
         _evaluate_cross_talk(y=y, max_crosstalk=max_crosstalk, pass_band_start=start, pass_band_end=end),
         _evaluate_shape_factor(x=x, y=y, start=start, end=end),
     ]
-   
+    print("_evaluate_pass_band = ",result[0])
+    print("_evaluate_stop_band = ",result[1])
+    print("_evaluate_insertion_loss = ",result[2])
+    print("_evaluate_3db_band = ",result[3])
+    print("_evaluate_ripple = ",result[4])
+    print("_evaluate_cross_talk = ",result[5])
+    print("_evaluate_shape_factor = ",result[6])
+
+
+
+    
     n_eval = len(result)
     W_c = weight[:n_eval]
     W_b = weight[n_eval:]
@@ -92,7 +102,7 @@ def _get_pass_band(
     return pass_band, cross_talk
 
 
-def _get_3db_band1(x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: int, end: int) -> npt.ArrayLike:
+def _get_3db_band(x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: int, end: int) -> npt.ArrayLike:
     border: np.float_ = y.max() - 3
     a = np.where(y[start:end] <= border, True, False)
     b = np.append(a[1:], a[-1])
@@ -100,41 +110,6 @@ def _get_3db_band1(x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: 
 
     return index
 
-
-#3dB波長帯域を確認したい
-def _get_3db_band(x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: int, end: int) -> npt.ArrayLike:
-    y_range = y[start:end]
-    threshold = y.max() - 3
-
-    below = y_range < threshold
-    crossings = np.where(np.diff(below.astype(int)) != 0)[0]
-
-    if crossings.size >= 2:
-        return np.array([crossings[0], crossings[-1]])
-    else:
-        return np.array([])
-
-"""
-def _get_3db_band(
-    x: npt.NDArray[np.float_],
-    y: npt.NDArray[np.float_],
-    start: int,
-    end: int
-) -> npt.NDArray[np.int_]:
-    # dBスケール前提（最大値から3dB以内）
-    y_db = y[start:end]
-    threshold = y_db.max() - 3
-
-    # 条件を満たすインデックス
-    mask = y_db >= threshold
-    idx = np.where(mask)[0]
-
-    if idx.size == 0:
-        return np.array([], dtype=int)
-
-    # 通過帯域の範囲（インデックスそのものを返す）
-    return idx
-"""
 
 def _evaluate_pass_band(
     x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], H_p: float, start: int, end: int
@@ -149,8 +124,6 @@ def _evaluate_pass_band(
     E = b / a
 
     return (E, True)
-
-
 
 
 def _evaluate_stop_band(
@@ -201,237 +174,18 @@ def _evaluate_3db_band(
     return (E, True)
 
 
-#3dB波長帯域内の大小が1dBになるように。
 def _evaluate_ripple(
-    x: npt.NDArray[np.float_],
-    y: npt.NDArray[np.float_],
-    r_max: float = 1.0,
-    start: int = 0,
-    end: int = -1
+    x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], r_max: float, start: int, end: int
 ) -> tuple[np.float_, bool]:
-    if end == -1:
-        end = len(x)
-
-    # 3dB帯域インデックスの取得
+    pass_band = y[start:end]
     index = _get_3db_band(x=x, y=y, start=start, end=end)
-
-    if index.size < 2:
-        #print("3dB帯域のインデックスが見つかりません")
+    if index.size <= 1:
         return (np.float_(0), False)
-
     idx_start = start + index[0]
-    idx_end = start + index[1]
-
-    if idx_start >= len(x) or idx_end >= len(x):
-        return (np.float_(0), False)
-
-    # 波長値をnm単位で表示
+    idx_end = start + index[-1]
     start_wavelength = x[idx_start] * 1e9
     end_wavelength = x[idx_end] * 1e9
-    #print(f"3dB波長帯域の範囲: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
-
-    pass_band = y[idx_start:idx_end]
-
-    # リップル = 最大 - 最小
-    ripple = pass_band.max() - pass_band.min()
-
-    # 新しい評価方法：ripple が r_max 以下であれば高評価
-    if ripple <= r_max:
-        ripple_score = 1 - ripple / r_max  # ripple が小さいほどスコアは高くなる（最大1）
-        return (ripple_score, True)
-    else:
-        return (np.float_(0), False)
-
-
-
-
-"""
-#フラットさを追加
-def _evaluate_ripple(
-    x: npt.NDArray[np.float_],
-    y: npt.NDArray[np.float_],
-    r_max: float = 1.0,
-    start: int = 0,
-    end: int = -1
-) -> tuple[np.float_, bool]:
-    if end == -1:
-        end = len(x)
-
-    # 3dB帯域インデックスの取得
-    index = _get_3db_band(x=x, y=y, start=start, end=end)
-
-    if index.size <= 1:
-        return (np.float_(0), False)
-
-    pass_band = y[start:end]
-    three_db_band = pass_band[index[0]: index[-1]]
-
-    # 実際の波長値に変換
-    start_wavelength = x[start + index[0]]
-    end_wavelength = x[start + index[-1]]
-    #print(f"3dB波長帯域: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
-
-    # ピーク・谷の検出
-    maxid = argrelmax(three_db_band, order=1)
-    minid = argrelmin(three_db_band, order=1)
-
-    if len(minid[0]) == 0:
-        ripple = three_db_band.max() - three_db_band.min()
-    else:
-        peak_max = three_db_band[maxid]
-        peak_min = three_db_band[minid]
-        ripple = peak_max.max() - peak_min.min()
-
-    # フラットさの評価（平均値が低いほど良い）
-    flatness_score = 1 - (three_db_band.mean() / y.max())
-    flatness_score = max(0.0, min(flatness_score, 1.0))  # 0〜1に正規化
-
-    if ripple > r_max:
-        return (np.float_(0), False)
-
-    # リップル評価とフラットさ評価の積（組み合わせ）
-    ripple_score = 1 - ripple / r_max
-    combined_score = ripple_score * flatness_score
-
-    return (combined_score, True)
-"""
-
-
-"""
-# 修正版: 確実に3dB点を検出する
-def _evaluate_ripple(
-    x: npt.NDArray[np.float_],
-    y: npt.NDArray[np.float_],
-    r_max: float = 1.0,
-    start: int = 0,
-    end: int = -1
-) -> tuple[np.float_, bool]:
-    if end == -1:
-        end = len(x)
-
-    # 3dB帯域インデックスの取得
-    index = _get_3db_band(x=x, y=y, start=start, end=end)
-
-    if index.size <= 1:
-        return (np.float_(0), False)
-
-    pass_band = y[start:end]
-    three_db_band = pass_band[index[0]: index[-1]]
-
-    # 実際の波長値に変換
-    start_wavelength = x[start + index[0]]
-    end_wavelength = x[start + index[-1]]
-    
-    #print(f"3dB波長帯域: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
-
-    # ピーク・谷の検出
-    maxid = argrelmax(three_db_band, order=1)
-    minid = argrelmin(three_db_band, order=1)
-
-    if len(minid[0]) == 0:
-        ripple = three_db_band.max() - three_db_band.min()
-    else:
-        peak_max = three_db_band[maxid]
-        peak_min = three_db_band[minid]
-        ripple = peak_max.max() - peak_min.min()
-
-    if ripple > r_max:
-        return (np.float_(0), False)
-    E = 1 - ripple / r_max
-    return (E, True)
-"""
-
-
-
-
-"""
-#標準偏差型
-def _evaluate_ripple(
-    x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], r_max: float, start: int, end: int
-) -> tuple[np.float_, bool]:
-    pass_band = y[start:end]
-    index = _get_3db_band(x=x, y=y, start=start, end=end)
-    if index.size <= 3:
-        print("すくない",index)
-        return (np.float_(0), False)
-        # ペナルティ計算
-
-    n = index.size
-    if n > 10:  # 十分な点数あるとき
-        central_index = index[int(0.1 * n) : int(0.9 * n)]
-        three_db_band = pass_band[central_index]
-    else:
-        three_db_band = pass_band[index]  # 点数少ない時はそのまま使う
-        
-    std_ripple = np.std(three_db_band)
-    range_ripple = three_db_band.max() - three_db_band.min()
-
- 
-    r_max1 = 1.0
-
-    if std_ripple > r_max1 or range_ripple > r_max:
-        E = 0
-    else:
-        E = 1 - (std_ripple + range_ripple) / (r_max1 * r_max)
-
-    return (np.float_(E), True)
-"""
-
-
-"""
-def _evaluate_ripple(
-    x: npt.NDArray[np.float_],
-    y: npt.NDArray[np.float_],
-    r_max: float = 1.0,
-    start: int = 0,
-    end: int = -1
-) -> tuple[np.float_, bool]:
-    if end == -1:
-        end = len(x)
-
-    # 3dB帯域のみを取り出す
-    pass_band = y[start:end]
-    index = _get_3db_band(x=x, y=y, start=start, end=end)
-
-    if index.size <= 1:
-        return (np.float_(0), False)
-
-    three_db_band = pass_band[index[0]: index[-1]]
-
-    # 実際の波長値に変換
-    start_wavelength = x[start + index[0]]
-    end_wavelength = x[start + index[-1]]
-    print(f"3dB波長帯域: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
-
-    # ピーク・谷の検出
-    maxid = argrelmax(three_db_band, order=1)
-    minid = argrelmin(three_db_band, order=1)
-
-    if len(minid[0]) == 0:
-        # 谷が存在しない場合、最大値-最小値でリップル計算
-        ripple = three_db_band.max() - three_db_band.min()
-    else:
-        # 谷が存在する場合、従来通り最大山と最小谷でリップル計算
-        peak_max = three_db_band[maxid]
-        peak_min = three_db_band[minid]
-        ripple = peak_max.max() - peak_min.min()
-
-    # 評価
-    if ripple > r_max:
-        return (np.float_(0), False)
-    E = 1 - ripple / r_max
-    return (E, True)
-"""
-
-"""
-#宇田川さんのやつ
-def _evaluate_ripple(
-    x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], r_max: float, start: int, end: int
-) -> tuple[np.float_, bool]:
-    pass_band = y[start:end]
-    index = _get_3db_band(x=x, y=y, start=start, end=end)
-    if index.size <= 1:
-        return (np.float_(0), False)
+    print(f"3dB波長帯域の範囲: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
     three_db_band = pass_band[index[0] : index[-1]]
     maxid = argrelmax(three_db_band, order=1)
     minid = argrelmin(three_db_band, order=1)
@@ -444,35 +198,6 @@ def _evaluate_ripple(
         return (np.float_(0), False)
     E = 1 - dif / r_max
     return (E, True)
-"""
-
-"""
-#最大最小のみでやるやつ、極大極小を考慮しない
-def _evaluate_ripple(
-    x: npt.NDArray[np.float_],
-    y: npt.NDArray[np.float_],
-    r_max: float = 1.0,
-    start: int = 0,
-    end: int = -1
-) -> tuple[np.float_, bool]:
-    # 3dB帯域のみを取り出す
-    index = _get_3db_band(x=x, y=y, start=start, end=end)
-    if index.size <= 1:
-        return (np.float_(0), False)
-
-    pass_band = y[start:end]
-    three_db_band = pass_band[index[0]: index[-1]]
-
-    # 最大値 - 最小値でリップルを計算
-    ripple = three_db_band.max() - three_db_band.min()
-
-    # 評価
-    if ripple > r_max:
-        return (np.float_(0), False)
-    E = 1 - ripple / r_max
-    return (E, True)
-
-"""
 
 def _evaluate_cross_talk(
     y: npt.NDArray[np.float_], max_crosstalk: float, pass_band_start: int, pass_band_end: int
@@ -493,7 +218,7 @@ def _evaluate_cross_talk(
 def _evaluate_shape_factor(
     x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: int, end: int
 ) -> tuple[np.float_, bool]:
-    index = _get_3db_band1(x=x, y=y, start=start, end=end)
+    index = _get_3db_band(x=x, y=y, start=start, end=end)
     if index.size <= 1:
         return (np.float_(0), False)
     E = (index[-1] - index[0]) / (end - start)
