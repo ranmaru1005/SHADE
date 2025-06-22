@@ -175,6 +175,50 @@ def _evaluate_3db_band(
     return (E, True)
 
 
+
+#標準偏差を用いる
+def _evaluate_ripple(
+    x: npt.NDArray[np.float_],
+    y: npt.NDArray[np.float_],
+    r_max: float = 1.0,
+    start: int = 0,
+    end: int = -1
+) -> tuple[np.float_, bool]:
+    if end == -1:
+        end = len(x)
+
+    index = _get_3db_band(x=x, y=y, start=start, end=end)
+
+    if index.size < 2:
+        print("3dB帯域のインデックスが見つかりません")
+        return (np.float_(0), False)
+
+    idx_start = start + index[0]
+    idx_end = start + index[1]
+
+    if idx_end > len(y):
+        return (np.float_(0), False)
+
+    # 波長範囲表示
+    start_wavelength = x[idx_start] * 1e9
+    end_wavelength = x[idx_end] * 1e9
+    print(f"3dB波長帯域の範囲: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
+
+    # スペクトルデータ抽出
+    three_db_band = y[idx_start:idx_end]
+
+    # 標準偏差でばらつきを評価
+    std = np.std(three_db_band)
+
+    if std > r_max:
+        return (np.float_(0), False)
+
+    score = 1 - std / r_max
+    return (score, True)
+
+
+
+"""
 def _evaluate_ripple(
     x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], r_max: float, start: int, end: int
 ) -> tuple[np.float_, bool]:
@@ -199,6 +243,9 @@ def _evaluate_ripple(
         return (np.float_(0), False)
     E = 1 - dif / r_max
     return (E, True)
+"""
+
+
 
 def _evaluate_cross_talk(
     y: npt.NDArray[np.float_], max_crosstalk: float, pass_band_start: int, pass_band_end: int
