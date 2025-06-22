@@ -364,6 +364,38 @@ def _evaluate_ripple(
     return (E, True)
 """
 
+#指数的に評価を下げるクロストーク
+def _evaluate_cross_talk(
+    y: npt.NDArray[np.float_],
+    max_crosstalk: float,
+    pass_band_start: int,
+    pass_band_end: int,
+    alpha: float = 1.0  # 減衰の強さ
+) -> tuple[np.float_, bool]:
+    # 前後ストップバンドのスペクトル抽出
+    start_band = y[:pass_band_start]
+    end_band = y[pass_band_end:]
+
+    # 局所最大値のインデックス
+    maxid_start = np.append(0, argrelmax(start_band)[0])
+    maxid_end = np.append(argrelmax(end_band)[0], -1)
+
+    # ピーク値取得（両端で最大のものを採用）
+    start_peak = start_band[maxid_start].max() if maxid_start.size > 0 else 0
+    end_peak = end_band[maxid_end].max() if maxid_end.size > 0 else 0
+    peak = max(start_peak, end_peak)
+
+    print(f"クロストーク最大ピーク: {peak:.3f} dB")
+
+    # スコア計算（指数型）
+    normalized = peak / max_crosstalk
+    score = np.exp(-alpha * normalized)
+    score = float(np.clip(score, 0.0, 1.0))  # 念のため0〜1に制限
+
+    return (np.float_(score), True)
+
+
+"""
 #クロストークの制限を取り払ったもの
 def _evaluate_cross_talk(
     y: npt.NDArray[np.float_],
@@ -392,7 +424,7 @@ def _evaluate_cross_talk(
     score = max(0.0, 1.0 - (peak / max_crosstalk))
 
     return (np.float_(score), True)
-
+"""
 
 
 
