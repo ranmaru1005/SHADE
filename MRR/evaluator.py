@@ -385,7 +385,7 @@ def _evaluate_cross_talk(
     end_peak = end_band[maxid_end].max() if maxid_end.size > 0 else 0
     peak = max(start_peak, end_peak)
 
-    print(f"クロストーク最大ピーク: {peak:.3f} dB")
+    #print(f"クロストーク最大ピーク: {peak:.3f} dB")
 
     # スコア計算（指数型）
     normalized = peak / max_crosstalk
