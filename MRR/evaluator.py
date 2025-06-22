@@ -234,9 +234,10 @@ def _evaluate_ripple(
     start_wavelength = x[idx_start]
     end_wavelength = x[idx_end]
     print(f"3dB波長帯域の範囲: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
-    print(f\"x[idx_start:idx_end].min() = {x[idx_start:idx_end].min():.3f}\")
-    print(f\"x[idx_start:idx_end].max() = {x[idx_start:idx_end].max():.3f}\")
-    print(f\"x[idx_start:idx_end][:5] = {x[idx_start:idx_end][:5]}\")
+    
+    print(f"x[idx_start:idx_end].min() = {x[idx_start:idx_end].min():.3f}")
+    print(f"x[idx_start:idx_end].max() = {x[idx_start:idx_end].max():.3f}")
+    print(f"x[idx_start:idx_end][:5] = {x[idx_start:idx_end][:5]}")
 
     pass_band = y[idx_start:idx_end]
 
