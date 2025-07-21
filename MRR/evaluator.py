@@ -67,6 +67,8 @@ def evaluate_band(
 """
 
 
+
+"""
 #クロストークのペナルティに傾斜をつけたもの
 def evaluate_band(
     x: npt.NDArray[np.float_],
@@ -128,6 +130,75 @@ def evaluate_band(
     E = E_c * E_b * crosstalk_penalty
 
     return E
+"""
+
+
+
+
+#クロストークを相対差で評価
+def evaluate_band_final(
+    x: npt.NDArray[np.float_],
+    y: npt.NDArray[np.float_],
+    center_wavelength: float,
+    length_of_3db_band: float,
+    required_crosstalk_db: float, # ★新しい引数: 目標クロストーク(dB)
+    H_p: float,
+    H_s: float,
+    H_i: float,
+    r_max: float,
+    weight: list[float],
+    ignore_binary_evaluation: bool = False,
+) -> np.float_:
+    pass_band, cross_talk_regions = _get_pass_band(x=x, y=y, H_p=H_p, center_wavelength=center_wavelength)
+    if pass_band.shape[0] != 1:
+        return np.float_(0)
+    
+    start = pass_band[0][0]
+    end = pass_band[0][1]
+
+    # --- メインピークの高さを特定 ---
+    main_peak_height = y[start:end].max()
+
+    # --- 各指標の評価 ---
+    other_results = [
+        _evaluate_pass_band(x=x, y=y, H_p=H_p, start=start, end=end),
+        _evaluate_stop_band(x=x, y=y, H_p=H_p, H_s=H_s, start=start, end=end),
+        _evaluate_insertion_loss(x=x, y=y, H_i=H_i, center_wavelength=center_wavelength),
+        _evaluate_3db_band(x=x, y=y, length_of_3db_band=length_of_3db_band, start=start, end=end),
+        _evaluate_ripple(x=x, y=y, r_max=r_max, start=start, end=end, center_wavelength=center_wavelength, length_of_3db_band=length_of_3db_band),
+        _evaluate_shape_factor(x=x, y=y, start=start, end=end),
+    ]
+    # 新しいクロストーク評価を呼び出し
+    crosstalk_score, crosstalk_ok, crosstalk_penalty = _evaluate_relative_crosstalk(
+        y=y,
+        main_peak_height=main_peak_height,
+        required_crosstalk_db=required_crosstalk_db,
+        pass_band_start=start,
+        pass_band_end=end
+    )
+
+    # --- 評価スコアの計算 ---
+    n_other_eval = len(other_results)
+    W_c = weight[:n_other_eval+1]
+    W_b = weight[n_other_eval+1:]
+
+    E_c = np.float_(0)
+    for i in range(n_other_eval):
+        E_c += other_results[i][0] * W_c[i]
+    E_c += crosstalk_score * W_c[n_other_eval]
+
+    if ignore_binary_evaluation:
+        return E_c
+
+    E_b = np.float_(1)
+    for i in range(n_other_eval):
+        if not other_results[i][1]:
+            E_b *= W_b[i]
+
+    E = E_c * E_b * crosstalk_penalty
+
+    return E
+
 
 
 
@@ -581,6 +652,59 @@ def _evaluate_cross_talk(
         return (np.float_(0), False)
     return (np.float_(0), True)
 """
+
+
+#クロストークの評価をピークとサイドピークの差で行う
+def _evaluate_relative_crosstalk(
+    y: npt.NDArray[np.float_],
+    main_peak_height: float,
+    required_crosstalk_db: float, # 目標とするクロストーク値 (例: 30dB)
+    pass_band_start: int,
+    pass_band_end: int,
+    initial_penalty: float = 0.9,
+    penalty_rate: float = 2.0
+) -> tuple[np.float_, bool, np.float_]:
+    """
+    メインピークとの相対的な高さの差でクロストークを評価する。
+    違反度合いに応じた動的なペナルティ係数を返す。
+    """
+    # --- サイドピーク領域で最も高いピークを探す ---
+    side_band_start = y[:pass_band_start]
+    side_band_end = y[pass_band_end:]
+    
+    highest_side_peak = -np.inf
+    if side_band_start.size > 0:
+        # np.max()は空の配列に対してエラーを出すため、サイズを確認
+        highest_side_peak = max(highest_side_peak, np.max(side_band_start))
+    if side_band_end.size > 0:
+        highest_side_peak = max(highest_side_peak, np.max(side_band_end))
+    
+    if np.isneginf(highest_side_peak):
+        # サイドピークが見つからない場合は問題なし
+        return (np.float_(1.0), True, np.float_(1.0))
+
+    # --- 評価値の計算 ---
+    actual_crosstalk = main_peak_height - highest_side_peak
+    is_ok = actual_crosstalk >= required_crosstalk_db
+    dynamic_penalty = np.float_(1.0)
+
+    if is_ok:
+        # 閾値を満たしている場合はスコア1.0
+        score = np.float_(1.0)
+    else:
+        # 閾値を満たしていない場合
+        score = np.float_(0.0)
+        
+        # E全体に掛ける動的ペナルティを計算
+        shortage = required_crosstalk_db - actual_crosstalk # 不足分
+        
+        # 不足分が大きいほどペナルティが強くなる
+        additional_penalty = np.exp(-penalty_rate * shortage)
+        dynamic_penalty = initial_penalty * additional_penalty
+
+    return (score, is_ok, dynamic_penalty)
+
+
 
 
 
