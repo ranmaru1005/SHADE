@@ -2,8 +2,8 @@ from config.model import OptimizationConfig
 
 config = OptimizationConfig(
     eta=0.996,
-    #alpha=52.96,
-    alpha=11.51, #伝搬損失係数=1.0dB/cm
+    alpha=52.96,
+    #alpha=11.51, #伝搬損失係数=1.0dB/cm
     n_eff=2.2,
     n_g=4.4,
     number_of_rings=6,
