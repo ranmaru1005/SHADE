@@ -208,7 +208,7 @@ def evaluate_band(
     y: npt.NDArray[np.float_],
     center_wavelength: float,
     length_of_3db_band: float,
-    max_crosstalk: float,
+    max_crosstalk: float, # ← ご指示通りこの名前に統一
     H_p: float,
     H_s: float,
     H_i: float,
@@ -225,10 +225,8 @@ def evaluate_band(
 
     # --- 3dB帯域のインデックスを特定 ---
     three_db_indices = _get_3db_band(x=x, y=y, start=start, end=end)
-    # 3dB帯域が見つからない場合は不正な形状として0点を返す
     if three_db_indices.size < 2:
         return np.float_(0)
-    # 絶対インデックスに変換
     three_db_start_idx = start + three_db_indices[0]
     three_db_end_idx = start + three_db_indices[-1]
 
@@ -243,7 +241,7 @@ def evaluate_band(
         _evaluate_shape_factor(x=x, y=y, start=start, end=end),
     ]
     
-    # 新しいクロストーク評価 v2 を呼び出し
+    # クロストーク評価 v2 を呼び出し
     crosstalk_score, crosstalk_ok, crosstalk_penalty = _evaluate_relative_crosstalk_v2(
         x=x,
         y=y,
@@ -274,7 +272,6 @@ def evaluate_band(
     E = E_c * E_b * crosstalk_penalty
 
     return E
-
 
 
 
@@ -803,8 +800,8 @@ def _evaluate_relative_crosstalk_v2(
     y: npt.NDArray[np.float_],
     main_peak_height: float,
     required_crosstalk_db: float,
-    three_db_start_idx: int, # ★3dB帯域の開始インデックス
-    three_db_end_idx: int,   # ★3dB帯域の終了インデックス
+    three_db_start_idx: int,
+    three_db_end_idx: int,
     initial_penalty: float = 0.9,
     penalty_rate: float = 2.0
 ) -> tuple[np.float_, bool, np.float_]:
@@ -837,7 +834,7 @@ def _evaluate_relative_crosstalk_v2(
     if np.isneginf(highest_side_peak_y):
         return (np.float_(1.0), True, np.float_(1.0))
 
-    # --- 評価値の計算 (このロジックは変更なし) ---
+    # --- 評価値の計算 ---
     actual_crosstalk = main_peak_height - highest_side_peak_y
     is_ok = actual_crosstalk >= required_crosstalk_db
     dynamic_penalty = np.float_(1.0)
@@ -860,7 +857,6 @@ def _evaluate_relative_crosstalk_v2(
             print("-----------------------------------------")
 
     return (score, is_ok, dynamic_penalty)
-
 
 
 
