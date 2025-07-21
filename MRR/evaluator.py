@@ -4,6 +4,7 @@ from scipy.signal import argrelmax, argrelmin
 
 CROSSTALK_PRINT_COUNTER = 0
 
+
 """
 #宇田川さんのもの
 def evaluate_band(
@@ -136,12 +137,12 @@ def evaluate_band(
 
 
 #クロストークを相対差で評価
-def evaluate_band(
+def evaluate_band_final(
     x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
     center_wavelength: float,
     length_of_3db_band: float,
-    max_crosstalk: float, # ← 引数名を元に戻しました
+    max_crosstalk: float, # ← 指示通り引数名を変更しました
     H_p: float,
     H_s: float,
     H_i: float,
@@ -655,7 +656,7 @@ def _evaluate_cross_talk(
 
 #クロストークの評価をピークとサイドピークの差で行う
 def _evaluate_relative_crosstalk(
-    x: npt.NDArray[np.float_], # ★波長データを新たに追加
+    x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
     main_peak_height: float,
     required_crosstalk_db: float,
@@ -665,9 +666,11 @@ def _evaluate_relative_crosstalk(
     penalty_rate: float = 2.0
 ) -> tuple[np.float_, bool, np.float_]:
     """
-    メインピークとの相対差でクロストークを評価し、デバッグ情報を出力する。
+    メインピークとの相対差でクロストークを評価し、表示量を調整したデバッグ情報を出力する。
     """
-    # --- サイドピーク領域で最も高いピークとその波長を探す ---
+    global CROSSTALK_PRINT_COUNTER # グローバル変数のカウンターを使用
+
+    # --- サイドピーク領域で最も高いピークとその波長を探す (変更なし) ---
     side_band_start_y = y[:pass_band_start]
     side_band_end_y = y[pass_band_end:]
     
@@ -678,7 +681,6 @@ def _evaluate_relative_crosstalk(
         peak_y = np.max(side_band_start_y)
         if peak_y > highest_side_peak_y:
             highest_side_peak_y = peak_y
-            # 最も高いピークのインデックスから波長を取得
             idx = np.argmax(side_band_start_y)
             highest_side_peak_x = x[:pass_band_start][idx]
 
@@ -686,14 +688,13 @@ def _evaluate_relative_crosstalk(
         peak_y = np.max(side_band_end_y)
         if peak_y > highest_side_peak_y:
             highest_side_peak_y = peak_y
-            # 最も高いピークのインデックスから波長を取得
             idx = np.argmax(side_band_end_y)
             highest_side_peak_x = x[pass_band_end:][idx]
     
     if np.isneginf(highest_side_peak_y):
         return (np.float_(1.0), True, np.float_(1.0))
 
-    # --- 評価値の計算 ---
+    # --- 評価値の計算 (変更なし) ---
     actual_crosstalk = main_peak_height - highest_side_peak_y
     is_ok = actual_crosstalk >= required_crosstalk_db
     dynamic_penalty = np.float_(1.0)
@@ -706,18 +707,18 @@ def _evaluate_relative_crosstalk(
         additional_penalty = np.exp(-penalty_rate * shortage)
         dynamic_penalty = initial_penalty * additional_penalty
 
-        # --- ここでご要望の2項目を出力 ---
-        print("-----------------------------------------")
-        print(f"Crosstalk Violation:")
-        # ① サイドピークとして選ばれた場所の波長
-        print(f"  - Side Peak Wavelength: {highest_side_peak_x * 1e9:.3f} nm")
-        # ② クロストークとして計算された値
-        print(f"  - Calculated Crosstalk: {actual_crosstalk:.2f} dB (Required: {required_crosstalk_db:.2f} dB)")
-        print(f"  => Final Penalty     : {dynamic_penalty:.4f}")
-        print("-----------------------------------------")
+        # --- ここからが表示量調整部分 ---
+        CROSSTALK_PRINT_COUNTER += 1 # ペナルティ発生時のみカウンターを増やす
+        if CROSSTALK_PRINT_COUNTER % 100 == 0: # 100回に1回だけ表示
+            print("-----------------------------------------")
+            print(f"Crosstalk Violation (Count: {CROSSTALK_PRINT_COUNTER}):")
+            print(f"  - Side Peak Wavelength: {highest_side_peak_x * 1e9:.3f} nm")
+            print(f"  - Calculated Crosstalk: {actual_crosstalk:.2f} dB (Required: {required_crosstalk_db:.2f} dB)")
+            print(f"  => Final Penalty     : {dynamic_penalty:.4f}")
+            print("-----------------------------------------")
+        # --- ここまでが表示量調整部分 ---
 
     return (score, is_ok, dynamic_penalty)
-
 
 
 
