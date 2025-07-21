@@ -255,8 +255,8 @@ def _evaluate_cross_talk_final(
     max_crosstalk: float,
     pass_band_start: int,
     pass_band_end: int,
-    initial_penalty: float = 0.8,
-    penalty_rate: float = 2.5
+    initial_penalty: float = 0.7,
+    penalty_rate: float = 2.0
 ) -> tuple[np.float_, bool, np.float_]:
     """
     クロストークを評価し、違反度合いに応じた動的なペナルティ係数を返す。
