@@ -202,6 +202,8 @@ def evaluate_band(
 """
 
 
+
+"""
 #V2_クロストークの判定方法を3dB波長帯域参照に、相対的に
 def evaluate_band(
     x: npt.NDArray[np.float_],
@@ -272,6 +274,79 @@ def evaluate_band(
     E = E_c * E_b * crosstalk_penalty
 
     return E
+"""
+
+
+def evaluate_band(
+    x: npt.NDArray[np.float_],
+    y: npt.NDArray[np.float_],
+    center_wavelength: float,
+    length_of_3db_band: float,
+    max_crosstalk: float,
+    H_p: float,
+    H_s: float,
+    H_i: float,
+    r_max: float,
+    weight: list[float],
+    ignore_binary_evaluation: bool = False,
+) -> np.float_:
+    pass_band, cross_talk_regions = _get_pass_band(x=x, y=y, H_p=H_p, center_wavelength=center_wavelength)
+    if pass_band.shape[0] != 1:
+        return np.float_(0)
+    
+    start = pass_band[0][0]
+    end = pass_band[0][1]
+
+    three_db_indices = _get_3db_band(x=x, y=y, start=start, end=end)
+    if three_db_indices.size < 2:
+        return np.float_(0)
+    three_db_start_idx = start + three_db_indices[0]
+    three_db_end_idx = start + three_db_indices[-1]
+
+    main_peak_height = y[start:end].max()
+
+    other_results = [
+        _evaluate_pass_band(x=x, y=y, H_p=H_p, start=start, end=end),
+        _evaluate_stop_band(x=x, y=y, H_p=H_p, H_s=H_s, start=start, end=end),
+        _evaluate_insertion_loss(x=x, y=y, H_i=H_i, center_wavelength=center_wavelength),
+        _evaluate_3db_band(x=x, y=y, length_of_3db_band=length_of_3db_band, start=start, end=end),
+        _evaluate_ripple(x=x, y=y, r_max=r_max, start=start, end=end),
+        _evaluate_shape_factor(x=x, y=y, start=start, end=end),
+    ]
+    
+    # 新しい固定ペナルティ版のクロストーク評価を呼び出し
+    crosstalk_score, crosstalk_ok, crosstalk_penalty = _evaluate_relative_crosstalk_binary(
+        x=x,
+        y=y,
+        main_peak_height=main_peak_height,
+        required_crosstalk_db=max_crosstalk,
+        three_db_start_idx=three_db_start_idx,
+        three_db_end_idx=three_db_end_idx
+    )
+
+    # --- 評価スコアの計算 ---
+    n_other_eval = len(other_results)
+    W_c = weight[:n_other_eval+1]
+    W_b = weight[n_other_eval+1:]
+
+    E_c = np.float_(0)
+    for i in range(n_other_eval):
+        E_c += other_results[i][0] * W_c[i]
+    E_c += crosstalk_score * W_c[n_other_eval]
+
+    if ignore_binary_evaluation:
+        return E_c
+
+    E_b = np.float_(1)
+    for i in range(n_other_eval):
+        if not other_results[i][1]:
+            E_b *= W_b[i]
+
+    # 固定ペナルティ(E_b)と、クロストークの固定ペナルティ(crosstalk_penalty)を適用
+    E = E_c * E_b * crosstalk_penalty
+
+    return E
+
 
 
 
@@ -793,7 +868,7 @@ def _evaluate_relative_crosstalk(
     return (score, is_ok, dynamic_penalty)
 """
 
-
+"""
 #V2_クロストークの判定方法を変更。3dB波長帯域外に設定
 def _evaluate_relative_crosstalk_v2(
     x: npt.NDArray[np.float_],
@@ -805,9 +880,9 @@ def _evaluate_relative_crosstalk_v2(
     initial_penalty: float = 0.9,
     penalty_rate: float = 2.0
 ) -> tuple[np.float_, bool, np.float_]:
-    """
+   
     3dB帯域の外側をサイドピーク領域として、相対クロストークを評価する。
-    """
+   
     global CROSSTALK_PRINT_COUNTER
 
     # --- 3dB帯域の外側をサイドピーク領域として、最も高いピークを探す ---
@@ -857,6 +932,48 @@ def _evaluate_relative_crosstalk_v2(
             print("-----------------------------------------")
 
     return (score, is_ok, dynamic_penalty)
+"""
+
+
+
+def _evaluate_relative_crosstalk_binary(
+    x: npt.NDArray[np.float_],
+    y: npt.NDArray[np.float_],
+    main_peak_height: float,
+    required_crosstalk_db: float,
+    three_db_start_idx: int,
+    three_db_end_idx: int,
+) -> tuple[np.float_, bool, np.float_]:
+    """
+    相対クロストークを評価し、違反した場合は固定で0.5のペナルティ係数を返す。
+    """
+    # --- サイドピーク領域で最も高いピークを探す (変更なし) ---
+    side_band_start = y[:three_db_start_idx]
+    side_band_end = y[three_db_end_idx:]
+    
+    highest_side_peak_y = -np.inf
+    if side_band_start.size > 0:
+        highest_side_peak_y = max(highest_side_peak_y, np.max(side_band_start))
+    if side_band_end.size > 0:
+        highest_side_peak_y = max(highest_side_peak_y, np.max(side_band_end))
+    
+    if np.isneginf(highest_side_peak_y):
+        return (np.float_(1.0), True, np.float_(1.0))
+
+    # --- 評価値の計算 ---
+    actual_crosstalk = main_peak_height - highest_side_peak_y
+    is_ok = actual_crosstalk >= required_crosstalk_db
+
+    if is_ok:
+        # 条件を満たした場合
+        score = np.float_(1.0)
+        penalty = np.float_(1.0) # ペナルティなし
+    else:
+        # 条件を満たさなかった場合
+        score = np.float_(0.0)
+        penalty = np.float_(0.5) # 固定で0.5倍のペナルティ
+
+    return (score, is_ok, penalty)
 
 
 
