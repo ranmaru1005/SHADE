@@ -66,7 +66,7 @@ def evaluate_band(
 
 
 #クロストークのペナルティに傾斜をつけたもの
-def evaluate_band_modified(
+def evaluate_band(
     x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
     center_wavelength: float,
