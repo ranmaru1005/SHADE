@@ -658,7 +658,7 @@ def _evaluate_cross_talk(
 def _evaluate_relative_crosstalk(
     y: npt.NDArray[np.float_],
     main_peak_height: float,
-    required_crosstalk_db: float, # 目標とするクロストーク値 (例: 30dB)
+    max_crosstalk: float,
     pass_band_start: int,
     pass_band_end: int,
     initial_penalty: float = 0.9,
@@ -685,7 +685,7 @@ def _evaluate_relative_crosstalk(
 
     # --- 評価値の計算 ---
     actual_crosstalk = main_peak_height - highest_side_peak
-    is_ok = actual_crosstalk >= required_crosstalk_db
+    is_ok = actual_crosstalk >= max_crosstalk
     dynamic_penalty = np.float_(1.0)
 
     if is_ok:
@@ -696,7 +696,7 @@ def _evaluate_relative_crosstalk(
         score = np.float_(0.0)
         
         # E全体に掛ける動的ペナルティを計算
-        shortage = required_crosstalk_db - actual_crosstalk # 不足分
+        shortage = max_crosstalk - actual_crosstalk # 不足分
         
         # 不足分が大きいほどペナルティが強くなる
         additional_penalty = np.exp(-penalty_rate * shortage)
