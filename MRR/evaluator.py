@@ -473,7 +473,7 @@ def _evaluate_ripple(
 """
 
 
-"""
+
 def _evaluate_ripple(
     x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], r_max: float, start: int, end: int
 ) -> tuple[np.float_, bool]:
@@ -498,7 +498,7 @@ def _evaluate_ripple(
         return (np.float_(0), False)
     E = 1 - dif / r_max
     return (E, True)
-"""
+
 
 
 """
@@ -568,6 +568,7 @@ def _evaluate_cross_talk(
 
 
 
+"""
 def _evaluate_cross_talk(
     y: npt.NDArray[np.float_], max_crosstalk: float, pass_band_start: int, pass_band_end: int
 ) -> tuple[np.float_, bool]:
@@ -582,6 +583,8 @@ def _evaluate_cross_talk(
     if a or b:
         return (np.float_(0), False)
     return (np.float_(0), True)
+"""
+
 
 
 def _evaluate_shape_factor(
