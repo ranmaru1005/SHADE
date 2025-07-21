@@ -137,7 +137,7 @@ def evaluate_band(
 
 
 #クロストークを相対差で評価
-def evaluate_band_final(
+def evaluate_band(
     x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
     center_wavelength: float,
