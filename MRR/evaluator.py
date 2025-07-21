@@ -175,6 +175,7 @@ def _evaluate_3db_band(
     return (E, True)
 
 
+"""
 #3dB波長帯域の選択を場合で分ける
 def _evaluate_ripple(
     x: npt.NDArray[np.float_],
@@ -238,7 +239,7 @@ def _evaluate_ripple(
     score = 1 - std / r_max
     return (np.float_(score), True)
 
-
+"""
 
 
 """
@@ -337,7 +338,7 @@ def _evaluate_ripple(
 """
 
 
-"""
+
 def _evaluate_ripple(
     x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], r_max: float, start: int, end: int
 ) -> tuple[np.float_, bool]:
@@ -362,7 +363,8 @@ def _evaluate_ripple(
         return (np.float_(0), False)
     E = 1 - dif / r_max
     return (E, True)
-"""
+
+
 
 """
 #指数的に評価を下げるクロストーク
