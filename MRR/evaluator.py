@@ -741,9 +741,8 @@ def _evaluate_relative_crosstalk(
     penalty_rate: float = 2.0
 ) -> tuple[np.float_, bool, np.float_]:
 
-    """
+
     #メインピークとの相対差でクロストークを評価し、表示量を調整したデバッグ情報を出力する。
-    """
     global CROSSTALK_PRINT_COUNTER # グローバル変数のカウンターを使用
 
     # --- サイドピーク領域で最も高いピークとその波長を探す (変更なし) ---
