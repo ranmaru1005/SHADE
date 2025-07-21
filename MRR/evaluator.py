@@ -141,7 +141,7 @@ def evaluate_band(
     y: npt.NDArray[np.float_],
     center_wavelength: float,
     length_of_3db_band: float,
-    required_crosstalk_db: float, # ★新しい引数: 目標クロストーク(dB)
+    max_crosstalk: float,
     H_p: float,
     H_s: float,
     H_i: float,
