@@ -2,6 +2,8 @@ import numpy as np
 import numpy.typing as npt
 from scipy.signal import argrelmax, argrelmin
 
+CROSSTALK_PRINT_COUNTER = 0
+
 """
 #宇田川さんのもの
 def evaluate_band(
@@ -253,16 +255,16 @@ def _evaluate_cross_talk_final(
     max_crosstalk: float,
     pass_band_start: int,
     pass_band_end: int,
-    initial_penalty: float = 0.8, # 閾値を少しでも超えた時のペナルティ係数(例: 0.9倍)
-    penalty_rate: float = 2.0     # 超過量に対するペナルティの増加率
+    initial_penalty: float = 0.9,
+    penalty_rate: float = 2.0
 ) -> tuple[np.float_, bool, np.float_]:
-    
     """
     クロストークを評価し、違反度合いに応じた動的なペナルティ係数を返す。
-    （ペナルティ適用時に値を出力する機能付き）
+    （ペナルティ適用時、100回に1回だけ値を出力する）
     """
-    
-    # --- ピーク値の計算 (ここは変更なし) ---
+    global CROSSTALK_PRINT_COUNTER # グローバル変数のカウンターを使用
+
+    # --- ピーク値の計算 (変更なし) ---
     start_band = y[:pass_band_start]
     end_band = y[pass_band_end:]
     highest_peak = -np.inf
@@ -290,16 +292,11 @@ def _evaluate_cross_talk_final(
         additional_penalty = np.exp(-normalized_rate * overage)
         dynamic_penalty = initial_penalty * additional_penalty
         
-        # --- ここからが出力部分 ---
-        print("-----------------------------------------")
-        print(f"Crosstalk Penalty Applied:")
-        print(f"  - Highest Peak : {highest_peak:.3f} dB (Threshold: {max_crosstalk:.3f} dB)")
-        print(f"  - Overage      : {overage:.3f} dB")
-        print(f"  - Param(initial): {initial_penalty}")
-        print(f"  - Param(rate)  : {penalty_rate}")
-        print(f"  => Dynamic Penalty: {dynamic_penalty:.4f}")
-        print("-----------------------------------------")
-        # --- ここまでが出力部分 ---
+        # --- ここからが修正部分 ---
+        CROSSTALK_PRINT_COUNTER += 1 # カウンターを1増やす
+        if CROSSTALK_PRINT_COUNTER % 100 == 0: # 100で割り切れる時だけ表示
+            print(f"[Crosstalk Penalty] Peak:{highest_peak:.2f} > Threshold:{max_crosstalk:.2f} -> Penalty:{dynamic_penalty:.3f}")
+        # --- ここまでが修正部分 ---
 
     return (score, is_ok, dynamic_penalty)
 
