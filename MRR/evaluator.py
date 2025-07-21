@@ -351,7 +351,7 @@ def _evaluate_ripple(
     idx_end = start + index[-1]
     start_wavelength = x[idx_start] * 1e9
     end_wavelength = x[idx_end] * 1e9
-    print(f"3dB波長帯域の範囲: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
+    #print(f"3dB波長帯域の範囲: {start_wavelength:.3f} nm ～ {end_wavelength:.3f} nm")
     three_db_band = pass_band[index[0] : index[-1]]
     maxid = argrelmax(three_db_band, order=1)
     minid = argrelmin(three_db_band, order=1)
