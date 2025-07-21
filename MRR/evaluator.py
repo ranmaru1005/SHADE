@@ -136,12 +136,12 @@ def evaluate_band(
 
 
 #クロストークを相対差で評価
-def evaluate_band(
+def evaluate_band_final(
     x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
     center_wavelength: float,
     length_of_3db_band: float,
-    required_crosstalk_db: float,
+    max_crosstalk: float, # ← 引数名を元に戻しました
     H_p: float,
     H_s: float,
     H_i: float,
@@ -159,7 +159,6 @@ def evaluate_band(
     main_peak_height = y[start:end].max()
 
     other_results = [
-        # ... (他の評価関数の呼び出しは変更なし) ...
         _evaluate_pass_band(x=x, y=y, H_p=H_p, start=start, end=end),
         _evaluate_stop_band(x=x, y=y, H_p=H_p, H_s=H_s, start=start, end=end),
         _evaluate_insertion_loss(x=x, y=y, H_i=H_i, center_wavelength=center_wavelength),
@@ -168,12 +167,12 @@ def evaluate_band(
         _evaluate_shape_factor(x=x, y=y, start=start, end=end),
     ]
     
-    # ★クロストーク評価呼び出しに x を追加
+    # _evaluate_relative_crosstalkに渡す際に、required_crosstalk_dbとして値を渡します
     crosstalk_score, crosstalk_ok, crosstalk_penalty = _evaluate_relative_crosstalk(
         x=x,
         y=y,
         main_peak_height=main_peak_height,
-        required_crosstalk_db=required_crosstalk_db,
+        required_crosstalk_db=max_crosstalk, # ← ここで受け取った値を渡します
         pass_band_start=start,
         pass_band_end=end
     )
@@ -199,7 +198,6 @@ def evaluate_band(
     E = E_c * E_b * crosstalk_penalty
 
     return E
-
 
 
 
