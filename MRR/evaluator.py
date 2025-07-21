@@ -798,7 +798,7 @@ def _evaluate_relative_crosstalk(
 
 
 #V2_クロストークの判定方法を変更。3dB波長帯域外に設定
-def _evaluate_relative_crosstalk(
+def _evaluate_relative_crosstalk_v2(
     x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
     main_peak_height: float,
