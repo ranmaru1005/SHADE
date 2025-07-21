@@ -688,6 +688,7 @@ def _evaluate_ripple(
 
 
 
+"""
 def _evaluate_ripple(
     x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], r_max: float, start: int, end: int
 ) -> tuple[np.float_, bool]:
@@ -712,6 +713,67 @@ def _evaluate_ripple(
         return (np.float_(0), False)
     E = 1 - dif / r_max
     return (E, True)
+"""
+
+
+
+def _evaluate_ripple(
+    x: npt.NDArray[np.float_],
+    y: npt.NDArray[np.float_],
+    r_max: float = 1.0,
+    start: int = 0,
+    end: int = -1,
+    center_wavelength: float = None,
+    length_of_3db_band: float = None
+) -> tuple[np.float_, bool]:
+    """
+    標準偏差を用いてリップル（平坦性）を評価する。
+    """
+    # 3dB帯域を取得
+    index = _get_3db_band(x=x, y=y, start=start, end=end)
+    if index.size < 2:
+        return (np.float_(0), False)
+
+    # 評価範囲を決定する
+    # 案2と案3で使ったロジックを応用し、実測の3dB帯域が目標に近ければそれを使う
+    use_fixed_band = True
+    if center_wavelength is not None and length_of_3db_band is not None:
+        actual_range = x[start + index[-1]] - x[start + index[0]]
+        expected_range = length_of_3db_band
+        # 実測が目標の±10%以内なら、実測帯域を使う
+        if (0.9 * expected_range) <= actual_range <= (1.1 * expected_range):
+            use_fixed_band = False
+
+    # 評価対象のスペクトルデータを取得
+    if use_fixed_band:
+        # 安定した評価のため、中心波長±目標帯域幅/2 を使用
+        lower = center_wavelength - length_of_3db_band / 2
+        upper = center_wavelength + length_of_3db_band / 2
+        indices = np.where((x >= lower) & (x <= upper))[0]
+    else:
+        # 実測帯域を使用
+        indices = np.arange(start + index[0], start + index[-1])
+
+    if indices.size < 2:
+        return (np.float_(0), False)
+
+    band_y = y[indices]
+    
+    # 標準偏差を計算
+    std = np.std(band_y)
+
+    # 標準偏差がr_maxを超えたら0点（False）、それ以下なら滑らかに評価
+    if std > r_max:
+        return (np.float_(0), False)
+    
+    # 標準偏差が0に近いほどスコアは1に近づく
+    score = 1.0 - (std / r_max)
+    
+    return (np.float_(score), True)
+
+
+
+
 
 
 
