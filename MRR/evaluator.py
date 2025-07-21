@@ -172,7 +172,7 @@ def evaluate_band(
     crosstalk_score, crosstalk_ok, crosstalk_penalty = _evaluate_relative_crosstalk(
         y=y,
         main_peak_height=main_peak_height,
-        required_crosstalk_db=required_crosstalk_db,
+        max_crosstalk=max_crosstalk,
         pass_band_start=start,
         pass_band_end=end
     )
