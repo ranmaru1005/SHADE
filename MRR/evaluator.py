@@ -246,31 +246,23 @@ def _evaluate_3db_band(
 
 
 
+
 #ペナルティ量を変更するためのもの。evaluate_bandにも影響を及ぼす
 def _evaluate_cross_talk_final(
     y: npt.NDArray[np.float_],
     max_crosstalk: float,
     pass_band_start: int,
     pass_band_end: int,
-    initial_penalty: float = 0.9, # 閾値を少しでも超えた時のペナルティ係数(例: 0.9倍)
+    initial_penalty: float = 0.8, # 閾値を少しでも超えた時のペナルティ係数(例: 0.9倍)
     penalty_rate: float = 2.0     # 超過量に対するペナルティの増加率
 ) -> tuple[np.float_, bool, np.float_]:
     
-    
     """
     クロストークを評価し、違反度合いに応じた動的なペナルティ係数を返す。
-
-    Returns:
-        (
-            連続スコア,      # E_cに貢献するスコア
-            合否フラグ,      # 違反したかどうか
-            動的ペナルティ係数 # 違反した場合にE全体に掛ける係数
-        )
+    （ペナルティ適用時に値を出力する機能付き）
     """
-
     
-    # --- ピーク値の計算 ---
-    # (ここは以前のコードと同じ)
+    # --- ピーク値の計算 (ここは変更なし) ---
     start_band = y[:pass_band_start]
     end_band = y[pass_band_end:]
     highest_peak = -np.inf
@@ -285,21 +277,29 @@ def _evaluate_cross_talk_final(
 
     # --- 評価値の計算 ---
     is_ok = highest_peak <= max_crosstalk
-    dynamic_penalty = np.float_(1.0) # デフォルト値（ペナルティなし）
+    dynamic_penalty = np.float_(1.0)
 
     if is_ok:
-        # 閾値以下の場合はスコア1.0
         score = np.float_(1.0)
     else:
-        # 閾値を超えた場合
-        # E_cに貢献するスコアは低くする
         score = np.float_(0.0)
         
-        # E全体に掛ける動的ペナルティを計算
+        # 動的ペナルティを計算
         overage = highest_peak - max_crosstalk
         normalized_rate = penalty_rate / abs(max_crosstalk) if abs(max_crosstalk) > 1e-9 else penalty_rate
         additional_penalty = np.exp(-normalized_rate * overage)
         dynamic_penalty = initial_penalty * additional_penalty
+        
+        # --- ここからが出力部分 ---
+        print("-----------------------------------------")
+        print(f"Crosstalk Penalty Applied:")
+        print(f"  - Highest Peak : {highest_peak:.3f} dB (Threshold: {max_crosstalk:.3f} dB)")
+        print(f"  - Overage      : {overage:.3f} dB")
+        print(f"  - Param(initial): {initial_penalty}")
+        print(f"  - Param(rate)  : {penalty_rate}")
+        print(f"  => Dynamic Penalty: {dynamic_penalty:.4f}")
+        print("-----------------------------------------")
+        # --- ここまでが出力部分 ---
 
     return (score, is_ok, dynamic_penalty)
 
