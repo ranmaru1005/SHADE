@@ -716,7 +716,7 @@ def _evaluate_ripple(
 """
 
 
-
+"""
 def _evaluate_ripple(
     x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
@@ -770,6 +770,49 @@ def _evaluate_ripple(
     score = 1.0 - (std / r_max)
     
     return (np.float_(score), True)
+"""
+
+
+#標準偏差型 村澤君
+def _evaluate_ripple(
+    x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], r_max: float, start: int, end: int
+) -> tuple[np.float_, bool]:
+    pass_band = y[start:end]
+    index = _get_3db_band(x=x, y=y, start=start, end=end)
+    if index.size <= 3:
+        print("すくない",index)
+        return (np.float_(0), False)
+        # ペナルティ計算
+
+    n = index.size
+    if n > 10:  # 十分な点数あるとき
+        central_index = index[int(0.1 * n) : int(0.9 * n)]
+        three_db_band = pass_band[central_index]
+    else:
+        three_db_band = pass_band[index]  # 点数少ない時はそのまま使う
+        
+    std_ripple = np.std(three_db_band)
+    range_ripple = three_db_band.max() - three_db_band.min()
+
+ 
+    r_max1 = 1.0
+
+    if std_ripple > r_max1 or range_ripple > r_max:
+        E = 0
+    else:
+        E = 1 - (std_ripple + range_ripple) / (r_max1 * r_max)
+
+    return (np.float_(E), True)
+
+
+
+def _get_3db_band1(x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: int, end: int) -> npt.ArrayLike:
+    border: np.float_ = y.max() - 3
+    a = np.where(y[start:end] <= border, True, False)
+    b = np.append(a[1:], a[-1])
+    index = np.where(np.logical_xor(a, b))[0]
+
+    return index
 
 
 
