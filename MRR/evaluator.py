@@ -391,7 +391,7 @@ def _get_pass_band(
 
     return pass_band, cross_talk
 
-
+"""
 def _get_3db_band(x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: int, end: int) -> npt.ArrayLike:
     border: np.float_ = y.max() - 3
     a = np.where(y[start:end] <= border, True, False)
@@ -399,6 +399,31 @@ def _get_3db_band(x: npt.NDArray[np.float_], y: npt.NDArray[np.float_], start: i
     index = np.where(np.logical_xor(a, b))[0]
 
     return index
+"""
+
+#村澤君のリプルを使う場合はこっちをアクティブに
+def _get_3db_band(
+    x: npt.NDArray[np.float_],
+    y: npt.NDArray[np.float_],
+    start: int,
+    end: int
+) -> npt.NDArray[np.int_]:
+    # dBスケール前提（最大値から3dB以内）
+    y_db = y[start:end]
+    threshold = y_db.max() - 3
+
+    # 条件を満たすインデックス
+    mask = y_db >= threshold
+    idx = np.where(mask)[0]
+
+    if idx.size == 0:
+        return np.array([], dtype=int)
+
+    # 通過帯域の範囲（インデックスそのものを返す）
+    return idx
+
+
+
 
 
 def _evaluate_pass_band(
