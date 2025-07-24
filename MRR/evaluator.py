@@ -726,9 +726,9 @@ def _evaluate_ripple(
     center_wavelength: float = None,
     length_of_3db_band: float = None
 ) -> tuple[np.float_, bool]:
-    """
-    標準偏差を用いてリップル（平坦性）を評価する。
-    """
+   
+    #標準偏差を用いてリップル（平坦性）を評価する。
+   
     # 3dB帯域を取得
     index = _get_3db_band(x=x, y=y, start=start, end=end)
     if index.size < 2:
