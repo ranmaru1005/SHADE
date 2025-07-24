@@ -310,7 +310,7 @@ def evaluate_band(
         _evaluate_stop_band(x=x, y=y, H_p=H_p, H_s=H_s, start=start, end=end),
         _evaluate_insertion_loss(x=x, y=y, H_i=H_i, center_wavelength=center_wavelength),
         _evaluate_3db_band(x=x, y=y, length_of_3db_band=length_of_3db_band, start=start, end=end),
-        _evaluate_ripple(x=x, y=y, r_max=r_max, start=start, end=end, center_wavelength=center_wavelength, length_of_3db_band=length_of_3db_band),
+        _evaluate_ripple(x=x, y=y, r_max=r_max, start=start, end=end),
         _evaluate_shape_factor(x=x, y=y, start=start, end=end),
     ]
     
