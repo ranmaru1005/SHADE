@@ -2,6 +2,8 @@ from dataclasses import dataclass
 
 import numpy as np
 import numpy.typing as npt
+import matplotlib.pyplot as plt
+
 from scipy.optimize import differential_evolution    #Scipyを使うときはこちらのコメントアウトを削除
 #from MRR.DE_myself import differential_evolution
 from MRR.SHADE import SHADE        #20231219 に追加。　未完成のSHADEの導入
@@ -547,7 +549,7 @@ def optimize(
         analyze_score = 0.0
         
             
-        if E > 18.5:
+        if E > 100:
             for L_error_rate, K_error_rate in zip([0.01, 0.1, 1, 10], [1, 10, 100]):
                 analyze_result = analyze(
                     n=1000,
@@ -642,6 +644,7 @@ def optimize(
         graph.create()
         graph.plot(x, y)
         graph.show(logger.generate_image_path())
+        plt.show()
 
 
 def optimize_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams) -> np.float_:
