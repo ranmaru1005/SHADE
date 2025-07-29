@@ -28,7 +28,8 @@ def evaluate_band(
     result = [
         _evaluate_pass_band(x=x, y=y, H_p=H_p, start=start, end=end),
         _evaluate_stop_band(x=x, y=y, H_p=H_p, H_s=H_s, start=start, end=end),
-        _evaluate_insertion_loss(x=x, y=y, H_i=H_i, center_wavelength=center_wavelength),
+        #_evaluate_insertion_loss(x=x, y=y, H_i=H_i, center_wavelength=center_wavelength),    #昔の、挿入損失
+        _evaluate_insertion_loss(x=x, y=y, H_i=H_i, center_wavelength=center_wavelength, steepness=2.0),    #新しい挿入損失、引数が増えた
         _evaluate_3db_band(x=x, y=y, length_of_3db_band=length_of_3db_band, start=start, end=end),
         _evaluate_ripple(x=x, y=y, r_max=r_max, start=start, end=end),
         _evaluate_cross_talk(y=y, max_crosstalk=max_crosstalk, pass_band_start=start, pass_band_end=end),
@@ -161,6 +162,7 @@ def _evaluate_stop_band(
     return (E, True)
 
 
+"""
 def _evaluate_insertion_loss(
     x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
@@ -177,7 +179,40 @@ def _evaluate_insertion_loss(
         return(E, False)
     else:
         return(E, True)
-             
+ """            
+
+#挿入損失が0dBに近づくほど急激にスコアが上昇する評価関数。新たな引数があるので注意
+def _evaluate_insertion_loss(
+    x: npt.NDArray[np.float_],
+    y: npt.NDArray[np.float_],
+    H_i: float,
+    center_wavelength: float,
+    steepness: float = 2.0  # ★スコアカーブの急峻さを調整する新しいパラメータ
+) -> tuple[np.float_, bool]:
+    # 1. 挿入損失を特定（ここは変更なし）
+    idx = np.argmin(np.abs(x - center_wavelength))
+    insertion_loss_at_center = y[idx]
+
+    # 2. バイナリ評価（合格/不合格）は変更なし
+    is_ok = insertion_loss_at_center >= H_i
+
+    # 3. 新しい連続スコアの計算ロジック
+    loss_abs = np.abs(insertion_loss_at_center)
+    H_i_abs = np.abs(H_i)
+
+    # 損失を目標値H_iを基準に正規化（0が良い、1が目標値）
+    # 損失が0dBより良い（利得がある）場合は0にクリップ
+    normalized_loss = np.maximum(0, loss_abs / H_i_abs)
+
+    # べき乗関数でスコアを計算
+    # (1 - 正規化損失) の値を steepness 乗する
+    # 損失が目標値を超えた場合はスコアが0になるようにクリップ
+    score = (np.maximum(0, 1 - normalized_loss)) ** steepness
+    
+    return (np.float_(score), is_ok)
+
+
+
 
 
 
