@@ -1,3 +1,7 @@
+import matplotlib
+matplotlib.use('TkAgg')
+
+
 import argparse
 
 from config.base import config
