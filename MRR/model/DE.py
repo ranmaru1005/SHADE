@@ -640,14 +640,11 @@ def optimize(
     )
     print("end")
     if E > 0 and not skip_plot:
-        print("グラフ描画処理を開始します...")
         graph = Graph()
         graph.create()
         graph.plot(x, y)
         graph.show(logger.generate_image_path())
-        plt.show()
-    else:
-        print("グラフ描画の条件を満たさなかったためスキップします。")
+       
 
 
 def optimize_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams) -> np.float_:
