@@ -427,7 +427,7 @@ def _evaluate_cross_talk_with_dynamic_penalty(
     pass_band_end: int,
     # --- ★新しい制御パラメータ ---
     min_penalty_multiplier: float = 0.5, # ペナルティ係数の最小値
-    penalty_steepness: float = 0.5       # ペナルティが急になる度合い
+    penalty_steepness: float = 0.4       # ペナルティが急になる度合い
 ) -> tuple[np.float_, np.float_]: # 返り値の2番目が bool から float に変更
     
     # --- 連続スコアの計算（ここは変更なし） ---
