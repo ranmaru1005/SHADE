@@ -286,6 +286,76 @@ def _evaluate_cross_talk(
 """
 
 
+#トップとサイドの差をしきい値の判定に用いる
+def _evaluate_cross_talk(
+    y: npt.NDArray[np.float_], 
+    max_crosstalk: float,  # ★ここに正の数(例: 30)を渡すことを想定
+    pass_band_start: int, 
+    pass_band_end: int
+) -> tuple[np.float_, bool]:
+    
+    # --- ステップ1: ピーク検出 ---
+    overall_peak = np.max(y)
+    start_region = y[:pass_band_start]
+    end_region = y[pass_band_end:]
+    
+    maxid_start = np.append(0, argrelmax(start_region))
+    maxid_end = np.append(argrelmax(end_region), -1)
+    all_start_peaks = start_region[maxid_start]
+    all_end_peaks = end_region[maxid_end]
+
+    # --- ステップ2: 新しい合否判定ロジック ---
+    # 全てのサイドローブについて、主信号との差（クロストーク）を計算
+    suppression_start = overall_peak - all_start_peaks
+    suppression_end = overall_peak - all_end_peaks
+    
+    # ★ 計算したクロストークが、引数で指定した値(max_crosstalk)を下回るかチェック
+    is_fail_start = np.any(suppression_start < max_crosstalk)
+    is_fail_end = np.any(suppression_end < max_crosstalk)
+    
+    # --- ステップ3: スコア計算と返り値 ---
+    worst_start_peak = np.max(all_start_peaks)
+    worst_end_peak = np.max(all_end_peaks)
+    worst_suppression_start = overall_peak - worst_start_peak
+    worst_suppression_end = overall_peak - worst_end_peak
+    
+    score_val = worst_suppression_start + worst_suppression_end
+
+    if is_fail_start or is_fail_end:
+        # 不合格の場合
+        if score_val <= 0:
+            E = 0.0
+        else:
+            normalized_score = np.log(score_val + 1)
+            E = 1 - np.exp(-normalized_score / 4)
+        return (np.float_(E), False)
+    else:
+        # 合格の場合
+        return (np.float_(1), True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#これが一番うまくいく。
+"""
 def _evaluate_cross_talk(  y: npt.NDArray[np.float_], max_crosstalk: float, pass_band_start: int, pass_band_end: int
 ) -> tuple[np.float_, bool]:
     overall_peak = np.max(y)
@@ -299,12 +369,12 @@ def _evaluate_cross_talk(  y: npt.NDArray[np.float_], max_crosstalk: float, pass
     end_peak_db = np.max(end_peak)
     excess_start = overall_peak - start_peak_db
     excess_end = overall_peak - end_peak_db
-    """
-    print("start_peak:" , start_peak_db)
-    print("end_peak" , end_peak_db)
-    print(excess_start)
-    print(excess_end)
-    """
+    
+    #print("start_peak:" , start_peak_db)
+    #print("end_peak" , end_peak_db)
+    #print(excess_start)
+    #print(excess_end)
+    
     score = np.sum(excess_start) + np.sum(excess_end)
     #print(score)
     a = np.any(start_peak > max_crosstalk)
@@ -318,6 +388,9 @@ def _evaluate_cross_talk(  y: npt.NDArray[np.float_], max_crosstalk: float, pass
         return(E,False)
     else:
         return(1,True)
+"""
+
+
 
 """
 def _evaluate_cross_talk(  y: npt.NDArray[np.float_], max_crosstalk: float, pass_band_start: int, pass_band_end: int
