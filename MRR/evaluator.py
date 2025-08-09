@@ -4,6 +4,7 @@ import numpy.typing as npt
 from scipy.signal import argrelmax, argrelmin
 
 
+"""
 def evaluate_band(
     x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
@@ -48,15 +49,92 @@ def evaluate_band(
         return E_c
     E = E_c * E_b
     # 各評価関数の結果を表示
-    """
-    print(E_b)
-    print(E_c)
-    for i, res in enumerate(result):
-        print(f"評価関数 {i+1}: 値 = {res[0]}, バイナリ評価 = {res[1]}")
-    """
+    
+    #print(E_b)
+    #print(E_c)
+    #for i, res in enumerate(result):
+        #print(f"評価関数 {i+1}: 値 = {res[0]}, バイナリ評価 = {res[1]}")
+    
     
     return E
+"""
+
+
+#⓹　クロストークのペナルティを調整したやつ
+def evaluate_band(
+    x: npt.NDArray[np.float_],
+    y: npt.NDArray[np.float_],
+    center_wavelength: float,
+    length_of_3db_band: float,
+    max_crosstalk: float,
+    H_p: float,
+    H_s: float,
+    H_i: float,
+    r_max: float,
+    weight: list[float],
+    ignore_binary_evaluation: bool = False,
+) -> np.float_:
+    pass_band, cross_talk = _get_pass_band(x=x, y=y, H_p=H_p, center_wavelength=center_wavelength)
+    if pass_band.shape[0] == 1:
+        start = pass_band[0][0]
+        end = pass_band[0][1]
+
+    else:
+        return np.float_(0)
+
+    result = [
+        _evaluate_pass_band(x=x, y=y, H_p=H_p, start=start, end=end),
+        _evaluate_stop_band(x=x, y=y, H_p=H_p, H_s=H_s, start=start, end=end),
+        #_evaluate_insertion_loss(x=x, y=y, H_i=H_i, center_wavelength=center_wavelength),    #昔の、挿入損失
+        _evaluate_insertion_loss(x=x, y=y, H_i=H_i, center_wavelength=center_wavelength, steepness=2.0),    #新しい挿入損失、引数が増えた
+        _evaluate_3db_band(x=x, y=y, length_of_3db_band=length_of_3db_band, start=start, end=end),
+        _evaluate_ripple(x=x, y=y, r_max=r_max, start=start, end=end),
+        _evaluate_cross_talk_with_dynamic_penalty(y=y, max_crosstalk=max_crosstalk, pass_band_start=start, pass_band_end=end),
+        _evaluate_shape_factor(x=x, y=y, start=start, end=end),
+    ]
+    n_eval = len(result)
+    W_c = weight[:n_eval]
+    W_b = weight[n_eval:]
+    E_c = np.float_(0)
+    E_b = np.float_(1)
+    for i in range(n_eval):
+        E_c += result[i][0] * W_c[i]
+        
+        # --- ▼ここからが変更点▼ ---
+        # 評価結果の2番目の値の「型」で処理を分岐する
+        
+        # bool型なら、従来のバイナリ評価
+        if isinstance(result[i][1], (bool, np.bool_)):
+            if not result[i][1]:
+                E_b *= W_b[i]
+        
+        # float型なら、新しい動的ペナルティ評価
+        else:
+            # 関数から返されたペナルティ係数を直接掛け合わせる
+            E_b *= result[i][1]
+            
+    if ignore_binary_evaluation:
+        return E_c
+        
+    E = E_c * E_b
     
+    
+    return E
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def _calculate_pass_band_range(
@@ -181,6 +259,8 @@ def _evaluate_insertion_loss(
         return(E, True)
  """            
 
+
+
 #挿入損失が0dBに近づくほど急激にスコアが上昇する評価関数。新たな引数があるので注意
 def _evaluate_insertion_loss(
     x: npt.NDArray[np.float_],
@@ -286,6 +366,8 @@ def _evaluate_cross_talk(
 """
 
 
+#これを用いればうまくクロストークを維持しながら最適化できるが、挿入損失が低い。挿入損失を調整すればあるいは
+"""
 #トップとサイドの差をしきい値の判定に用いる
 def _evaluate_cross_talk(
     y: npt.NDArray[np.float_], 
@@ -332,6 +414,66 @@ def _evaluate_cross_talk(
     else:
         # 合格の場合
         return (np.float_(1), True)
+"""
+
+
+
+
+#⓹
+def _evaluate_cross_talk_with_dynamic_penalty(
+    y: npt.NDArray[np.float_],
+    max_crosstalk: float,       # 確保したいクロストーク量 [dB] (例: 30.0)
+    pass_band_start: int,
+    pass_band_end: int,
+    # --- ★新しい制御パラメータ ---
+    min_penalty_multiplier: float = 0.5, # ペナルティ係数の最小値
+    penalty_steepness: float = 0.5       # ペナルティが急になる度合い
+) -> tuple[np.float_, np.float_]: # 返り値の2番目が bool から float に変更
+    
+    # --- 連続スコアの計算（ここは変更なし） ---
+    overall_peak = np.max(y)
+    start_region = y[:pass_band_start]
+    end_region = y[pass_band_end:]
+    
+    maxid_start = np.append(0, argrelmax(start_region))
+    maxid_end = np.append(argrelmax(end_region), -1)
+    all_start_peaks = start_region[maxid_start]
+    all_end_peaks = end_region[maxid_end]
+
+    worst_start_peak = np.max(all_start_peaks)
+    worst_end_peak = np.max(all_end_peaks)
+    worst_suppression_start = overall_peak - worst_start_peak
+    worst_suppression_end = overall_peak - worst_end_peak
+    
+    score_val = worst_suppression_start + worst_suppression_end
+    
+    if score_val <= 0:
+        continuous_score = 0.0
+    else:
+        normalized_score = np.log(score_val + 1)
+        continuous_score = 1 - np.exp(-normalized_score / 4)
+
+    # --- ★新しい動的ペナルティ係数の計算 ---
+    # 全てのサイドローブの抑制量を計算
+    suppression_start = overall_peak - all_start_peaks
+    suppression_end = overall_peak - all_end_peaks
+    
+    # 最も抑制できていない値（ワーストケース）を特定
+    worst_suppression = min(np.min(suppression_start), np.min(suppression_end))
+    
+    # 閾値からの違反量を計算（違反していなければ0以下になる）
+    violation_db = max_crosstalk - worst_suppression
+    
+    if violation_db <= 0:
+        # 違反がない場合、ペナルティは無し
+        penalty_multiplier = 1.0
+    else:
+        # 違反がある場合、違反量に応じてペナルティを計算
+        # 指数関数的に1.0からmin_penalty_multiplierへと減衰させる
+        penalty_multiplier = min_penalty_multiplier + \
+            (1.0 - min_penalty_multiplier) * np.exp(-penalty_steepness * violation_db)
+            
+    return (np.float_(continuous_score), np.float_(penalty_multiplier))
 
 
 
@@ -339,22 +481,7 @@ def _evaluate_cross_talk(
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#これが一番うまくいく。
+#これが一番うまくいく。(過去いっただけ、二つ↑のやつが現状良い)
 """
 def _evaluate_cross_talk(  y: npt.NDArray[np.float_], max_crosstalk: float, pass_band_start: int, pass_band_end: int
 ) -> tuple[np.float_, bool]:
@@ -392,6 +519,7 @@ def _evaluate_cross_talk(  y: npt.NDArray[np.float_], max_crosstalk: float, pass
 
 
 
+
 """
 def _evaluate_cross_talk(  y: npt.NDArray[np.float_], max_crosstalk: float, pass_band_start: int, pass_band_end: int
 ) -> tuple[np.float_, bool]:
@@ -416,7 +544,9 @@ def _evaluate_cross_talk(  y: npt.NDArray[np.float_], max_crosstalk: float, pass
     else:
         return(E, True)
 """    
-       
+
+
+
 """
 def _evaluate_cross_talk(
     y: npt.NDArray[np.float_], max_crosstalk: float, pass_band_start: int, pass_band_end: int
@@ -438,6 +568,8 @@ def _evaluate_cross_talk(
         E = 1
         return(E,True)
 """
+
+
     
 
 def _evaluate_shape_factor(
