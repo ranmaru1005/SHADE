@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from typing import Union # この行を追加
+
 
 import numpy as np
 import numpy.typing as npt
@@ -54,7 +56,7 @@ def simulate_MRR(
     format: bool = False,
     simulate_one_cycle: bool = False,
     # ✅ 型ヒントをタプルに変更し、デフォルト値をNoneにする
-    lambda_limit: tuple[float, float] | None = None,
+    lambda_limit: Union[tuple[float, float], None] = None,
     name: str = "",
     label: str = "",
     skip_graph: bool = False,
