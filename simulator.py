@@ -113,6 +113,10 @@ if __name__ == "__main__":
                 simulation_config.format = format
                 simulation_config.simulate_one_cycle = simulate_one_cycle
 
+                # ✅ コマンドライン引数でシミュレーション範囲を上書きする
+                # x_limitsはnm単位なので、シミュレータで使うメートル(m)単位に変換
+                simulation_config.lambda_limit = (args["x_min"] * 1e-9, args["x_max"] * 1e-9)
+
                 result = simulate_MRR(
                     accumulator=accumulator,
                     L=simulation_config.L,
