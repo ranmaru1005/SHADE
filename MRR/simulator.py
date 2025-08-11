@@ -53,6 +53,78 @@ def simulate_MRR(
     weight: list[float],
     format: bool = False,
     simulate_one_cycle: bool = False,
+    # ✅ 型ヒントをタプルに変更し、デフォルト値をNoneにする
+    lambda_limit: tuple[float, float] | None = None,
+    name: str = "",
+    label: str = "",
+    skip_graph: bool = False,
+    skip_evaluation: bool = False,
+    ignore_binary_evaluation: bool = False,
+) -> SimulatorResult:
+    N = calculate_N(center_wavelength=center_wavelength, n_eff=n_eff, L=L)
+    practical_FSR = calculate_practical_FSR(center_wavelength=center_wavelength, n_eff=n_eff, n_g=n_g, N=N)
+
+    # ✅ 波長配列xの生成ロジックを修正
+    WAVELENGTH_STEPS = 10000 # シミュレーションの波長刻み数
+    if simulate_one_cycle or lambda_limit is None:
+        # 1周期シミュレーションの場合、またはlambda_limitが指定されていない場合
+        x = calculate_x(center_wavelength=center_wavelength, FSR=practical_FSR)
+    else:
+        # lambda_limitが指定されている場合、その範囲で波長配列を生成
+        x = np.linspace(lambda_limit[0], lambda_limit[1], num=WAVELENGTH_STEPS)
+
+
+    y = simulate_transfer_function(
+        wavelength=x, L=L, K=K, alpha=alpha, eta=eta, n_eff=n_eff, n_g=n_g, center_wavelength=center_wavelength
+    )
+
+    if skip_evaluation:
+        evaluation_result = np.float_(0)
+    else:
+        evaluation_result = evaluate_band(
+            x=x,
+            y=y,
+            center_wavelength=center_wavelength,
+            length_of_3db_band=length_of_3db_band,
+            max_crosstalk=max_crosstalk,
+            H_p=H_p,
+            H_s=H_s,
+            H_i=H_i,
+            r_max=r_max,
+            weight=weight,
+            ignore_binary_evaluation=ignore_binary_evaluation,
+        )
+    accumulator.logger.print_parameters(K=K, L=L, N=N, FSR=practical_FSR, E=evaluation_result, format=format)
+
+    if not skip_graph:
+        accumulator.logger.save_data_as_csv(x, y, name)
+        accumulator.graph.plot(x, y, label)
+    return SimulatorResult(name, x, y, label, evaluation_result)
+
+
+
+
+
+#修正前、なんかあったらこっちにする様に
+"""
+def simulate_MRR(
+    accumulator: Accumulator,
+    L: npt.NDArray[np.float_],
+    K: npt.NDArray[np.float_],
+    n_eff: float,
+    n_g: float,
+    eta: float,
+    alpha: float,
+    center_wavelength: float,
+    length_of_3db_band: float,
+    max_crosstalk: float,
+    H_i: float,
+    H_p: float,
+    H_s: float,
+    r_max: float,
+    weight: list[float],
+    format: bool = False,
+    simulate_one_cycle: bool = False,
     lambda_limit: npt.NDArray[np.float_] = np.array([]),
     name: str = "",
     label: str = "",
@@ -94,6 +166,8 @@ def simulate_MRR(
         accumulator.logger.save_data_as_csv(x, y, name)
         accumulator.graph.plot(x, y, label)
     return SimulatorResult(name, x, y, label, evaluation_result)
+"""
+
 
 
 def calc_min_N(
