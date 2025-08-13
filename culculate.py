@@ -33,11 +33,11 @@ def evaluate_graph_hybrid(x_nm, graph_db):
     # --- ▲▲▲ ここまでが追加部分 ▲▲▲ ---
 
     print("--- Hybrid Evaluation Results (Final) ---")
-    print(f"Insertion Loss = {insertion_loss:.3f} dB")
-    print(f"3dB Bandwidth  = {bandwidth_3db:.3f} nm")
-    print(f"Ripple         = {ripple:.3f} dB")
-    print(f"Crosstalk      = {crosstalk:.3f} dB")
-    print(f"Shape Factor   = {shape_factor:.3f}") # 表示を追加
+    print(f"Insertion Loss = {insertion_loss:.6f} dB")
+    print(f"3dB Bandwidth  = {bandwidth_3db:.6f} nm")
+    print(f"Ripple         = {ripple:.6f} dB")
+    print(f"Crosstalk      = {crosstalk:.6f} dB")
+    print(f"Shape Factor   = {shape_factor:.6f}") # 表示を追加
     return
 
 
@@ -141,6 +141,7 @@ graph_db = simulate_transfer_function(
 x_nm = x_m * 1e9
 # ハイブリッド版の評価関数を呼び出す
 evaluate_graph_hybrid(x_nm, graph_db)
+
 
 
 
