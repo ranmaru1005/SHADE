@@ -74,7 +74,7 @@ normal_evaluations = []  # 通常の評価値を記録
 perturbed_evaluations = []  # 誤差を加えた評価値を記録
 
 
-
+"""
 def combined_evaluation(K: npt.NDArray[np.float_], params: OptimizeKParams) -> float:
     global normal_evaluations, perturbed_evaluations
 
@@ -101,6 +101,7 @@ def combined_evaluation(K: npt.NDArray[np.float_], params: OptimizeKParams) -> f
     # 総合評価値（小さいほど良い）
     total_score = E_optimal + delta_E
     return total_score
+"""
 
 """
 def combined_evaluation(K: npt.NDArray[np.float_], params: OptimizeKParams) -> float:
@@ -135,7 +136,7 @@ def combined_evaluation(K: npt.NDArray[np.float_], params: OptimizeKParams) -> f
     return total_score
 """
 
-"""
+
 def combined_evaluation(
     K: npt.NDArray[np.float_], params: OptimizeKParams
 ) -> float:
@@ -152,7 +153,8 @@ def combined_evaluation(
     # 総合評価値（小さいほど良い）
     total_score = E_optimal + delta_E  # ペナルティとして変動量を加算
     return total_score
-"""
+
+
 
 """
 def evaluation_callback(population: npt.NDArray[np.float_], convergence: float) -> None:
@@ -180,7 +182,7 @@ def evaluation_callback(population: npt.NDArray[np.float_], convergence: float) 
 
 
 
-"""
+
     #誤差を含んだ評価値を出力する場合
 def optimize_K(
     eta: float,
@@ -196,7 +198,7 @@ def optimize_K(
         args=(params,),
         strategy="currenttobest1bin",
         popsize=15,
-        maxiter=500,
+        maxiter=1000,
         seed=rng,
         disp=True,
         workers=-1
@@ -206,11 +208,11 @@ def optimize_K(
     K: npt.NDArray[np.float_] = result.x
 
     return K, E
+
+
+
+
 """
-
-
-
-
     #もともとのプログラムはこれ。
 def optimize_K(
     eta: float,
@@ -236,6 +238,7 @@ def optimize_K(
     K: npt.NDArray[np.float_] = result.x
 
     return K, E
+"""
 
 
 
