@@ -134,7 +134,7 @@ params = OptimizeKParams(
     n_g=4.4,
     n_eff=2.2,
     eta=0.996,
-    alpha=52.96,
+    alpha=11.51,
     center_wavelength=1550e-9,
     length_of_3db_band=1e-9,
     FSR=35e-9,
@@ -142,9 +142,10 @@ params = OptimizeKParams(
     H_p=-20,
     H_s=-60,
     H_i=-10,
-    r_max=5,
+    r_max=1,
     weight=[1.0, 3.5, 1.0, 5.0, 3.5, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
 )
 
 # 誤差を加えた評価値の計算
 evaluate_with_error(K=K_theoretical, params=params, error_value = -0.005)
+
