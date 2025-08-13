@@ -68,33 +68,34 @@ def evaluate_ripple_original_logic(graph_db):
     ripple = max(point[1][0]) - min(point[1][1])
     return ripple
 
-def evaluate_crosstalk_original_logic(graph_db):
-    # ★正確な帯域の右端インデックスを取得
+
+# ★★★★★ ここが修正されたクロストーク関数 ★★★★★
+def evaluate_crosstalk_corrected(graph_db):
+    """元々のロジックを正しく再現したクロストーク評価関数"""
     band_indices_3db = _find_band_indices(graph_db, 3.0)
     if band_indices_3db is None:
-        return 999.0 # 評価不能
+        return 999.0
     _, right_idx = band_indices_3db
 
-    # 元々のロジック：特定した帯域の右端から、最初の極大値を探す
-    temp1 = 0
-    temp2 = 0
-    first_sidelobe_peak = -np.inf # マイナス無限大で初期化
-
-    # グラフの端まで探索
+    # 帯域の右端から、グラフが初めて上昇に転じる点を探す
+    rising_edge_start_index = -1
     if right_idx + 1 >= len(graph_db):
         return 999.0 # 阻止域がない
 
     for i in range(right_idx + 1, len(graph_db)):
-        temp1 = graph_db[i-1]
-        temp2 = graph_db[i]
-        if temp2 < temp1: # 最初のピーク（下り坂）を検出
-            first_sidelobe_peak = temp1
+        if graph_db[i] > graph_db[i-1]:
+            rising_edge_start_index = i
             break
     
-    if first_sidelobe_peak == -np.inf: # ピークが見つからなかった
+    # もし上昇点が最後まで見つからなければ（単調減少）、クロストークは非常に良い
+    if rising_edge_start_index == -1:
         return 999.0
 
-    return np.max(graph_db) - first_sidelobe_peak
+    # 上昇点から先で最も高い値をサイドローブのピークとする
+    sidelobe_peak = np.max(graph_db[rising_edge_start_index:])
+    
+    return np.max(graph_db) - sidelobe_peak
+    
 
 # --- 元々のコードで使われていたヘルパー関数 ---
 def _local_maximum_and_minimum(graph):
@@ -126,4 +127,5 @@ graph_db = simulate_transfer_function(
 x_nm = x_m * 1e9
 # ハイブリッド版の評価関数を呼び出す
 evaluate_graph_hybrid(x_nm, graph_db)
+
 
