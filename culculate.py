@@ -10,21 +10,22 @@ from MRR.simulator import calculate_x
 def evaluate_graph_hybrid(x_nm, graph_db):
     """
     新しい3dB帯域幅計算と、元のリプル・クロストーク計算を組み合わせた評価。
+    クロストークのロジックを正しく修正した最終版。
     """
     insertion_loss = evaluate_insertion_loss(graph_db)
+    bandwidth_3db = calculate_bandwidth_nm(x_nm, graph_db, 3.0)
     
-    # 【新】帯域幅は新しい正確な方法で計算
-    bandwidth_3db = calculate_bandwidth_nm(x_nm, graph_db, 3.0) 
-    
-    # 【旧】リプルとクロストークは元々の慣れた方法で計算
+    # リプルは以前のハイブリッド版でOK
     ripple = evaluate_ripple_original_logic(graph_db)
-    crosstalk = evaluate_crosstalk_original_logic(graph_db)
+    
+    # ★クロストークを、今回修正した関数で計算
+    crosstalk = evaluate_crosstalk_corrected(graph_db)
 
-    print("--- Hybrid Evaluation Results ---")
+    print("--- Hybrid Evaluation Results (Corrected) ---")
     print(f"Insertion Loss = {insertion_loss:.3f} dB")
     print(f"3dB Bandwidth  = {bandwidth_3db:.3f} nm  <-- New, accurate method")
-    print(f"Ripple         = {ripple:.3f} dB  <-- Original logic")
-    print(f"Crosstalk      = {crosstalk:.3f} dB  <-- Original logic")
+    print(f"Ripple         = {ripple:.3f} dB  <-- Original logic (Good)")
+    print(f"Crosstalk      = {crosstalk:.3f} dB  <-- Original logic (Corrected)")
     return
 
 # --- 帯域を正確に特定するための新しいヘルパー関数 ---
@@ -125,3 +126,4 @@ graph_db = simulate_transfer_function(
 x_nm = x_m * 1e9
 # ハイブリッド版の評価関数を呼び出す
 evaluate_graph_hybrid(x_nm, graph_db)
+
