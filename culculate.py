@@ -134,13 +134,14 @@ graph_db = simulate_transfer_function(
     L=np.array([
         6.2e-05, 6.2e-05, 7.75e-05, 7.75e-05, 7.75e-05, 7.75e-05,
     ]),
-    K=np.array([0.1019, 0.0255, 0.0240, 0.0397, 0.0859, 0.3755, 0.9292]),
+    K=np.array([0.12691515, 0.03465236, 0.0510429, 0.0541586, 0.06728448, 0.12441187, 0.60229625]),
     alpha=11.51, eta=0.996, n_eff=2.2, n_g=4.4, center_wavelength=1550e-9
 )
 
 x_nm = x_m * 1e9
 # ハイブリッド版の評価関数を呼び出す
 evaluate_graph_hybrid(x_nm, graph_db)
+
 
 
 
