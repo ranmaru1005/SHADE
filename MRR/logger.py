@@ -17,7 +17,8 @@ class Logger:
         self.result_path = Path.cwd() / "result"
         self.result_path.mkdir(exist_ok=True)
         self.target = self.result_path / datetime.now().strftime(format)
-        self.target.mkdir()
+        #self.target.mkdir()
+        self.target.mkdir(parents=True, exist_ok=True)    #250813に追加。同じ名前のディレクトリが存在しても強制的にファイルを作成する様に
 
     def save_optimization_config(self, config: OptimizationConfig) -> None:
         self.config = config
