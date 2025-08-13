@@ -9,24 +9,38 @@ from MRR.simulator import calculate_x
 
 def evaluate_graph_hybrid(x_nm, graph_db):
     """
-    新しい3dB帯域幅計算と、元のリプル・クロストーク計算を組み合わせた評価。
-    クロストークのロジックを正しく修正した最終版。
+    主要な評価項目をまとめて計算・表示する最終版。
+    Shape Factorの計算を追加。
     """
     insertion_loss = evaluate_insertion_loss(graph_db)
+    
+    # 3dB帯域幅を計算
     bandwidth_3db = calculate_bandwidth_nm(x_nm, graph_db, 3.0)
     
-    # リプルは以前のハイブリッド版でOK
+    # リプルとクロストークを計算
     ripple = evaluate_ripple_original_logic(graph_db)
-    
-    # ★クロストークを、今回修正した関数で計算
     crosstalk = evaluate_crosstalk_corrected(graph_db)
+    
+    # --- ▼▼▼ ここからが追加部分 ▼▼▼ ---
+    
+    # Shape Factorのために1dBと10dBの帯域幅も計算
+    bandwidth_1db = calculate_bandwidth_nm(x_nm, graph_db, 1.0)
+    bandwidth_10db = calculate_bandwidth_nm(x_nm, graph_db, 10.0)
+    
+    # ゼロ除算を避けてShape Factorを計算
+    shape_factor = bandwidth_1db / bandwidth_10db if bandwidth_10db > 0 else 0.0
+    
+    # --- ▲▲▲ ここまでが追加部分 ▲▲▲ ---
 
-    print("--- Hybrid Evaluation Results (Corrected) ---")
+    print("--- Hybrid Evaluation Results (Final) ---")
     print(f"Insertion Loss = {insertion_loss:.3f} dB")
-    print(f"3dB Bandwidth  = {bandwidth_3db:.3f} nm  <-- New, accurate method")
-    print(f"Ripple         = {ripple:.3f} dB  <-- Original logic (Good)")
-    print(f"Crosstalk      = {crosstalk:.3f} dB  <-- Original logic (Corrected)")
+    print(f"3dB Bandwidth  = {bandwidth_3db:.3f} nm")
+    print(f"Ripple         = {ripple:.3f} dB")
+    print(f"Crosstalk      = {crosstalk:.3f} dB")
+    print(f"Shape Factor   = {shape_factor:.3f}") # 表示を追加
     return
+
+
 
 # --- 帯域を正確に特定するための新しいヘルパー関数 ---
 def _find_band_indices(y_transmittance, db_down):
@@ -127,5 +141,6 @@ graph_db = simulate_transfer_function(
 x_nm = x_m * 1e9
 # ハイブリッド版の評価関数を呼び出す
 evaluate_graph_hybrid(x_nm, graph_db)
+
 
 
