@@ -4,7 +4,7 @@ import numpy.typing as npt
 from scipy.signal import argrelmax, argrelmin
 
 
-
+"""
 def evaluate_band(
     x: npt.NDArray[np.float_],
     y: npt.NDArray[np.float_],
@@ -57,10 +57,11 @@ def evaluate_band(
     
     
     return E
-
-
-
 """
+
+
+
+
 #⓹　クロストークのペナルティを調整したやつ
 def evaluate_band(
     x: npt.NDArray[np.float_],
@@ -121,7 +122,7 @@ def evaluate_band(
     
     
     return E
-"""
+
 
 
 
@@ -359,7 +360,7 @@ def _evaluate_cross_talk(
 
 
 #これを用いればうまくクロストークを維持しながら最適化できるが、挿入損失が低い。挿入損失を調整すればあるいは
-
+"""
 #トップとサイドの差をしきい値の判定に用いる
 def _evaluate_cross_talk(
     y: npt.NDArray[np.float_], 
@@ -406,11 +407,11 @@ def _evaluate_cross_talk(
     else:
         # 合格の場合
         return (np.float_(1), True)
-
-
-
-
 """
+
+
+
+
 #⓹
 def _evaluate_cross_talk_with_dynamic_penalty(
     y: npt.NDArray[np.float_],
@@ -466,7 +467,7 @@ def _evaluate_cross_talk_with_dynamic_penalty(
             (1.0 - min_penalty_multiplier) * np.exp(-penalty_steepness * violation_db)
             
     return (np.float_(continuous_score), np.float_(penalty_multiplier))
-"""
+
 
 
 
