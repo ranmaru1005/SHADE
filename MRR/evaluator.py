@@ -360,7 +360,7 @@ def _evaluate_cross_talk(
 
 
 #これを用いればうまくクロストークを維持しながら最適化できるが、挿入損失が低い。挿入損失を調整すればあるいは
-
+"""
 #トップとサイドの差をしきい値の判定に用いる
 def _evaluate_cross_talk(
     y: npt.NDArray[np.float_], 
@@ -407,7 +407,7 @@ def _evaluate_cross_talk(
     else:
         # 合格の場合
         return (np.float_(1), True)
-
+"""
 
 
 
@@ -475,7 +475,7 @@ def _evaluate_cross_talk_with_dynamic_penalty(
 
 
 #これが一番うまくいく。(過去いっただけ、二つ↑のやつが現状良い)
-"""
+
 def _evaluate_cross_talk(  y: npt.NDArray[np.float_], max_crosstalk: float, pass_band_start: int, pass_band_end: int
 ) -> tuple[np.float_, bool]:
     overall_peak = np.max(y)
@@ -508,7 +508,7 @@ def _evaluate_cross_talk(  y: npt.NDArray[np.float_], max_crosstalk: float, pass
         return(E,False)
     else:
         return(1,True)
-"""
+
 
 
 
