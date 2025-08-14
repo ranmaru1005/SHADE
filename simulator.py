@@ -132,7 +132,7 @@ if __name__ == "__main__":
                 if error_analysis_mode:
                     print(f"--- Running Error Analysis for {name} ---")
                     results_for_analysis = []
-                    error_val = 0.005
+                    error_val = 0.01
                     
                     k_original = np.array(base_config.K)
                     k_plus = np.clip(k_original + error_val, 0, 1)
