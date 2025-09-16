@@ -182,7 +182,7 @@ def evaluation_callback(population: npt.NDArray[np.float_], convergence: float) 
 
 
 
-
+"""
     #誤差を含んだ評価値を出力する場合
 def optimize_K(
     eta: float,
@@ -209,11 +209,11 @@ def optimize_K(
     K: npt.NDArray[np.float_] = result.x
 
     return K, E
-
-
-
-
 """
+
+
+
+
     #もともとのプログラムはこれ。
 def optimize_K(
     eta: float,
@@ -234,14 +234,14 @@ def optimize_K(
         workers=-1,
         updating="immediate",
         popsize=35,
-        maxiter=3000,
+        maxiter=1000,
         seed=rng,
     )
     E: float = -result.fun
     K: npt.NDArray[np.float_] = result.x
 
     return K, E
-"""
+
 
 
 
