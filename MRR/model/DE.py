@@ -198,7 +198,7 @@ def optimize_K(
         args=(params,),
         strategy="currenttobest1bin",
         popsize=35,
-        maxiter=2000,
+        maxiter=1000,
         seed=rng,
         disp=True,
         updating="immediate",
@@ -684,7 +684,8 @@ def optimize_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams) -> np.fl
 
 
 
-"""
+
+
 #誤差を割合で掛け算するやつ
 def optimize_perturbed_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams) -> np.float_:
     #-----------------------------------
@@ -734,15 +735,15 @@ def optimize_perturbed_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams
         weight=params.weight,
         ignore_binary_evaluation=False,
     )
+
+
+
+
+
+
+
+
 """
-
-
-
-
-
-
-
-
 def optimize_perturbed_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams) -> np.float_:
     
     #誤差として全ての結合率を 0.005 増加させる。
@@ -787,7 +788,7 @@ def optimize_perturbed_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams
         weight=params.weight,
         ignore_binary_evaluation=False,
     )
-
+"""
 
 
 
