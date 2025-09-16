@@ -695,7 +695,7 @@ def optimize_perturbed_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams
     # 誤差の割合を設定 (例: 0.5% の誤差)
     # 論文パワポの K_e_rate に相当します。
     # 例えば error_rate = 0.005 とすると、結合率は 1.005倍になります。
-    error_rate = 0.01
+    error_rate = 0.1
     
     # 誤差を加える（ここを変更）
     # perturbed_K = K + error_rate              <- 変更前 (単純な足し算)
