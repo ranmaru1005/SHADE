@@ -683,6 +683,66 @@ def optimize_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams) -> np.fl
     )
 
 
+
+"""
+#誤差を割合で掛け算するやつ
+def optimize_perturbed_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams) -> np.float_:
+    #-----------------------------------
+    #誤差として結合率Kに一定の「割合」を適用した場合の評価値を計算します。
+    #（修正版：加算から乗算に変更）
+    #-----------------------------------
+    # 誤差の割合を設定 (例: 0.5% の誤差)
+    # 論文パワポの K_e_rate に相当します。
+    # 例えば error_rate = 0.005 とすると、結合率は 1.005倍になります。
+    error_rate = 0.01
+    
+    # 誤差を加える（ここを変更）
+    # perturbed_K = K + error_rate              <- 変更前 (単純な足し算)
+    perturbed_K = K * (1 + error_rate)      # <- 変更後 (割合での掛け算)
+
+    # 範囲外をクリップ (上限値を超えないように調整)
+    perturbed_K = np.clip(perturbed_K, 1e-12, params.eta)
+
+    # 波長と透過特性を計算
+    x = calculate_x(center_wavelength=params.center_wavelength, FSR=params.FSR)
+    try:
+        y = simulate_transfer_function(
+            wavelength=x,
+            L=params.L,
+            K=perturbed_K,
+            alpha=params.alpha,
+            eta=params.eta,
+            n_eff=params.n_eff,
+            n_g=params.n_g,
+            center_wavelength=params.center_wavelength,
+        )
+    except Exception as e:
+        print(f"Error in simulate_transfer_function: {e}")
+        return np.inf
+
+    # 評価値を計算
+    return -evaluate_band(
+        x=x,
+        y=y,
+        center_wavelength=params.center_wavelength,
+        length_of_3db_band=params.length_of_3db_band,
+        max_crosstalk=params.max_crosstalk,
+        H_p=params.H_p,
+        H_s=params.H_s,
+        H_i=params.H_i,
+        r_max=params.r_max,
+        weight=params.weight,
+        ignore_binary_evaluation=False,
+    )
+"""
+
+
+
+
+
+
+
+
 def optimize_perturbed_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams) -> np.float_:
     
     #誤差として全ての結合率を 0.005 増加させる。
@@ -727,6 +787,8 @@ def optimize_perturbed_K_func(K: npt.NDArray[np.float_], params: OptimizeKParams
         weight=params.weight,
         ignore_binary_evaluation=False,
     )
+
+
 
 
 """
