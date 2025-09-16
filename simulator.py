@@ -97,16 +97,21 @@ def save_excel_file(basedir: Path, results: list[SimulatorResult], base_name: st
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MRR Simulator")
     parser.add_argument("NAME", help="from config.simulate import NAME", nargs="*")
-    parser.add_argument("--error-analysis", action="store_true", help="Run simulation with K +/- 0.005 errors and plot on one graph.")
+    parser.add_argument("--error-analysis", action="store_true", help="Run simulation with K errors and plot on one graph.")
+    
+    # ▼▼▼ 追加 ▼▼▼
+    parser.add_argument("--error-rate", type=float, default=None, help="Use multiplicative error model with the given rate (e.g., 0.03 for 3%%). If not specified, additive model is used.")
+    # ▲▲▲ 追加 ▲▲▲
+
     parser.add_argument("--x-min", type=float, default=None, help="X-axis minimum value (nm)")
     parser.add_argument("--x-max", type=float, default=None, help="X-axis maximum value (nm)")
-    # ... 他の引数 ...
     parser.add_argument("-l", "--list", action="store_true")
     parser.add_argument("--skip-plot", action="store_true")
     
     args = vars(parser.parse_args())
     
     error_analysis_mode = args["error_analysis"]
+    error_rate_val = args["error_rate"] # 追加
     range_specified = args["x_min"] is not None and args["x_max"] is not None
     x_limits = (args["x_min"], args["x_max"]) if range_specified else None
 
@@ -128,20 +133,34 @@ if __name__ == "__main__":
                 else:
                     base_config.lambda_limit = None
 
-                # ▼▼▼ 変更点: error-analysisモードと通常モードで処理を分岐 ▼▼▼
                 if error_analysis_mode:
                     print(f"--- Running Error Analysis for {name} ---")
                     results_for_analysis = []
-                    error_val = 0.01
                     
                     k_original = np.array(base_config.K)
-                    k_plus = np.clip(k_original + error_val, 0, 1)
-                    k_minus = np.clip(k_original - error_val, 0, 1)
                     
+                    # ▼▼▼ 変更点: error-rate引数の有無で処理を分岐 ▼▼▼
+                    if error_rate_val is not None:
+                        # --- 掛け算モデル ---
+                        print(f"Using Multiplicative Error Model with rate: {error_rate_val}")
+                        k_plus = np.clip(k_original * (1 + error_rate_val), 0, 1)
+                        k_minus = np.clip(k_original * (1 - error_rate_val), 0, 1)
+                        label_plus = f"K*(1+{error_rate_val})"
+                        label_minus = f"K*(1-{error_rate_val})"
+                    else:
+                        # --- 従来の足し算モデル ---
+                        error_val = 0.005 # 従来の値
+                        print(f"Using Additive Error Model with value: {error_val}")
+                        k_plus = np.clip(k_original + error_val, 0, 1)
+                        k_minus = np.clip(k_original - error_val, 0, 1)
+                        label_plus = f"K+{error_val}"
+                        label_minus = f"K-{error_val}"
+                    # ▲▲▲ 変更点 ▲▲▲
+                        
                     k_configs = [
                         {"k": k_original, "label": "Original", "name": f"{name}_original"},
-                        {"k": k_plus, "label": f"K+0.005", "name": f"{name}_plus_err"},
-                        {"k": k_minus, "label": f"K-0.005", "name": f"{name}_minus_err"},
+                        {"k": k_plus, "label": label_plus, "name": f"{name}_plus_err"},
+                        {"k": k_minus, "label": label_minus, "name": f"{name}_minus_err"},
                     ]
                     
                     for k_config in k_configs:
