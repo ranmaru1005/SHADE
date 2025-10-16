@@ -213,7 +213,7 @@ def optimize_K(
 
 
 
-
+"""
     #もともとのプログラムはこれ。
 def optimize_K(
     eta: float,
@@ -241,7 +241,7 @@ def optimize_K(
     K: npt.NDArray[np.float_] = result.x
 
     return K, E
-
+"""
 
 
 
@@ -280,7 +280,7 @@ def optimize_K_with_perturbation(
 
 
 
-"""
+
 def optimize_K(             #通常のSHADE用
     eta: float,
     number_of_rings: int,
@@ -293,7 +293,7 @@ def optimize_K(             #通常のSHADE用
                    bounds, 
                    params, 
                    pop_size=15, 
-                   max_iter = 4000,
+                   max_iter = 500,
                    H = 50,
                    tol = 0.01, 
                    callback = None, 
@@ -304,7 +304,7 @@ def optimize_K(             #通常のSHADE用
     K: npt.NDArray[np.float_] = result[0]
 
     return K, E
-"""
+
 
 
 
