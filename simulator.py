@@ -149,7 +149,7 @@ if __name__ == "__main__":
                         label_minus = f"K*(1-{error_rate_val})"
                     else:
                         # --- 従来の足し算モデル ---
-                        error_val = 0.005 # 従来の値
+                        error_val = 0.01 # 従来の値
                         print(f"Using Additive Error Model with value: {error_val}")
                         k_plus = np.clip(k_original + error_val, 0, 1)
                         k_minus = np.clip(k_original - error_val, 0, 1)
