@@ -147,7 +147,8 @@ params = OptimizeKParams(
 )
 
 # 誤差を加えた評価値の計算
-evaluate_with_error(K=K_theoretical, params=params, error_value = 0.005)
+evaluate_with_error(K=K_theoretical, params=params, error_value = -0.005)
+
 
 
 
