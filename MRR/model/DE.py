@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 import numpy as np
 import numpy.typing as npt
@@ -443,7 +444,7 @@ def optimize(
     logger: Logger,
     skip_plot: bool = False,
     seedsequence: np.random.SeedSequence = np.random.SeedSequence(),
-    fixed_N: npt.NDArray[np.int_] | None = None,
+    fixed_N: Optional[npt.NDArray[np.int_]] = None,
 ) -> None:
     rng = get_differential_evolution_rng(seedsequence=seedsequence)
     N_list: list[npt.NDArray[np.int_]] = [np.array([]) for _ in range(number_of_generations)]
