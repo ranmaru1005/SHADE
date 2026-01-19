@@ -443,6 +443,7 @@ def optimize(
     logger: Logger,
     skip_plot: bool = False,
     seedsequence: np.random.SeedSequence = np.random.SeedSequence(),
+    fixed_N: npt.NDArray[np.int_] | None = None,
 ) -> None:
     rng = get_differential_evolution_rng(seedsequence=seedsequence)
     N_list: list[npt.NDArray[np.int_]] = [np.array([]) for _ in range(number_of_generations)]
@@ -499,24 +500,21 @@ def optimize(
                 number_of_rings=number_of_rings,
                 rng=rng,
             )
+
+
+        # もし main.py から固定の配置 (fixed_N) が渡されていれば、強制的にそれを使う
+        if fixed_N is not None:
+            N = fixed_N
+            # Nが決まったので、それに基づいてLを計算
+            L = calculate_ring_length(center_wavelength=center_wavelength, n_eff=n_eff, N=N)
+            practical_FSR = calculate_practical_FSR(center_wavelength=center_wavelength, n_eff=n_eff, n_g=n_g, N=N)
         
+
+
         """
-        L_list = [
-        5.5e-05,
-        5.5e-05,
-        5.5e-05,
-        8.24e-05,
-        8.24e-05,
-        8.24e-05
-        ]
-        #中途半端なやつ、性能が上がるかどうか検証
-        L = np.empty(len(L_list))
-        for i in range(len(L)):
-            L[i] = L_list[i]
-        """
-           
         N = [88, 110, 88, 110, 110, 88]
         L = calculate_ring_length(center_wavelength=center_wavelength, n_eff=n_eff, N=N)
+        """
         
         print("L確認",L)
         print("N確認",N)
