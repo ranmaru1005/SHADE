@@ -1,4 +1,5 @@
 import argparse
+import numpy as np
 
 from config.base import config
 from MRR.logger import Logger
