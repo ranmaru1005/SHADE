@@ -1,8 +1,9 @@
 import subprocess
 import time
+import os
 
 # ==========================================
-# 設定エリア: 指定された No.8 ～ No.20 のパターン
+# 設定エリア: 指定された No.8 ～ No.20 の全13パターン
 # ==========================================
 patterns = [
     "ABBAAB",  # 8
@@ -20,7 +21,7 @@ patterns = [
     "BAAABB"   # 20
 ]
 
-# 各パターンごとの試行回数 (今回は5回)
+# 各パターンごとの試行回数 (本番は5回)
 RUNS_PER_PATTERN = 5
 
 # ==========================================
@@ -45,7 +46,7 @@ def main():
     current_task = 0
 
     print(f"==================================================")
-    print(f" Start Auto Optimization with Git Push")
+    print(f" Start FINAL Auto Optimization (With Images)")
     print(f" Patterns: {len(patterns)}")
     print(f" Runs/Pattern: {RUNS_PER_PATTERN}")
     print(f" Total Runs: {total_tasks}")
@@ -60,20 +61,18 @@ def main():
             print(f"\n--- Progress: {current_task}/{total_tasks} (Pattern: {pattern}, Run: {run_id}/{RUNS_PER_PATTERN}) ---")
 
             # 1. main.py を実行
-            # --skip-plot をつけて高速化します
-            success = run_command(["python", "main.py", "--pattern", pattern, "--skip-plot"])
+            # 画像を生成するため --skip-plot は付けません
+            success = run_command(["python", "main.py", "--pattern", pattern])
             
             if not success:
                 print("Optimization failed. Continuing to next run...")
                 continue
 
             # 2. Git Commit & Push
-            
             # resultフォルダを強制的に追加 (-f)
             run_command(["git", "add", "-f", "result"])
             
-            # コミットメッセージを作成 (ユーザー指定の形式)
-            # 例: 「ABBAABの配置」 (Run 1)
+            # コミットメッセージ: 「ABBAABの配置」 (Run 1)
             commit_message = f"「{pattern}の配置」 (Run {run_id})"
             
             # コミット実行
@@ -85,12 +84,21 @@ def main():
             if not push_success:
                 print("[Warning] Git push failed. (Data is saved locally)")
 
-            # 少し待機
+            # GitHubへの負荷軽減のため少し待機
             time.sleep(2)
 
     print("\n==================================================")
     print(" All tasks completed successfully!")
     print("==================================================")
+    
+    # ==========================================
+    # EC2の自動停止処理
+    # ==========================================
+    print("\n[System] Shutting down EC2 instance in 1 minute...")
+    time.sleep(60) 
+    
+    # シャットダウン実行
+    subprocess.run(["sudo", "shutdown", "-h", "now"])
 
 if __name__ == "__main__":
     main()
