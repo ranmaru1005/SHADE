@@ -462,6 +462,60 @@ def optimize(
         kind: npt.NDArray[np.int_]
         counts: npt.NDArray[np.int_]
 
+        # もし固定配置(fixed_N)が指定されていたら、Methodの抽選は一切せずにそれを使う
+        if fixed_N is not None:
+            N = fixed_N
+            # Nが決まったので、それに基づいてLとFSRを計算
+            L = calculate_ring_length(center_wavelength=center_wavelength, n_eff=n_eff, N=N)
+            practical_FSR = calculate_practical_FSR(center_wavelength=center_wavelength, n_eff=n_eff, n_g=n_g, N=N)
+
+            # Methodは使っていないのでダミーの値(例えば0)を入れておくか、
+            # ログに残したいなら適当な値を入れる
+            method = 4
+
+        # 固定配置がない場合（通常モード）は、従来どおりMethod 1〜4で決める
+        else:
+            # 世代数によるMethodの選択
+            if m < 10:
+                method: int = 4
+            else:
+                method = rng.choice([1, 2, 3, 4], p=strategy)
+
+            # Methodごとの分岐処理
+            if method == 1:
+                max_index = np.argmax(E_list)
+                max_N = N_list[max_index]
+
+                kind, counts = rng.permutation(np.unique(max_N, return_counts=True), axis=1)  # type: ignore
+                N = np.repeat(kind, counts)
+                L = calculate_ring_length(center_wavelength=center_wavelength, n_eff=n_eff, N=N)
+                practical_FSR = calculate_practical_FSR(center_wavelength=center_wavelength, n_eff=n_eff, n_g=n_g, N=N)
+            elif method == 2:
+                max_index = np.argmax(E_list)
+                max_N = N_list[max_index]
+                N = rng.permutation(max_N)
+                L = calculate_ring_length(center_wavelength=center_wavelength, n_eff=n_eff, N=N)
+                practical_FSR = calculate_practical_FSR(center_wavelength=center_wavelength, n_eff=n_eff, n_g=n_g, N=N)
+            elif method == 3:
+                max_index = np.argmax(E_list)
+                max_N = N_list[max_index]
+                kind = np.unique(max_N)  # type: ignore
+                N = rng.choice(kind, number_of_rings)
+                while not set(kind) == set(N):
+                    N = rng.choice(kind, number_of_rings)
+                L = calculate_ring_length(center_wavelength=center_wavelength, n_eff=n_eff, N=N)
+                practical_FSR = calculate_practical_FSR(center_wavelength=center_wavelength, n_eff=n_eff, n_g=n_g, N=N)
+            else:
+                N, L, practical_FSR = optimize_L(
+                    n_g=n_g,
+                    n_eff=n_eff,
+                    FSR=FSR,
+                    center_wavelength=center_wavelength,
+                    min_ring_length=min_ring_length,
+                    number_of_rings=number_of_rings,
+                    rng=rng,
+                )
+        """
         if m < 10:
             method: int = 4
         else:
@@ -500,16 +554,7 @@ def optimize(
                 number_of_rings=number_of_rings,
                 rng=rng,
             )
-
-
-        # もし main.py から固定の配置 (fixed_N) が渡されていれば、強制的にそれを使う
-        if fixed_N is not None:
-            N = fixed_N
-            # Nが決まったので、それに基づいてLを計算
-            L = calculate_ring_length(center_wavelength=center_wavelength, n_eff=n_eff, N=N)
-            practical_FSR = calculate_practical_FSR(center_wavelength=center_wavelength, n_eff=n_eff, n_g=n_g, N=N)
-        
-
+        """
 
         """
         N = [88, 110, 88, 110, 110, 88]
