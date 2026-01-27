@@ -3,22 +3,15 @@ import time
 import os
 
 # ==========================================
-# 設定エリア: 指定された No.8 ～ No.20 の全13パターン
+# 設定エリア:
 # ==========================================
 patterns = [
-    "ABBAAB",  # 8
-    "ABBABA",  # 9
-    "ABBBAA",  # 10
-    "BBBAAA",  # 11
-    "BBABAA",  # 12
-    "BBAABA",  # 13
-    "BBAAAB",  # 14
-    "BABBAA",  # 15
-    "BABABA",  # 16
-    "BABAAB",  # 17
-    "BAABBA",  # 18
-    "BAABAB",  # 19
-    "BAAABB"   # 20
+    "ABBBBB",  
+    "BABBBB",  
+    "BBABBB",  
+    "BBBABB",  
+    "BBBBAB", 
+    "BBBBBA", 
 ]
 
 # 各パターンごとの試行回数 (本番は5回)
@@ -101,4 +94,5 @@ def main():
     subprocess.run(["sudo", "shutdown", "-h", "now"])
 
 if __name__ == "__main__":
+
     main()
