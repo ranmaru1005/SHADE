@@ -6,12 +6,21 @@ import os
 # 設定エリア:
 # ==========================================
 patterns = [
-    "ABBBBB",  
-    "BABBBB",  
-    "BBABBB",  
-    "BBBABB",  
-    "BBBBAB", 
-    "BBBBBA", 
+    "AAAABB",
+    "AAABAB",
+    "AAABBA",
+    "AABAAB",
+    "AABABA",
+    "AABBAA",
+    "ABAAAB",
+    "ABAABA",
+    "ABABAA",
+    "ABBAAA",
+    "BAAAAB",
+    "BAAABA",
+    "BAABAA",
+    "BABAAA",
+    "BBAAAA"
 ]
 
 # 各パターンごとの試行回数 (本番は5回)
@@ -96,3 +105,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+
