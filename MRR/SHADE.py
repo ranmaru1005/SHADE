@@ -156,7 +156,7 @@ def mut_cross(MF_para_H, MCR_para_H, bounds, j, pop_size, obj_list_G, population
 def wrapper_mut_cross(args):
     return mut_cross(*args)
 
-
+"""
 def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes):
     obj_trial = func(trial, params)     #交叉によって生成された解候補(pop_size分だけある)の評価値を計算する
     if obj_trial < obj_list[j]:     #交叉によって生成された解候補が現在のものより優れていた場合、更新する。
@@ -186,3 +186,37 @@ def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR,
 
 
     return obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive, Archivetimes
+"""
+
+
+def selection(func, params, j, obj_list, populations, trial, Fi, CRi, S_F, S_CR, delta_fk, Archive, Archivetimes):
+    # 交叉によって生成された解候補の Evaluated Value を計算する
+    # ※ params 内には制約条件である max_crosstalk 等が含まれる想定
+    obj_trial = func(trial, params)     
+    
+    # 交叉によって生成された解候補が現在のものより優れていた場合、更新する。
+    if obj_trial < obj_list[j]:     
+        
+        # populations[j] が新しい解に上書き（破棄）される前に、過去の優秀な解としてアーカイブに保存する。
+        if Archivetimes == (len(Archive)-1):        
+            Archive[random.randint(0, Archivetimes)] = populations[j]
+        else:
+            Archive[Archivetimes] = populations[j]
+            Archivetimes = Archivetimes + 1
+
+        # 成功したパラメータ F と CR の差分を記録
+        delta_fk_cal = abs(obj_list[j] - obj_trial)
+        delta_fk = np.append(delta_fk, delta_fk_cal)
+        
+        S_F = np.append(S_F, Fi)
+        S_CR = np.append(S_CR, CRi)
+
+        # 解と Evaluated Value の更新
+        populations[j] = trial
+        obj_list[j] = obj_trial
+        
+    # 【削除】優れていない解（失敗した trial）をアーカイブに保存する else ブロックは削除しました。
+
+    return obj_list[j], populations[j], S_F, S_CR, delta_fk, Archive, Archivetimes
+
+
